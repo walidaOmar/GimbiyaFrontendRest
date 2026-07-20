@@ -1,12 +1,12 @@
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
-const BASE = import.meta.env.VITE_API_URL || '/api'
+const BASE = import.meta.env.VITE_API_URL || ''
 
 const api = axios.create({
-  baseURL:         BASE,
+  baseURL: `${BASE}/api`,
   withCredentials: true,          // sends httpOnly cookie on every request
-  timeout:         15000,
+  timeout: 15000,
 })
 
 // ── REQUEST INTERCEPTOR ───────────────────────────────────────────────────────

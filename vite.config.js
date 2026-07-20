@@ -8,6 +8,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+        secure: false,
       },
     },
   },
@@ -15,10 +16,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor:    ['react', 'react-dom', 'react-router-dom'],
-          query:     ['@tanstack/react-query'],
-          motion:    ['framer-motion'],
-          icons:     ['lucide-react'],
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          query: ['@tanstack/react-query'],
+          motion: ['framer-motion'],
+          icons: ['lucide-react'],
         },
       },
     },

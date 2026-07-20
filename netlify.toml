@@ -1,21 +1,11 @@
-# netlify.toml — Gimbiya Mall Frontend Deployment Config
-
 [build]
-  command   = "npm run build"
-  publish   = "dist"
+  command = "npm run build"
+  publish = "dist"
 
-# Redirect all routes to index.html for React Router SPA
 [[redirects]]
   from   = "/*"
   to     = "/index.html"
   status = 200
-
-# Proxy /api calls to Railway backend in production
-[[redirects]]
-  from   = "/api/*"
-  to     = "https://gimbiyabackend-production.up.railway.app/api/:splat"
-  status = 200
-  force  = true
 
 [build.environment]
   NODE_VERSION = "18"
