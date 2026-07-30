@@ -13,6 +13,8 @@ import {
 } from '../../components/ui/index.jsx'
 import { LiveTicker }       from '../../components/layout/LiveTicker.jsx'
 import StoresView           from '../../components/stores/StoresView.jsx'
+import UserLookup           from '../../components/users/UserLookup.jsx'
+import CEOQuotaPanel        from '../../components/waivers/CEOQuotaPanel.jsx'
 import toast                from 'react-hot-toast'
 
 // ── MINI LINE CHART ───────────────────────────────────────────────────────────
@@ -67,6 +69,8 @@ const CEO_TABS = [
   { id: 'metrics', label: 'Metrics' },
   { id: 'kyc', label: 'KYC Queue' },
   { id: 'stores', label: 'Stores' },
+  { id: 'users', label: 'User Lookup', component: UserLookup },
+  { id: 'waivers', label: 'Waiver Quotas', component: CEOQuotaPanel },
   { id: 'escrow', label: 'Escrow' },
 ]
 
@@ -119,7 +123,13 @@ export default function CEODashboard() {
       ? 'escrow'
       : location.pathname === '/dashboard/ceo/stores'
         ? 'stores'
-        : 'metrics'
+        : location.pathname === '/dashboard/ceo/users'
+          ? 'users'
+          : location.pathname === '/dashboard/ceo/waivers'
+            ? 'waivers'
+            : 'metrics'
+
+  const ActiveTabComponent = CEO_TABS.find((tab) => tab.id === activeTab)?.component
 
   return (
     <div className="space-y-6">
@@ -152,7 +162,11 @@ export default function CEODashboard() {
         ))}
       </div>
 
-      {activeTab === 'metrics' && (
+      {activeTab === 'users' && ActiveTabComponent ? (
+        <ActiveTabComponent />
+      ) : activeTab === 'waivers' && ActiveTabComponent ? (
+        <ActiveTabComponent />
+      ) : activeTab === 'metrics' && (
         <>
           {/* KPI Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

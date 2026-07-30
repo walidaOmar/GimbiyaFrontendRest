@@ -8,6 +8,7 @@ import {
   Card, StatCard, Badge, StatusBadge,
   EmptyState, Skeleton, GlowDot,
 } from '../../components/ui/index.jsx'
+import CoordinatorWaiverPanel from '../../components/waivers/CoordinatorWaiverPanel.jsx'
 
 export function CoordinatorDashboard() {
   const user  = useAuthStore(s => s.user)
@@ -58,6 +59,12 @@ export function CoordinatorDashboard() {
         <StatCard label="Active Riders"   value={riders.length}      icon={MapPin}    color="text-role-rider" />
         <StatCard label="KYC Pending"     value={pendingKyc.length}  icon={TrendingUp} color="text-warning" />
       </div>
+
+      <Card>
+        <div className="mb-4">
+          <CoordinatorWaiverPanel />
+        </div>
+      </Card>
 
       <Card>
         <div className="flex items-center justify-between mb-4">

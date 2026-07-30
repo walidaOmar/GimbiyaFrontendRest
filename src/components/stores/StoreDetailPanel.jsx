@@ -89,6 +89,15 @@ export default function StoreDetailPanel({ storeId, onBack }) {
                 }`}>
                   {store.verificationStatus}
                 </span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${
+                  store.commerceSegment === 'manufacturer' ? 'bg-blue-500/10 text-blue-400' :
+                  store.commerceSegment === 'wholesaler' ? 'bg-purple-500/10 text-purple-400' :
+                  store.commerceSegment === 'retailer' ? 'bg-emerald-500/10 text-emerald-400' :
+                  store.commerceSegment === 'service_provider' ? 'bg-amber-500/10 text-amber-400' :
+                  'bg-cyan-500/10 text-cyan-400'
+                }`}>
+                  {store.commerceSegment?.replace('_', ' ')}
+                </span>
                 <span className="text-xs text-text-m flex items-center gap-1">
                   <MapPin className="w-3 h-3" /> {store.primaryState}
                 </span>

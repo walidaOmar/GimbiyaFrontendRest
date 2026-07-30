@@ -68,6 +68,30 @@ export const orderApi = {
   history:     (params) => api.get('/orders/history', { params }),
   getOne:      (id)     => api.get(`/orders/${id}`),
   cancel:      (id, reason) => api.post(`/orders/${id}/cancel`, { reason }),
+  bulkFulfillmentPay: (data) => api.post('/orders/bulk-fulfillment', data),
+  getByCoupon: (code)   => api.get(`/orders/by-coupon/${code}`),
+}
+
+// ── GROUP ORDERS ──────────────────────────────────────────────────────────────
+export const groupOrderApi = {
+  create:      (data)   => api.post('/group-orders', data),
+  join:        (code, data) => api.post(`/group-orders/${code}/join`, data),
+  getByCode:   (code)   => api.get(`/group-orders/code/${code}`),
+  listOpen:    (params) => api.get('/group-orders/open', { params }),
+  myOrders:    ()       => api.get('/group-orders/my'),
+}
+
+// ── WAIVERS ───────────────────────────────────────────────────────────────────
+export const waiverApi = {
+  allocateQuota: (data) => api.post('/waivers/quotas', data),
+  getQuotas:     (params) => api.get('/waivers/quotas', { params }),
+  getMyQuota:    () => api.get('/waivers/my-quota'),
+  getPendingRequests: () => api.get('/waivers/requests/pending'),
+  approveRequest: (id) => api.post(`/waivers/requests/${id}/approve`),
+  rejectRequest:  (id, data) => api.post(`/waivers/requests/${id}/reject`, data),
+  submitRequest: (data) => api.post('/waivers/requests', data),
+  myCoupons:     () => api.get('/waivers/my-coupons'),
+  validateCoupon:(code) => api.get(`/waivers/coupons/validate/${code}`),
 }
 
 // ── STOCK ─────────────────────────────────────────────────────────────────────
@@ -124,6 +148,7 @@ export const userApi = {
   me:          ()     => api.get('/users/me'),
   updateMe:    (data) => api.patch('/users/me', data),
   list:        (params) => api.get('/users', { params }),
+  getById:     (id)     => api.get(`/users/${id}`),
   updateRole:  (id, data) => api.patch(`/users/${id}/role`, data),
 }
 

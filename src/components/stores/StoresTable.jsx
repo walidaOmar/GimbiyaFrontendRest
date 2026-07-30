@@ -29,6 +29,7 @@ export default function StoresTable({ stores, onSelect, loading }) {
             <th className="text-left px-4 py-3">Business</th>
             <th className="text-left px-4 py-3">Contact</th>
             <th className="text-left px-4 py-3">State</th>
+            <th className="text-left px-4 py-3">Segment</th>
             <th className="text-left px-4 py-3">Status</th>
             <th className="text-right px-4 py-3">Action</th>
           </tr>
@@ -68,6 +69,17 @@ export default function StoresTable({ stores, onSelect, loading }) {
                   <MapPin className="w-3 h-3 text-text-d" />
                   <span className="text-xs">{store.primaryState}</span>
                 </div>
+              </td>
+              <td className="px-4 py-3">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${
+                  store.commerceSegment === 'manufacturer' ? 'bg-blue-500/10 text-blue-400' :
+                  store.commerceSegment === 'wholesaler' ? 'bg-purple-500/10 text-purple-400' :
+                  store.commerceSegment === 'retailer' ? 'bg-emerald-500/10 text-emerald-400' :
+                  store.commerceSegment === 'service_provider' ? 'bg-amber-500/10 text-amber-400' :
+                  'bg-cyan-500/10 text-cyan-400'
+                }`}>
+                  {store.commerceSegment?.replace('_', ' ')}
+                </span>
               </td>
               <td className="px-4 py-3">
                 <div className="flex items-center gap-1.5">

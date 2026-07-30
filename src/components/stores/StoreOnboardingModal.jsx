@@ -28,6 +28,7 @@ export default function StoreOnboardingModal({ isOpen, onClose }) {
     businessAddress: '',
     homeAddress: '',
     primaryState: 'Kano',
+    commerceSegment: 'retailer',
     accountDetails: { bankName: '', accountNumber: '', accountName: '' },
   })
 
@@ -64,6 +65,7 @@ export default function StoreOnboardingModal({ isOpen, onClose }) {
       businessAddress: '',
       homeAddress: '',
       primaryState: 'Kano',
+      commerceSegment: 'retailer',
       accountDetails: { bankName: '', accountNumber: '', accountName: '' },
     })
     onClose()
@@ -172,6 +174,21 @@ export default function StoreOnboardingModal({ isOpen, onClose }) {
                         className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
                       >
                         {STATE_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider">Commerce Segment</label>
+                      <select
+                        required
+                        value={form.commerceSegment}
+                        onChange={setField('commerceSegment')}
+                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
+                      >
+                        <option value="manufacturer">🏭 Manufacturer</option>
+                        <option value="wholesaler">📦 Wholesaler</option>
+                        <option value="retailer">🛒 Retailer</option>
+                        <option value="service_provider">🔧 Service Provider</option>
+                        <option value="logistics">🚚 Logistics</option>
                       </select>
                     </div>
                     <div className="col-span-2">

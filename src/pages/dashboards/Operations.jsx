@@ -10,6 +10,7 @@ import {
   TrendingUp, Users, RefreshCw, ArrowRight,
 } from 'lucide-react'
 import { stockApi, deliveryApi, affiliateApi } from '../../api/index.js'
+import AffiliateWaiverPanel from '../../components/waivers/AffiliateWaiverPanel.jsx'
 import {
   Card, StatCard, Button, Badge, StatusBadge,
   Modal, Input, EmptyState, Skeleton, Spinner, GlowDot,
@@ -458,6 +459,10 @@ export function AffiliateDashboard() {
           icon={<Plus className="w-4 h-4" />}>
           New Campaign
         </Button>
+      </div>
+
+      <div className="mb-4">
+        <AffiliateWaiverPanel />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

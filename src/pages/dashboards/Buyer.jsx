@@ -11,6 +11,7 @@ import {
   Card, Button, Badge, StatusBadge,
   Modal, Spinner, EmptyState, Skeleton, StatCard,
 } from '../../components/ui/index.jsx'
+import { CartCouponInput } from '../../components/waivers/CartCouponInput.jsx'
 import toast from 'react-hot-toast'
 
 const MILESTONES = ['PENDING','CONFIRMED','PROCESSING','DISPATCHED','DELIVERED']
@@ -250,18 +251,21 @@ export default function BuyerDashboard() {
 
               <div className="divider-brass" />
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-mono text-xs text-text-m">Total</p>
-                  <p className="font-mono text-2xl font-bold text-brass">₦{totalNaira.toLocaleString()}</p>
-                  <p className="font-mono text-[10px] text-text-m">
-                    Platform fee (1.5%): ₦{(totalNaira * 0.015).toFixed(2)}
-                  </p>
+              <div className="space-y-3">
+                <CartCouponInput />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-mono text-xs text-text-m">Total</p>
+                    <p className="font-mono text-2xl font-bold text-brass">₦{totalNaira.toLocaleString()}</p>
+                    <p className="font-mono text-[10px] text-text-m">
+                      Platform fee (1.5%): ₦{(totalNaira * 0.015).toFixed(2)}
+                    </p>
+                  </div>
+                  <Button variant="primary" onClick={() => setCheckout(true)}
+                    iconRight={<ArrowRight className="w-4 h-4" />}>
+                    Checkout
+                  </Button>
                 </div>
-                <Button variant="primary" onClick={() => setCheckout(true)}
-                  iconRight={<ArrowRight className="w-4 h-4" />}>
-                  Checkout
-                </Button>
               </div>
             </div>
           )}
