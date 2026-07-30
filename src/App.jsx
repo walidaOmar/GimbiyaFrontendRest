@@ -82,6 +82,7 @@ export default function App() {
                 <Route path="ceo/kyc"      element={<CEODashboard />} />
                 <Route path="ceo/escrow"   element={<CEODashboard />} />
                 <Route path="ceo/metrics"  element={<CEODashboard />} />
+                <Route path="ceo/stores"   element={<CEODashboard />} />
                 <Route path="coordinator"  element={<CoordinatorDashboard />} />
                 <Route path="coordinator/stores" element={<CoordinatorDashboard />} />
                 <Route path="coordinator/staff"  element={<CoordinatorDashboard />} />

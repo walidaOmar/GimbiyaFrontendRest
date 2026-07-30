@@ -13,6 +13,7 @@ const NAV_CONFIG = {
   super_admin: [
     { label: 'Command Centre',   path: '/dashboard/ceo',            icon: LayoutDashboard },
     { label: 'KYC Adjudication', path: '/dashboard/ceo/kyc',        icon: FileCheck },
+    { label: 'Stores',           path: '/dashboard/ceo/stores',     icon: Warehouse },
     { label: 'Escrow Summary',   path: '/dashboard/ceo/escrow',     icon: TrendingUp },
     { label: 'System Metrics',   path: '/dashboard/ceo/metrics',    icon: BarChart3 },
     { label: 'Users',            path: '/dashboard/ceo/users',      icon: Users },

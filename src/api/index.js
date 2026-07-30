@@ -97,6 +97,20 @@ export const ceoApi = {
   escrow:      (params) => api.get('/ceo/escrow', { params }),
 }
 
+// ── STORES ────────────────────────────────────────────────────────────────────
+export const storeApi = {
+  list:          (params) => api.get('/stores', { params }),
+  pending:       (params) => api.get('/stores/pending', { params }),
+  getOne:        (id)     => api.get(`/stores/${id}`),
+  onboard:       (data)   => api.post('/stores', data),
+  verify:        (id, data) => api.post(`/stores/${id}/verify`, data),
+  reject:        (id, data) => api.post(`/stores/${id}/reject`, data),
+  update:        (id, data) => api.patch(`/stores/${id}`, data),
+  createBranch:  (id, data) => api.post(`/stores/${id}/branches`, data),
+  updateBranch:  (branchId, data) => api.patch(`/stores/branches/${branchId}`, data),
+  availableStaff:(params) => api.get('/stores/staff/available', { params }),
+}
+
 // ── AFFILIATE ─────────────────────────────────────────────────────────────────
 export const affiliateApi = {
   campaigns:   ()     => api.get('/affiliate/campaigns'),

@@ -1,6 +1,7 @@
 import { useState }        from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion }           from 'framer-motion'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   TrendingUp, Users, Package, ShoppingCart,
   CheckCircle, XCircle, AlertTriangle, RefreshCw,
@@ -11,6 +12,7 @@ import {
   Button, Modal, Spinner, EmptyState, GlowDot, Skeleton,
 } from '../../components/ui/index.jsx'
 import { LiveTicker }       from '../../components/layout/LiveTicker.jsx'
+import StoresView           from '../../components/stores/StoresView.jsx'
 import toast                from 'react-hot-toast'
 
 // ── MINI LINE CHART ───────────────────────────────────────────────────────────
@@ -61,8 +63,17 @@ function ProgressBar({ label, value, max, color }) {
   )
 }
 
+const CEO_TABS = [
+  { id: 'metrics', label: 'Metrics' },
+  { id: 'kyc', label: 'KYC Queue' },
+  { id: 'stores', label: 'Stores' },
+  { id: 'escrow', label: 'Escrow' },
+]
+
 export default function CEODashboard() {
   const qc               = useQueryClient()
+  const navigate         = useNavigate()
+  const location         = useLocation()
   const [kycModal, setKycModal] = useState(null)
   const [rejectReason, setRejectReason] = useState('')
 
@@ -102,6 +113,13 @@ export default function CEODashboard() {
   const stateData     = telemetry?.stateBreakdown     || {}
 
   const gmvChartData = Object.values(stateData).map(s => s.grossTotalKobo / 100)
+  const activeTab = location.pathname === '/dashboard/ceo/kyc'
+    ? 'kyc'
+    : location.pathname === '/dashboard/ceo/escrow'
+      ? 'escrow'
+      : location.pathname === '/dashboard/ceo/stores'
+        ? 'stores'
+        : 'metrics'
 
   return (
     <div className="space-y-6">
@@ -118,173 +136,209 @@ export default function CEODashboard() {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {metLoad ? (
-          Array(4).fill(0).map((_, i) => <Skeleton key={i} className="h-28 rounded-card" />)
-        ) : (
-          <>
-            <StatCard
-              label="Total GMV"
-              value={`₦${(totalGmv / 1000).toFixed(1)}K`}
-              change="+18.4% MoM"
-              icon={TrendingUp}
-            />
-            <StatCard
-              label="Active Users"
-              value={metrics?.platform?.totalUsers?.toLocaleString() || '—'}
-              change="All roles"
-              icon={Users}
-              color="text-role-coord"
-            />
-            <StatCard
-              label="Active Orders"
-              value={metrics?.platform?.activeOrders?.toLocaleString() || '—'}
-              change="In pipeline"
-              icon={ShoppingCart}
-              color="text-role-buyer"
-            />
-            <StatCard
-              label="Escrow Locked"
-              value={`₦${(escrowLocked / 1000).toFixed(1)}K`}
-              change={`${kycPending} KYC pending`}
-              icon={AlertTriangle}
-              color="text-warning"
-            />
-          </>
-        )}
+      <div className="flex flex-wrap items-center gap-2 mt-2">
+        {CEO_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => navigate(`/dashboard/ceo/${tab.id === 'metrics' ? '' : tab.id}`)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === tab.id
+                ? 'bg-brass/10 text-brass border border-brass/30'
+                : 'text-text-m hover:text-text-p hover:bg-surface-h border border-transparent'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Charts Row */}
-      <div className="grid lg:grid-cols-3 gap-4">
+      {activeTab === 'metrics' && (
+        <>
+          {/* KPI Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {metLoad ? (
+              Array(4).fill(0).map((_, i) => <Skeleton key={i} className="h-28 rounded-card" />)
+            ) : (
+              <>
+                <StatCard
+                  label="Total GMV"
+                  value={`₦${(totalGmv / 1000).toFixed(1)}K`}
+                  change="+18.4% MoM"
+                  icon={TrendingUp}
+                />
+                <StatCard
+                  label="Active Users"
+                  value={metrics?.platform?.totalUsers?.toLocaleString() || '—'}
+                  change="All roles"
+                  icon={Users}
+                  color="text-role-coord"
+                />
+                <StatCard
+                  label="Active Orders"
+                  value={metrics?.platform?.activeOrders?.toLocaleString() || '—'}
+                  change="In pipeline"
+                  icon={ShoppingCart}
+                  color="text-role-buyer"
+                />
+                <StatCard
+                  label="Escrow Locked"
+                  value={`₦${(escrowLocked / 1000).toFixed(1)}K`}
+                  change={`${kycPending} KYC pending`}
+                  icon={AlertTriangle}
+                  color="text-warning"
+                />
+              </>
+            )}
+          </div>
 
-        {/* GMV Chart */}
-        <Card className="lg:col-span-2">
+          {/* Charts Row */}
+          <div className="grid lg:grid-cols-3 gap-4">
+            <Card className="lg:col-span-2">
+              <div className="flex items-center justify-between mb-4">
+                <p className="section-label">Nationwide Transaction Velocity</p>
+                <button onClick={() => qc.invalidateQueries(['ceo-telemetry'])}
+                  className="btn-icon" title="Refresh">
+                  <RefreshCw className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <div className="bg-midnight rounded-btn p-3 relative overflow-hidden">
+                {telLoad ? (
+                  <div className="h-20 flex items-center justify-center">
+                    <Spinner size={5} />
+                  </div>
+                ) : (
+                  <LineChart data={gmvChartData.length ? gmvChartData : [2, 4, 3, 6, 5, 8, 7, 9]} />
+                )}
+                <div className="flex justify-between mt-2">
+                  <span className="font-mono text-[10px] text-text-d">STATE START</span>
+                  <span className="font-mono text-[10px] text-text-d">LIVE</span>
+                </div>
+              </div>
+            </Card>
+
+            <Card>
+              <p className="section-label mb-4">Node Throughput</p>
+              <div className="space-y-4">
+                {[
+                  { node: 'Abuja Hub',    color: '#C8A84B', key: 'Abuja'  },
+                  { node: 'Kano Center',  color: '#8B5CF6', key: 'Kano'   },
+                  { node: 'Kaduna Depot', color: '#F59E0B', key: 'Kaduna' },
+                ].map(({ node, color, key }) => {
+                  const s = stateData[key] || {}
+                  const totalAcross = Object.values(stateData).reduce((sum, st) => sum + (st.totalOrders || 0), 0) || 1
+                  return (
+                    <ProgressBar
+                      key={key}
+                      label={node}
+                      value={s.totalOrders || 0}
+                      max={totalAcross}
+                      color={color}
+                    />
+                  )
+                })}
+              </div>
+
+              <div className="mt-6 space-y-3">
+                {Object.entries(metrics?.nodes || { Abuja: 'ONLINE', Kano: 'OPTIMIZED', Kaduna: 'SECURE' }).map(([k, v]) => (
+                  <div key={k} className="flex items-center justify-between">
+                    <span className="font-mono text-xs text-text-m">{k}</span>
+                    <Badge color="green"><GlowDot color="#00D98B" size={5} />{v}</Badge>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'kyc' && (
+        <Card>
           <div className="flex items-center justify-between mb-4">
-            <p className="section-label">Nationwide Transaction Velocity</p>
-            <button onClick={() => qc.invalidateQueries(['ceo-telemetry'])}
-              className="btn-icon" title="Refresh">
+            <div>
+              <p className="section-label">KYC Adjudication Queue</p>
+              <p className="font-mono text-xs text-warning mt-1">
+                {kycData?.pagination?.total || 0} pending review
+              </p>
+            </div>
+            <button onClick={() => qc.invalidateQueries(['ceo-kyc'])} className="btn-icon">
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
           </div>
-          <div className="bg-midnight rounded-btn p-3 relative overflow-hidden">
-            {telLoad ? (
-              <div className="h-20 flex items-center justify-center">
-                <Spinner size={5} />
-              </div>
-            ) : (
-              <LineChart data={gmvChartData.length ? gmvChartData : [2, 4, 3, 6, 5, 8, 7, 9]} />
-            )}
-            <div className="flex justify-between mt-2">
-              <span className="font-mono text-[10px] text-text-d">STATE START</span>
-              <span className="font-mono text-[10px] text-text-d">LIVE</span>
+
+          {kycLoad ? (
+            <div className="space-y-2">
+              {Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-16 rounded-btn" />)}
+            </div>
+          ) : !kycData?.users?.length ? (
+            <EmptyState
+              icon={CheckCircle}
+              title="All Clear"
+              description="No pending KYC submissions."
+            />
+          ) : (
+            <div className="space-y-2">
+              {kycData.users.map((u) => (
+                <motion.div
+                  key={u._id}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center justify-between p-3 bg-midnight rounded-btn
+                             border border-border hover:border-border/80 transition-colors"
+                >
+                  <div>
+                    <p className="font-body text-sm font-semibold text-text-p">{u.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge color="muted">{u.role.replace('_', ' ')}</Badge>
+                      <Badge color="muted">{u.assignedState}</Badge>
+                      <span className="font-mono text-[10px] text-text-d">
+                        {new Date(u.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={u.kycStatus} />
+                    <button
+                      onClick={() => adjudicate.mutate({ targetUserId: u._id, action: 'APPROVE' })}
+                      disabled={adjudicate.isPending}
+                      className="w-8 h-8 rounded-btn bg-success/10 border border-success/30 text-success
+                                 hover:bg-success/20 transition-colors flex items-center justify-center"
+                      title="Approve"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setKycModal(u)}
+                      className="w-8 h-8 rounded-btn bg-danger/10 border border-danger/30 text-danger
+                                 hover:bg-danger/20 transition-colors flex items-center justify-center"
+                      title="Reject"
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {activeTab === 'stores' && <StoresView />}
+
+      {activeTab === 'escrow' && (
+        <Card>
+          <p className="section-label">Escrow Overview</p>
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
+            <div className="rounded-card border border-border bg-midnight/40 p-4">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-text-m">Escrow Locked</p>
+              <p className="font-display text-2xl font-bold text-text-p mt-2">₦{(escrowLocked / 1000).toFixed(1)}K</p>
+            </div>
+            <div className="rounded-card border border-border bg-midnight/40 p-4">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-text-m">Pending KYC</p>
+              <p className="font-display text-2xl font-bold text-text-p mt-2">{kycPending}</p>
             </div>
           </div>
         </Card>
-
-        {/* Node throughput */}
-        <Card>
-          <p className="section-label mb-4">Node Throughput</p>
-          <div className="space-y-4">
-            {[
-              { node: 'Abuja Hub',    color: '#C8A84B', key: 'Abuja'  },
-              { node: 'Kano Center',  color: '#8B5CF6', key: 'Kano'   },
-              { node: 'Kaduna Depot', color: '#F59E0B', key: 'Kaduna' },
-            ].map(({ node, color, key }) => {
-              const s = stateData[key] || {}
-              const totalAcross = Object.values(stateData).reduce((sum, st) => sum + (st.totalOrders || 0), 0) || 1
-              return (
-                <ProgressBar
-                  key={key}
-                  label={node}
-                  value={s.totalOrders || 0}
-                  max={totalAcross}
-                  color={color}
-                />
-              )
-            })}
-          </div>
-
-          <div className="mt-6 space-y-3">
-            {Object.entries(metrics?.nodes || { Abuja: 'ONLINE', Kano: 'OPTIMIZED', Kaduna: 'SECURE' }).map(([k, v]) => (
-              <div key={k} className="flex items-center justify-between">
-                <span className="font-mono text-xs text-text-m">{k}</span>
-                <Badge color="green"><GlowDot color="#00D98B" size={5} />{v}</Badge>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      {/* KYC Queue */}
-      <Card>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <p className="section-label">KYC Adjudication Queue</p>
-            <p className="font-mono text-xs text-warning mt-1">
-              {kycData?.pagination?.total || 0} pending review
-            </p>
-          </div>
-          <button onClick={() => qc.invalidateQueries(['ceo-kyc'])} className="btn-icon">
-            <RefreshCw className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        {kycLoad ? (
-          <div className="space-y-2">
-            {Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-16 rounded-btn" />)}
-          </div>
-        ) : !kycData?.users?.length ? (
-          <EmptyState
-            icon={CheckCircle}
-            title="All Clear"
-            description="No pending KYC submissions."
-          />
-        ) : (
-          <div className="space-y-2">
-            {kycData.users.map((u) => (
-              <motion.div
-                key={u._id}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center justify-between p-3 bg-midnight rounded-btn
-                           border border-border hover:border-border/80 transition-colors"
-              >
-                <div>
-                  <p className="font-body text-sm font-semibold text-text-p">{u.name}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge color="muted">{u.role.replace('_', ' ')}</Badge>
-                    <Badge color="muted">{u.assignedState}</Badge>
-                    <span className="font-mono text-[10px] text-text-d">
-                      {new Date(u.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={u.kycStatus} />
-                  <button
-                    onClick={() => adjudicate.mutate({ targetUserId: u._id, action: 'APPROVE' })}
-                    disabled={adjudicate.isPending}
-                    className="w-8 h-8 rounded-btn bg-success/10 border border-success/30 text-success
-                               hover:bg-success/20 transition-colors flex items-center justify-center"
-                    title="Approve"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setKycModal(u)}
-                    className="w-8 h-8 rounded-btn bg-danger/10 border border-danger/30 text-danger
-                               hover:bg-danger/20 transition-colors flex items-center justify-center"
-                    title="Reject"
-                  >
-                    <XCircle className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </Card>
+      )}
 
       {/* Reject Modal */}
       <Modal open={!!kycModal} onClose={() => { setKycModal(null); setRejectReason('') }}
