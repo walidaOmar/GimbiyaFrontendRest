@@ -1,7 +1,7 @@
 import { useState }        from 'react'
 import { useQuery }         from '@tanstack/react-query'
 import { motion }           from 'framer-motion'
-import { Users, Store, TrendingUp, MapPin, RefreshCw } from 'lucide-react'
+import { Users, Store, TrendingUp, MapPin, RefreshCw, Ticket, LayoutGrid } from 'lucide-react'
 import { userApi }          from '../../api/index.js'
 import { useAuthStore }     from '../../store/authStore.js'
 import {
@@ -13,6 +13,7 @@ import CoordinatorWaiverPanel from '../../components/waivers/CoordinatorWaiverPa
 export function CoordinatorDashboard() {
   const user  = useAuthStore(s => s.user)
   const state = user?.assignedState || 'Kano'
+  const [activeTab, setActiveTab] = useState('overview')
 
   const { data: usersData, isLoading, refetch } = useQuery({
     queryKey: ['coord-users', state],
@@ -60,64 +61,87 @@ export function CoordinatorDashboard() {
         <StatCard label="KYC Pending"     value={pendingKyc.length}  icon={TrendingUp} color="text-warning" />
       </div>
 
-      <Card>
-        <div className="mb-4">
+      <div className="flex items-center gap-2 border-b border-border pb-3">
+        {[
+          { id: 'overview', label: 'Overview', icon: LayoutGrid },
+          { id: 'waivers', label: 'Waiver Requests', icon: Ticket },
+        ].map((tab) => {
+          const Icon = tab.icon
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'bg-brass/10 text-brass border border-brass/30'
+                  : 'text-text-m hover:text-text-p hover:bg-surface-h border border-transparent'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {activeTab === 'waivers' ? (
+        <Card>
           <CoordinatorWaiverPanel />
-        </div>
-      </Card>
-
-      <Card>
-        <div className="flex items-center justify-between mb-4">
-          <p className="section-label">User Registry — {state}</p>
-          <span className="font-mono text-xs text-text-m">{users.length} total</span>
-        </div>
-
-        {isLoading ? (
-          <div className="space-y-2">
-            {Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-btn" />)}
+        </Card>
+      ) : (
+        <Card>
+          <div className="flex items-center justify-between mb-4">
+            <p className="section-label">User Registry — {state}</p>
+            <span className="font-mono text-xs text-text-m">{users.length} total</span>
           </div>
-        ) : !users.length ? (
-          <EmptyState icon={Users} title="No Users"
-            description={`No registered users in ${state} yet.`} />
-        ) : (
-          <div className="space-y-2">
-            {users.map(u => (
-              <motion.div key={u._id}
-                initial={{ opacity: 0, x: -4 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center justify-between p-3 bg-midnight rounded-btn border border-border"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center font-display font-bold text-sm flex-shrink-0"
-                    style={{
-                      background: `${ROLE_COLORS[u.role] || '#9B9BB8'}15`,
-                      border:     `1px solid ${ROLE_COLORS[u.role] || '#9B9BB8'}40`,
-                      color:       ROLE_COLORS[u.role] || '#9B9BB8',
-                    }}
-                  >
-                    {u.name?.[0]?.toUpperCase()}
+
+          {isLoading ? (
+            <div className="space-y-2">
+              {Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-btn" />)}
+            </div>
+          ) : !users.length ? (
+            <EmptyState icon={Users} title="No Users"
+              description={`No registered users in ${state} yet.`} />
+          ) : (
+            <div className="space-y-2">
+              {users.map(u => (
+                <motion.div key={u._id}
+                  initial={{ opacity: 0, x: -4 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center justify-between p-3 bg-midnight rounded-btn border border-border"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center font-display font-bold text-sm flex-shrink-0"
+                      style={{
+                        background: `${ROLE_COLORS[u.role] || '#9B9BB8'}15`,
+                        border:     `1px solid ${ROLE_COLORS[u.role] || '#9B9BB8'}40`,
+                        color:       ROLE_COLORS[u.role] || '#9B9BB8',
+                      }}
+                    >
+                      {u.name?.[0]?.toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-body text-sm font-semibold text-text-p truncate">{u.name}</p>
+                      <p className="font-mono text-[10px] text-text-d truncate">{u.email}</p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-body text-sm font-semibold text-text-p truncate">{u.name}</p>
-                    <p className="font-mono text-[10px] text-text-d truncate">{u.email}</p>
+                  <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                    <Badge color={
+                      u.role === 'business_owner' ? 'blue'
+                      : u.role === 'delivery'     ? 'amber'
+                      : 'muted'
+                    }>
+                      {u.role.replace('_', ' ')}
+                    </Badge>
+                    <StatusBadge status={u.kycStatus} />
                   </div>
-                </div>
-                <div className="flex items-center gap-2 ml-3 flex-shrink-0">
-                  <Badge color={
-                    u.role === 'business_owner' ? 'blue'
-                    : u.role === 'delivery'     ? 'amber'
-                    : 'muted'
-                  }>
-                    {u.role.replace('_', ' ')}
-                  </Badge>
-                  <StatusBadge status={u.kycStatus} />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
     </div>
   )
 }

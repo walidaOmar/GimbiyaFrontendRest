@@ -20,7 +20,7 @@ const BuyerDashboard   = lazy(() => import('./pages/dashboards/Buyer.jsx'))
 const MerchantDashboard= lazy(() => import('./pages/dashboards/Merchant.jsx'))
 const StockDashboard   = lazy(() => import('./pages/dashboards/Operations.jsx').then(m => ({ default: m.StockDashboard })))
 const RiderDashboard   = lazy(() => import('./pages/dashboards/Operations.jsx').then(m => ({ default: m.RiderDashboard })))
-const AffiliateDashboard = lazy(() => import('./pages/dashboards/Operations.jsx').then(m => ({ default: m.AffiliateDashboard })))
+const AffiliateDashboard = lazy(() => import('./pages/dashboards/Affiliate.jsx'))
 const CoordinatorDashboard = lazy(() => import('./pages/dashboards/Coordinator.jsx').then(m => ({ default: m.CoordinatorDashboard })))
 
 // ── Query client ──────────────────────────────────────────────────────────────
@@ -84,6 +84,7 @@ export default function App() {
                 <Route path="ceo/metrics"  element={<CEODashboard />} />
                 <Route path="ceo/stores"   element={<CEODashboard />} />
                 <Route path="ceo/users"    element={<CEODashboard />} />
+                <Route path="ceo/waivers"  element={<CEODashboard />} />
                 <Route path="coordinator"  element={<CoordinatorDashboard />} />
                 <Route path="coordinator/stores" element={<CoordinatorDashboard />} />
                 <Route path="coordinator/staff"  element={<CoordinatorDashboard />} />

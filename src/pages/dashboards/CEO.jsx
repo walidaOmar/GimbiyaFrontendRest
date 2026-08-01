@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import {
   TrendingUp, Users, Package, ShoppingCart,
   CheckCircle, XCircle, AlertTriangle, RefreshCw,
+  Ticket, Search, Store, Shield, BarChart3, Activity,
 } from 'lucide-react'
 import { ceoApi }           from '../../api/index.js'
 import {
@@ -66,12 +67,12 @@ function ProgressBar({ label, value, max, color }) {
 }
 
 const CEO_TABS = [
-  { id: 'metrics', label: 'Metrics' },
-  { id: 'kyc', label: 'KYC Queue' },
-  { id: 'stores', label: 'Stores' },
-  { id: 'users', label: 'User Lookup', component: UserLookup },
-  { id: 'waivers', label: 'Waiver Quotas', component: CEOQuotaPanel },
-  { id: 'escrow', label: 'Escrow' },
+  { id: 'metrics', label: 'Metrics', icon: BarChart3 },
+  { id: 'kyc', label: 'KYC Queue', icon: Shield },
+  { id: 'stores', label: 'Stores', icon: Store },
+  { id: 'users', label: 'User Lookup', icon: Search, component: UserLookup },
+  { id: 'waivers', label: 'Waiver Quotas', icon: Ticket, component: CEOQuotaPanel },
+  { id: 'escrow', label: 'Escrow', icon: Activity },
 ]
 
 export default function CEODashboard() {
@@ -147,19 +148,23 @@ export default function CEODashboard() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mt-2">
-        {CEO_TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => navigate(`/dashboard/ceo/${tab.id === 'metrics' ? '' : tab.id}`)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === tab.id
-                ? 'bg-brass/10 text-brass border border-brass/30'
-                : 'text-text-m hover:text-text-p hover:bg-surface-h border border-transparent'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {CEO_TABS.map((tab) => {
+          const Icon = tab.icon
+          return (
+            <button
+              key={tab.id}
+              onClick={() => navigate(`/dashboard/ceo/${tab.id === 'metrics' ? '' : tab.id}`)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'bg-brass/10 text-brass border border-brass/30'
+                  : 'text-text-m hover:text-text-p hover:bg-surface-h border border-transparent'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          )
+        })}
       </div>
 
       {activeTab === 'users' && ActiveTabComponent ? (

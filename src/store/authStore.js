@@ -14,15 +14,21 @@ export const useAuthStore = create((set, get) => ({
     try {
       const { data } = await authApi.checkAuth()
       set({ user: data.user, isLoading: false, isChecked: true })
-    } catch {
+    } catch (err) {
+      console.error('[checkAuth]', err.response?.status, err.response?.data?.message || err.message)
       set({ user: null, isLoading: false, isChecked: true })
     }
   },
 
   login: async (credentials) => {
-    const { data } = await authApi.login(credentials)
-    set({ user: data.user })
-    return data.user
+    try {
+      const { data } = await authApi.login(credentials)
+      set({ user: data.user })
+      return data.user
+    } catch (err) {
+      console.error('[login]', err.response?.status, err.response?.data?.message || err.message)
+      throw err
+    }
   },
 
   logout: async () => {

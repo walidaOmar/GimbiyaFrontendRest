@@ -53,6 +53,7 @@ export default function Register() {
 
     setLoad(true)
     try {
+      // Backend will force role="buyer" regardless of what we send
       await authApi.signup(form)
       toast.success('Account created! Check your email for a verification code.')
       setStep(2)
