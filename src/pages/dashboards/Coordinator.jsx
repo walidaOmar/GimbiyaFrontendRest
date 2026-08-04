@@ -1,9 +1,10 @@
 import { useState }        from 'react'
 import { useQuery }         from '@tanstack/react-query'
 import { motion }           from 'framer-motion'
-import { Users, Store, TrendingUp, MapPin, RefreshCw, Ticket, LayoutGrid } from 'lucide-react'
+import { Users, Store, TrendingUp, MapPin, RefreshCw, Ticket, LayoutGrid, Plus } from 'lucide-react'
 import { userApi }          from '../../api/index.js'
 import { useAuthStore }     from '../../store/authStore.js'
+import CoordinatorStoreRequestModal from '../../components/stores/CoordinatorStoreRequestModal.jsx'
 import {
   Card, StatCard, Badge, StatusBadge,
   EmptyState, Skeleton, GlowDot,
@@ -14,6 +15,7 @@ export function CoordinatorDashboard() {
   const user  = useAuthStore(s => s.user)
   const state = user?.assignedState || 'Kano'
   const [activeTab, setActiveTab] = useState('overview')
+  const [showOnboardModal, setShowOnboardModal] = useState(false)
 
   const { data: usersData, isLoading, refetch } = useQuery({
     queryKey: ['coord-users', state],
@@ -48,6 +50,9 @@ export function CoordinatorDashboard() {
           <span className="font-mono text-xs text-role-coord tracking-wider">
             {state.toUpperCase()} NODE ACTIVE
           </span>
+          <button onClick={() => setShowOnboardModal(true)} className="flex items-center gap-2 px-3 py-2 bg-brass text-midnight rounded-lg text-sm font-bold hover:bg-brass/90 transition-all">
+            <Plus className="w-4 h-4" /> Onboarding+
+          </button>
           <button onClick={refetch} className="btn-icon ml-2">
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -142,6 +147,12 @@ export function CoordinatorDashboard() {
           )}
         </Card>
       )}
+
+      <CoordinatorStoreRequestModal
+        isOpen={showOnboardModal}
+        onClose={() => setShowOnboardModal(false)}
+        coordinatorState={user?.assignedState}
+      />
     </div>
   )
 }

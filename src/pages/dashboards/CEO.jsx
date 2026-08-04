@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import {
   TrendingUp, Users, Package, ShoppingCart,
   CheckCircle, XCircle, AlertTriangle, RefreshCw,
-  Ticket, Search, Store, Shield, BarChart3, Activity,
+  Ticket, Search, Store, Shield, BarChart3, Activity, Clock,
 } from 'lucide-react'
 import { ceoApi }           from '../../api/index.js'
 import {
@@ -16,6 +16,7 @@ import { LiveTicker }       from '../../components/layout/LiveTicker.jsx'
 import StoresView           from '../../components/stores/StoresView.jsx'
 import UserLookup           from '../../components/users/UserLookup.jsx'
 import CEOQuotaPanel        from '../../components/waivers/CEOQuotaPanel.jsx'
+import CEOPendingStoreRequests from '../../components/stores/CEOPendingStoreRequests.jsx'
 import toast                from 'react-hot-toast'
 
 // ── MINI LINE CHART ───────────────────────────────────────────────────────────
@@ -70,6 +71,7 @@ const CEO_TABS = [
   { id: 'metrics', label: 'Metrics', icon: BarChart3 },
   { id: 'kyc', label: 'KYC Queue', icon: Shield },
   { id: 'stores', label: 'Stores', icon: Store },
+  { id: 'pending', label: 'Pending Stores', icon: Clock, component: CEOPendingStoreRequests },
   { id: 'users', label: 'User Lookup', icon: Search, component: UserLookup },
   { id: 'waivers', label: 'Waiver Quotas', icon: Ticket, component: CEOQuotaPanel },
   { id: 'escrow', label: 'Escrow', icon: Activity },
@@ -124,11 +126,13 @@ export default function CEODashboard() {
       ? 'escrow'
       : location.pathname === '/dashboard/ceo/stores'
         ? 'stores'
-        : location.pathname === '/dashboard/ceo/users'
-          ? 'users'
-          : location.pathname === '/dashboard/ceo/waivers'
-            ? 'waivers'
-            : 'metrics'
+        : location.pathname === '/dashboard/ceo/pending'
+          ? 'pending'
+          : location.pathname === '/dashboard/ceo/users'
+            ? 'users'
+            : location.pathname === '/dashboard/ceo/waivers'
+              ? 'waivers'
+              : 'metrics'
 
   const ActiveTabComponent = CEO_TABS.find((tab) => tab.id === activeTab)?.component
 
@@ -171,6 +175,15 @@ export default function CEODashboard() {
         <ActiveTabComponent />
       ) : activeTab === 'waivers' && ActiveTabComponent ? (
         <ActiveTabComponent />
+      ) : activeTab === 'pending' && ActiveTabComponent ? (
+        <div className="space-y-4">
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <p className="section-label">Pending Store Requests</p>
+            </div>
+            <CEOPendingStoreRequests onSelect={(req) => console.log(req._id)} />
+          </Card>
+        </div>
       ) : activeTab === 'metrics' && (
         <>
           {/* KPI Cards */}
@@ -342,6 +355,7 @@ export default function CEODashboard() {
       )}
 
       {activeTab === 'stores' && <StoresView />}
+      {activeTab === 'pending' && <CEOPendingStoreRequests onSelect={(req) => setSelectedStoreId(req._id)} />}
 
       {activeTab === 'escrow' && (
         <Card>

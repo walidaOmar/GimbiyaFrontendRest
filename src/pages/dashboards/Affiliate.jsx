@@ -1,15 +1,33 @@
 import { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { Users, Ticket, Wallet, RefreshCw, ArrowRight, BadgeCheck } from 'lucide-react'
+import { Users, Ticket, Wallet, RefreshCw, ArrowRight, BadgeCheck, ShoppingBag, BarChart3, FileText, Link2, Plus } from 'lucide-react'
 import { affiliateApi } from '../../api/index.js'
 import AffiliateWaiverPanel from '../../components/waivers/AffiliateWaiverPanel.jsx'
+import AffiliateShop from '../../components/affiliate/AffiliateShop.jsx'
+import AffiliateOnboardingModal from '../../components/affiliate/AffiliateOnboardingModal.jsx'
+import AffiliateAnalytics from '../../components/affiliate/AffiliateAnalytics.jsx'
+import AffiliateInvoicePanel from '../../components/affiliate/AffiliateInvoicePanel.jsx'
+import DeepLinkGenerator from '../../components/affiliate/DeepLinkGenerator.jsx'
 import { Card, StatCard, Badge, EmptyState, Skeleton, GlowDot } from '../../components/ui/index.jsx'
+import { useAuthStore } from '../../store/authStore.js'
 import toast from 'react-hot-toast'
+
+const TABS = [
+  { id: 'overview', label: 'Overview', icon: Users },
+  { id: 'waivers', label: 'Waiver Requests', icon: Ticket },
+  { id: 'shop', label: 'Shop', icon: ShoppingBag },
+  { id: 'onboarding', label: 'Onboarding', icon: Plus },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+  { id: 'invoices', label: 'Invoices', icon: FileText },
+  { id: 'links', label: 'Deep Links', icon: Link2 },
+]
 
 export default function AffiliateDashboard() {
   const qc = useQueryClient()
+  const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState('overview')
+  const [showOnboardModal, setShowOnboardModal] = useState(false)
 
   const { data: summary, isLoading, refetch } = useQuery({
     queryKey: ['affiliate-summary'],
@@ -53,23 +71,24 @@ export default function AffiliateDashboard() {
         <StatCard label="Waiver Cases" value={stats.waivers} icon={Ticket} color="text-warning" />
       </div>
 
-      <div className="flex items-center gap-2 border-b border-border pb-3">
-        {[
-          { id: 'overview', label: 'Overview' },
-          { id: 'waivers', label: 'Waiver Requests' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === tab.id
-                ? 'bg-brass/10 text-brass border border-brass/30'
-                : 'text-text-m hover:text-text-p hover:bg-surface-h border border-transparent'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex items-center gap-2 border-b border-border pb-3 overflow-x-auto">
+        {TABS.map((tab) => {
+          const Icon = tab.icon
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-brass/10 text-brass border border-brass/30'
+                  : 'text-text-m hover:text-text-p hover:bg-surface-h border border-transparent'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          )
+        })}
       </div>
 
       {activeTab === 'waivers' ? (
@@ -82,6 +101,27 @@ export default function AffiliateDashboard() {
           </div>
           <AffiliateWaiverPanel />
         </Card>
+      ) : activeTab === 'shop' ? (
+        <AffiliateShop />
+      ) : activeTab === 'onboarding' ? (
+        <Card>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="section-label">Onboard New Members</p>
+              <p className="text-xs text-text-m">Onboard retailers, logistics operators, and buyers</p>
+            </div>
+            <button onClick={() => setShowOnboardModal(true)} className="flex items-center gap-2 px-4 py-2 bg-brass text-midnight rounded-lg text-sm font-bold hover:bg-brass/90">
+              <Plus className="w-4 h-4" /> New Onboarding
+            </button>
+          </div>
+          <p className="text-sm text-text-m">Use the button above to submit onboarding requests for your network.</p>
+        </Card>
+      ) : activeTab === 'analytics' ? (
+        <AffiliateAnalytics />
+      ) : activeTab === 'invoices' ? (
+        <AffiliateInvoicePanel />
+      ) : activeTab === 'links' ? (
+        <DeepLinkGenerator />
       ) : (
         <Card>
           <div className="flex items-center justify-between mb-4">
@@ -123,6 +163,12 @@ export default function AffiliateDashboard() {
           )}
         </Card>
       )}
+
+      <AffiliateOnboardingModal
+        isOpen={showOnboardModal}
+        onClose={() => setShowOnboardModal(false)}
+        userState={user?.assignedState}
+      />
     </div>
   )
 }

@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider }        from '@tanstack/react-query'
 import { Toaster }                                 from 'react-hot-toast'
-import { Suspense, lazy }                          from 'react'
+import { Suspense, lazy, useEffect }               from 'react'
 
 import { AuthProvider, RequireAuth, RequireGuest } from './context/AuthContext.jsx'
 import { useAuthStore }                            from './store/authStore.js'
@@ -61,12 +61,34 @@ function PublicLayout({ children }) {
   return <div className="min-h-screen bg-midnight"><Navbar />{children}</div>
 }
 
+function DeepLinkHandler() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const ref = params.get('ref')
+    const productId = params.get('product')
+
+    if (ref) {
+      localStorage.setItem('affiliateRef', ref)
+    }
+
+    if (productId) {
+      navigate(`/product/${productId}?ref=${ref || ''}`)
+    }
+  }, [location, navigate])
+
+  return null
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
           <Suspense fallback={<PageLoader />}>
+            <DeepLinkHandler />
             <Routes>
               {/* Public */}
               <Route path="/" element={<PublicLayout><Landing /></PublicLayout>} />
@@ -83,6 +105,7 @@ export default function App() {
                 <Route path="ceo/escrow"   element={<CEODashboard />} />
                 <Route path="ceo/metrics"  element={<CEODashboard />} />
                 <Route path="ceo/stores"   element={<CEODashboard />} />
+                <Route path="ceo/pending"  element={<CEODashboard />} />
                 <Route path="ceo/users"    element={<CEODashboard />} />
                 <Route path="ceo/waivers"  element={<CEODashboard />} />
                 <Route path="coordinator"  element={<CoordinatorDashboard />} />

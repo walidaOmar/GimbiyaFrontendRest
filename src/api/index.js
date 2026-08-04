@@ -90,14 +90,23 @@ export const stockApi = {
 
 // ── STORES ───────────────────────────────────────────────────────────────────
 export const storeApi = {
-  list:         (params) => api.get('/stores', { params }),
-  getOne:       (id)     => api.get(`/stores/${id}`),
-  pending:      (params) => api.get('/stores/pending', { params }),
-  verify:       (id, data) => api.post(`/stores/${id}/verify`, data),
-  reject:       (id, data) => api.post(`/stores/${id}/reject`, data),
-  onboard:      (data)   => api.post('/stores/onboard', data),
-  createBranch: (storeId, data) => api.post(`/stores/${storeId}/branches`, data),
-  availableStaff: (params) => api.get('/stores/available-staff', { params }),
+  list:            (params) => api.get('/stores', { params }),
+  getOne:          (id)     => api.get(`/stores/${id}`),
+  pending:         (params) => api.get('/stores/pending', { params }),
+  verify:          (id, data) => api.post(`/stores/${id}/verify`, data),
+  reject:          (id, data) => api.post(`/stores/${id}/reject`, data),
+  onboard:         (data)   => api.post('/stores/onboard', data),
+  submitRequest:   (data)   => api.post('/stores/requests', data),
+  pendingRequests: (params) => api.get('/stores/requests/pending', { params }),
+  getRequest:      (id)     => api.get(`/stores/requests/${id}`),
+  approveRequest:  (id, data) => api.post(`/stores/requests/${id}/approve`, data),
+  rejectRequest:   (id, data) => api.post(`/stores/requests/${id}/reject`, data),
+  createBranch:    (storeId, data) => api.post(`/stores/${storeId}/branches`, data),
+  availableStaff:  (params) => api.get('/stores/available-staff', { params }),
+}
+
+export const onboardingApi = {
+  submitRequest: (data) => api.post('/onboarding/requests', data),
 }
 
 // ── DELIVERY ──────────────────────────────────────────────────────────────────
@@ -121,12 +130,17 @@ export const ceoApi = {
 
 // ── AFFILIATE ─────────────────────────────────────────────────────────────────
 export const affiliateApi = {
-  campaigns:   ()     => api.get('/affiliate/campaigns'),
-  create:      (data) => api.post('/affiliate/campaigns', data),
-  analytics:   ()     => api.get('/affiliate/analytics'),
-  trackClick:  (code) => api.get(`/affiliate/click/${code}`),
-  summary:     ()     => api.get('/affiliate/summary'),
-  markPayout:  (id)   => api.post(`/affiliate/payouts/${id}/mark-paid`),
+  campaigns:      ()       => api.get('/affiliate/campaigns'),
+  create:         (data)   => api.post('/affiliate/campaigns', data),
+  analytics:      ()       => api.get('/affiliate/analytics'),
+  getAnalytics:   (params) => api.get('/affiliate/analytics', { params }),
+  trackClick:     (code)   => api.get(`/affiliate/click/${code}`),
+  recordClick:    (data)   => api.post('/affiliate/clicks', data),
+  getClickHistory:(params) => api.get('/affiliate/clicks/history', { params }),
+  getInvoices:    ()       => api.get('/affiliate/invoices'),
+  getInvoice:     (code)   => api.get(`/affiliate/invoices/${code}`),
+  summary:        ()       => api.get('/affiliate/summary'),
+  markPayout:     (id)     => api.post(`/affiliate/payouts/${id}/mark-paid`),
 }
 
 // ── WAIVERS ─────────────────────────────────────────────────────────────────
