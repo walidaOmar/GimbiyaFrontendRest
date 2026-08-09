@@ -51,16 +51,15 @@ function OrderTracker({ status }) {
 
 export default function BuyerDashboard() {
   const qc = useQueryClient()
-  const { selectedState, setSelectedState, cartItems, addToCart, removeFromCart, updateCartQty, clearCart, cartTotal } = useMallStore()
-  const [floor, setFloor]             = useState('LEVEL_1')
+  const { selectedState, setSelectedState, selectedFloor, setSelectedFloor, cartItems, addToCart, removeFromCart, updateCartQty, clearCart, cartTotal } = useMallStore()
   const [view,  setView]              = useState('shop')  // shop | cart | orders
   const [checkoutModal, setCheckout]  = useState(false)
   const [otpModal, setOtpModal]       = useState(null)
   const [address, setAddress]         = useState('')
 
   const { data: catalog, isLoading } = useQuery({
-    queryKey: ['catalog', selectedState, floor],
-    queryFn:  () => productApi.getCatalog({ assignedState: selectedState, buildingFloor: floor, limit: 24 }).then(r => r.data),
+    queryKey: ['catalog', selectedState, selectedFloor],
+    queryFn:  () => productApi.getCatalog({ assignedState: selectedState, buildingFloor: selectedFloor, limit: 24 }).then(r => r.data),
     staleTime: 60000,
   })
 
@@ -135,9 +134,9 @@ export default function BuyerDashboard() {
             </div>
             <div className="flex bg-surface-h border border-border rounded-btn p-0.5">
               {[{v:'LEVEL_1',l:'Commerce'},{v:'LEVEL_2',l:'Industry'}].map(({v,l}) => (
-                <button key={v} onClick={() => setFloor(v)}
+                <button key={v} onClick={() => setSelectedFloor(v)}
                   className={`px-4 py-1.5 rounded-[6px] font-mono text-xs transition-all ${
-                    floor === v ? 'bg-brass text-midnight font-bold' : 'text-text-m hover:text-text-p'
+                    selectedFloor === v ? 'bg-brass text-midnight font-bold' : 'text-text-m hover:text-text-p'
                   }`}>{l}</button>
               ))}
             </div>
@@ -150,7 +149,7 @@ export default function BuyerDashboard() {
             </div>
           ) : !catalog?.products?.length ? (
             <EmptyState icon={Package} title="No Products"
-              description={`No listings in ${selectedState} ${floor === 'LEVEL_1' ? 'Commerce' : 'Industry'} yet.`} />
+              description={`No listings in ${selectedState} ${selectedFloor === 'LEVEL_1' ? 'Commerce' : 'Industry'} yet.`} />
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {catalog.products.map((p) => {
