@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Building2, Send, Plus, Trash2, User, Package, Truck } from 'lucide-react'
 import { storeApi } from '../../api/index.js'
+import { STATE_OPTIONS } from '../../config/regions.js'
 import toast from 'react-hot-toast'
 
 const SEGMENTS = [
@@ -9,12 +10,6 @@ const SEGMENTS = [
   { value: 'retailer', label: '🛒 Retailer' },
   { value: 'service_provider', label: '🔧 Service Provider' },
   { value: 'logistics', label: '🚚 Logistics' },
-]
-
-const STATE_OPTIONS = [
-  { value: 'Abuja', label: 'Abuja' },
-  { value: 'Kano', label: 'Kano' },
-  { value: 'Kaduna', label: 'Kaduna' },
 ]
 
 const FLOOR_OPTIONS = [
@@ -32,7 +27,7 @@ export default function CoordinatorStoreRequestModal({ isOpen, onClose, coordina
     businessEmail: '',
     businessPhone: '',
     commerceSegment: 'wholesaler',
-    primaryState: coordinatorState || 'Kano',
+    primaryState: coordinatorState || STATE_OPTIONS[1].value,
     nin: '',
     cacNumber: '',
     tinNumber: '',
@@ -59,7 +54,7 @@ export default function CoordinatorStoreRequestModal({ isOpen, onClose, coordina
           fullName: '',
           email: '',
           phone: '',
-          assignedState: coordinatorState || 'Kano',
+          assignedState: coordinatorState || STATE_OPTIONS[1].value,
           buildingFloor: 'LEVEL_1',
         },
       ],
@@ -100,7 +95,7 @@ export default function CoordinatorStoreRequestModal({ isOpen, onClose, coordina
       businessEmail: '',
       businessPhone: '',
       commerceSegment: 'wholesaler',
-      primaryState: coordinatorState || 'Kano',
+      primaryState: coordinatorState || STATE_OPTIONS[1].value,
       nin: '',
       cacNumber: '',
       tinNumber: '',

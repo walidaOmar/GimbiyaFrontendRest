@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion }          from 'framer-motion'
 import { Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import { authApi }         from '../../api/index.js'
+import { STATE_OPTIONS }   from '../../config/regions.js'
 import { Button, Input, Select } from '../../components/ui/index.jsx'
 import toast               from 'react-hot-toast'
 
@@ -11,12 +12,6 @@ const ROLE_OPTIONS = [
   { value: 'business_owner', label: '🏪  Business Owner — Sell on the platform' },
   { value: 'delivery',       label: '🚚  Delivery Rider — Earn from deliveries' },
   { value: 'affiliate',      label: '🔗  Affiliate Partner — Earn commissions' },
-]
-
-const STATE_OPTIONS = [
-  { value: 'Abuja',  label: 'Abuja — Federal Capital Territory' },
-  { value: 'Kano',   label: 'Kano — Commercial North' },
-  { value: 'Kaduna', label: 'Kaduna — Industrial Hub' },
 ]
 
 export default function Register() {
@@ -30,7 +25,7 @@ export default function Register() {
 
   const [form, setForm] = useState({
     name: '', email: '', password: '', phone: '',
-    role: 'buyer', assignedState: 'Kano',
+    role: 'buyer', assignedState: STATE_OPTIONS[1].value,
   })
 
   const set = (key) => (e) => {

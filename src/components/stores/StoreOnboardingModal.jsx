@@ -5,13 +5,8 @@ import {
   MapPin, CreditCard, User, Hash, FileText,
 } from 'lucide-react'
 import { storeApi } from '../../api/index.js'
+import { STATE_OPTIONS } from '../../config/regions.js'
 import toast from 'react-hot-toast'
-
-const STATE_OPTIONS = [
-  { value: 'Abuja', label: 'Abuja' },
-  { value: 'Kano', label: 'Kano' },
-  { value: 'Kaduna', label: 'Kaduna' },
-]
 
 export default function StoreOnboardingModal({ isOpen, onClose }) {
   const [step, setStep] = useState(1)
@@ -27,7 +22,7 @@ export default function StoreOnboardingModal({ isOpen, onClose }) {
     tinNumber: '',
     businessAddress: '',
     homeAddress: '',
-    primaryState: 'Kano',
+    primaryState: STATE_OPTIONS[1].value,
     commerceSegment: 'retailer',
     accountDetails: { bankName: '', accountNumber: '', accountName: '' },
   })
@@ -64,7 +59,7 @@ export default function StoreOnboardingModal({ isOpen, onClose }) {
       tinNumber: '',
       businessAddress: '',
       homeAddress: '',
-      primaryState: 'Kano',
+      primaryState: STATE_OPTIONS[1].value,
       commerceSegment: 'retailer',
       accountDetails: { bankName: '', accountNumber: '', accountName: '' },
     })

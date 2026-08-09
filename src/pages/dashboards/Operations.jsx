@@ -10,6 +10,7 @@ import {
   TrendingUp, Users, RefreshCw, ArrowRight,
 } from 'lucide-react'
 import { stockApi, deliveryApi, affiliateApi } from '../../api/index.js'
+import { getRegionLabel } from '../../config/regions.js'
 import AffiliateWaiverPanel from '../../components/waivers/AffiliateWaiverPanel.jsx'
 import {
   Card, StatCard, Button, Badge, StatusBadge,
@@ -529,7 +530,7 @@ export function AffiliateDashboard() {
         title="Create Campaign" size="sm">
         <div className="space-y-4">
           <Input label="Campaign Name *"
-            placeholder="e.g. Kano Flash Sale June"
+              placeholder={`e.g. ${getRegionLabel('Tafawa balewa refinery')} Flash Sale June`}
             value={campaignName}
             onChange={e => setCName(e.target.value)} />
           <div className="flex gap-3">

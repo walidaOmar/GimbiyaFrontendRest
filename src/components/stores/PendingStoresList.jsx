@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Clock, Building2, MapPin, User, CheckCircle, XCircle, ChevronRight } from 'lucide-react'
 import { storeApi } from '../../api/index.js'
+import { getRegionLabel } from '../../config/regions.js'
 import toast from 'react-hot-toast'
 
 export default function PendingStoresList({ onSelect }) {
@@ -60,7 +61,7 @@ export default function PendingStoresList({ onSelect }) {
               <div>
                 <h4 className="font-semibold text-text-p">{store.businessName}</h4>
                 <div className="flex items-center gap-3 mt-1 text-xs text-text-m">
-                  <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {store.primaryState}</span>
+                  <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {getRegionLabel(store.primaryState)}</span>
                   <span className="flex items-center gap-1"><User className="w-3 h-3" /> {store.businessEmail}</span>
                 </div>
                 <p className="text-[10px] text-text-d mt-1">Submitted by: {store.onboardedBy?.name || 'CEO'} · {new Date(store.createdAt).toLocaleDateString()}</p>

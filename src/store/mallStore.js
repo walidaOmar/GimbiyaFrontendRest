@@ -1,8 +1,9 @@
 import { create } from 'zustand'
+import { STATE_OPTIONS } from '../config/regions.js'
 
 export const useMallStore = create((set, get) => ({
   // Region and floor selection
-  selectedState: 'Kano',
+  selectedState: STATE_OPTIONS[1].value,
   selectedFloor: 'LEVEL_1',
   setSelectedState: (state) => set({ selectedState: state }),
   setSelectedFloor: (floor) => set({ selectedFloor: floor }),

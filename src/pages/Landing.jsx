@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { LiveTicker } from '../components/layout/LiveTicker.jsx'
 import { useMallStore } from '../store/mallStore.js'
+import { STATE_OPTIONS } from '../config/regions.js'
 
 const FADE_UP = {
   hidden: { opacity: 0, y: 24 },
@@ -36,7 +37,7 @@ const FEATURES = [
   {
     icon: Globe,
     title: 'Multi-State Operations',
-    desc:  'Unified platform spanning Abuja, Kano, and Kaduna with strict regional data isolation and governance.',
+    desc:  'Unified platform spanning Ado Bayero Mall, Tafawa Balewa Refinery, and Sardauna Market with strict regional data isolation and governance.',
     color: '#8B5CF6',
   },
 ]
@@ -143,7 +144,7 @@ export default function Landing() {
             custom={3} variants={FADE_UP} initial="hidden" animate="show"
             className="font-body text-lg text-white/60 max-w-2xl mx-auto mb-10 text-balance"
           >
-            A governed multi-tenant ecosystem for commerce and logistics — built for Abuja, Kano, and Kaduna.
+            A governed multi-tenant ecosystem for commerce and logistics across three commercial regions.
             Escrow-protected. Real-time. Transparent.
           </motion.p>
 
@@ -233,17 +234,17 @@ export default function Landing() {
 
         {/* State selector */}
         <div className="flex justify-center gap-2 mb-10">
-          {['Abuja', 'Kano', 'Kaduna'].map((s) => (
+          {STATE_OPTIONS.map(({ value, label }) => (
             <button
-              key={s}
-              onClick={() => setSelectedState(s)}
+              key={value}
+              onClick={() => setSelectedState(value)}
               className={`px-5 py-2 rounded-full border font-mono text-sm transition-all duration-200 ${
-                selectedState === s
+                selectedState === value
                   ? 'border-brass bg-brass/10 text-brass shadow-glow-sm'
                   : 'border-border text-text-m hover:border-brass/40 hover:text-text-p'
               }`}
             >
-              {s}
+              {label}
             </button>
           ))}
         </div>
@@ -368,7 +369,7 @@ export default function Landing() {
             <span className="font-mono text-xs text-text-d">Strategic Ecosystem & Governance Architecture</span>
           </div>
           <p className="font-mono text-xs text-text-d">
-            © 2026 Gimbiya Mall · Abuja · Kano · Kaduna
+            © 2026 Gimbiya Mall · Ado Bayero Mall · Tafawa Balewa Refinery · Sardauna Market
           </p>
         </div>
       </footer>

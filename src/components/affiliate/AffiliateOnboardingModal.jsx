@@ -2,18 +2,13 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, UserPlus, Send, CheckCircle, Store, ShoppingBag, Truck } from 'lucide-react'
 import { onboardingApi } from '../../api/index.js'
+import { STATE_OPTIONS } from '../../config/regions.js'
 import toast from 'react-hot-toast'
 
 const ROLE_OPTIONS = [
   { value: 'buyer', label: '🛒 Buyer', icon: ShoppingBag, segment: null },
   { value: 'business_owner', label: '🏪 Retailer', icon: Store, segment: 'retailer' },
   { value: 'business_owner', label: '🚚 Logistics', icon: Truck, segment: 'logistics' },
-]
-
-const STATE_OPTIONS = [
-  { value: 'Abuja', label: 'Abuja' },
-  { value: 'Kano', label: 'Kano' },
-  { value: 'Kaduna', label: 'Kaduna' },
 ]
 
 const ID_OPTIONS = [
@@ -32,7 +27,7 @@ export default function AffiliateOnboardingModal({ isOpen, onClose, userState })
     prospectName: '',
     prospectEmail: '',
     prospectPhone: '',
-    proposedState: userState || 'Kano',
+    proposedState: userState || STATE_OPTIONS[1].value,
     govIdType: 'nin',
     govIdNumber: '',
     idDocumentUrl: '',
@@ -66,7 +61,7 @@ export default function AffiliateOnboardingModal({ isOpen, onClose, userState })
       prospectName: '',
       prospectEmail: '',
       prospectPhone: '',
-      proposedState: userState || 'Kano',
+      proposedState: userState || STATE_OPTIONS[1].value,
       govIdType: 'nin',
       govIdNumber: '',
       idDocumentUrl: '',

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Clock, Building2, MapPin, User, CheckCircle, XCircle, Users, Package, Truck } from 'lucide-react'
 import { storeApi } from '../../api/index.js'
+import { getRegionLabel } from '../../config/regions.js'
 import toast from 'react-hot-toast'
 
 export default function CEOPendingStoreRequests({ onSelect }) {
@@ -62,12 +63,12 @@ export default function CEOPendingStoreRequests({ onSelect }) {
               <div>
                 <h4 className="font-semibold text-text-p">{req.businessName}</h4>
                 <div className="flex items-center gap-3 mt-1 text-xs text-text-m">
-                  <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {req.primaryState}</span>
+                  <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {getRegionLabel(req.primaryState)}</span>
                   <span className="flex items-center gap-1"><User className="w-3 h-3" /> {req.businessEmail}</span>
                   <span className="capitalize px-1.5 py-0.5 rounded-full bg-surface-h text-text-d">{req.commerceSegment?.replace('_', ' ')}</span>
                 </div>
                 <p className="text-[10px] text-text-d mt-1">
-                  Submitted by: {req.submittedBy?.name} ({req.submittedBy?.assignedState}) · {new Date(req.createdAt).toLocaleDateString()}
+                  Submitted by: {req.submittedBy?.name} ({getRegionLabel(req.submittedBy?.assignedState)}) · {new Date(req.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </div>
@@ -96,7 +97,7 @@ export default function CEOPendingStoreRequests({ onSelect }) {
                   {s.role === 'manager' && <User className="w-3 h-3 text-brass" />}
                   {s.role === 'stock_manager' && <Package className="w-3 h-3 text-purple-400" />}
                   {s.role === 'delivery' && <Truck className="w-3 h-3 text-cyan-400" />}
-                  {s.fullName} · {s.assignedState} {s.buildingFloor}
+                  {s.fullName} · {getRegionLabel(s.assignedState)} {s.buildingFloor}
                 </span>
               ))}
             </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Users } from 'lucide-react'
 import { waiverApi, userApi } from '../../api/index.js'
+import { getRegionLabel } from '../../config/regions.js'
 import toast from 'react-hot-toast'
 
 export default function CEOQuotaPanel() {
@@ -60,7 +61,7 @@ export default function CEOQuotaPanel() {
               >
                 <option value="">Select coordinator...</option>
                 {coordinators.map((c) => (
-                  <option key={c._id} value={c._id}>{c.name} — {c.assignedState}</option>
+                  <option key={c._id} value={c._id}>{c.name} — {getRegionLabel(c.assignedState)}</option>
                 ))}
               </select>
             </div>
@@ -127,7 +128,7 @@ export default function CEOQuotaPanel() {
               </div>
               <div>
                 <p className="font-medium text-text-p">{q.coordinatorId?.name}</p>
-                <p className="text-xs text-text-m">{q.coordinatorId?.email} · {q.coordinatorId?.assignedState}</p>
+                <p className="text-xs text-text-m">{q.coordinatorId?.email} · {getRegionLabel(q.coordinatorId?.assignedState)}</p>
               </div>
             </div>
             <div className="flex items-center gap-6 text-sm">

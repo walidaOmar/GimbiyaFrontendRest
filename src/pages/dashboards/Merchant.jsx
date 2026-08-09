@@ -6,6 +6,7 @@ import {
   ToggleRight, Plus, Edit2, BarChart2, RefreshCw,
 } from 'lucide-react'
 import { productApi }       from '../../api/index.js'
+import { STATE_OPTIONS }     from '../../config/regions.js'
 import { useAuthStore }     from '../../store/authStore.js'
 import {
   Card, StatCard, Button, Badge, StatusBadge,
@@ -14,11 +15,9 @@ import {
 import toast from 'react-hot-toast'
 
 const FLOOR_OPTIONS  = [{ value:'LEVEL_1', label:'Level 1 — Commerce' }, { value:'LEVEL_2', label:'Level 2 — Industry' }]
-const STATE_OPTIONS  = [{ value:'Abuja', label:'Abuja' }, { value:'Kano', label:'Kano' }, { value:'Kaduna', label:'Kaduna' }]
-
 const EMPTY_FORM = {
   name: '', descriptionText: '', priceKobo: '', initialStock: '',
-  categorySlug: '', assignedState: 'Kano', buildingFloor: 'LEVEL_1',
+  categorySlug: '', assignedState: STATE_OPTIONS[1].value, buildingFloor: 'LEVEL_1',
 }
 
 export default function MerchantDashboard() {

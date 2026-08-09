@@ -1,4 +1,5 @@
 import { Building2, MapPin, Phone, Mail, ChevronRight, BadgeCheck, Clock, AlertCircle } from 'lucide-react'
+import { getRegionLabel } from '../../config/regions.js'
 
 const STATUS_ICONS = {
   VERIFIED: <BadgeCheck className="w-4 h-4 text-emerald-400" />,
@@ -67,7 +68,7 @@ export default function StoresTable({ stores, onSelect, loading }) {
               <td className="px-4 py-3">
                 <div className="flex items-center gap-1.5 text-text-m">
                   <MapPin className="w-3 h-3 text-text-d" />
-                  <span className="text-xs">{store.primaryState}</span>
+                  <span className="text-xs">{getRegionLabel(store.primaryState)}</span>
                 </div>
               </td>
               <td className="px-4 py-3">

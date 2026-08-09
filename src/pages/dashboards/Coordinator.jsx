@@ -10,10 +10,11 @@ import {
   EmptyState, Skeleton, GlowDot,
 } from '../../components/ui/index.jsx'
 import CoordinatorWaiverPanel from '../../components/waivers/CoordinatorWaiverPanel.jsx'
+import { getRegionLabel, STATE_OPTIONS } from '../../config/regions.js'
 
 export function CoordinatorDashboard() {
   const user  = useAuthStore(s => s.user)
-  const state = user?.assignedState || 'Kano'
+  const state = user?.assignedState || STATE_OPTIONS[1].value
   const [activeTab, setActiveTab] = useState('overview')
   const [showOnboardModal, setShowOnboardModal] = useState(false)
 
@@ -42,13 +43,13 @@ export function CoordinatorDashboard() {
         <div>
           <p className="section-label mb-1">State Coordination Node</p>
           <h1 className="font-display text-3xl font-bold text-text-p">
-            {state} Regional Hub
+            {getRegionLabel(state)} Regional Hub
           </h1>
         </div>
         <div className="flex items-center gap-2">
           <GlowDot color="#8B5CF6" size={8} />
           <span className="font-mono text-xs text-role-coord tracking-wider">
-            {state.toUpperCase()} NODE ACTIVE
+            {getRegionLabel(state).toUpperCase()} NODE ACTIVE
           </span>
           <button onClick={() => setShowOnboardModal(true)} className="flex items-center gap-2 px-3 py-2 bg-brass text-midnight rounded-lg text-sm font-bold hover:bg-brass/90 transition-all">
             <Plus className="w-4 h-4" /> Onboarding+

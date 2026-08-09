@@ -7,11 +7,12 @@ import {
 } from 'lucide-react'
 import { useAuthStore }  from '../../store/authStore.js'
 import { useMallStore }  from '../../store/mallStore.js'
+import { STATE_OPTIONS } from '../../config/regions.js'
 import { ROLE_ROUTES }   from '../../context/AuthContext.jsx'
 import { GlowDot }       from '../ui/index.jsx'
 import toast             from 'react-hot-toast'
 
-const STATES = ['Abuja', 'Kano', 'Kaduna']
+const STATES = STATE_OPTIONS
 
 export function Navbar() {
   const navigate            = useNavigate()
@@ -64,15 +65,15 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-1 bg-surface-h border border-border rounded-btn px-1 py-1">
             {STATES.map((s) => (
               <button
-                key={s}
-                onClick={() => setSelectedState(s)}
+                key={s.value}
+                onClick={() => setSelectedState(s.value)}
                 className={`px-3 py-1.5 rounded-[6px] font-mono text-xs transition-all duration-150 ${
-                  selectedState === s
+                  selectedState === s.value
                     ? 'bg-brass text-midnight font-bold'
                     : 'text-text-m hover:text-brass'
                 }`}
               >
-                {s}
+                {s.label}
               </button>
             ))}
           </div>
@@ -210,13 +211,13 @@ export function Navbar() {
               <div className="flex gap-1 mb-3 bg-midnight rounded-btn p-1">
                 {STATES.map((s) => (
                   <button
-                    key={s}
-                    onClick={() => { setSelectedState(s); setMenu(false) }}
+                    key={s.value}
+                    onClick={() => { setSelectedState(s.value); setMenu(false) }}
                     className={`flex-1 py-1.5 rounded-[6px] font-mono text-xs transition-all ${
-                      selectedState === s ? 'bg-brass text-midnight font-bold' : 'text-text-m'
+                      selectedState === s.value ? 'bg-brass text-midnight font-bold' : 'text-text-m'
                     }`}
                   >
-                    {s}
+                    {s.label}
                   </button>
                 ))}
               </div>

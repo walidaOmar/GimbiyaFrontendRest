@@ -7,6 +7,7 @@ import {
   CheckCircle, XCircle,
 } from 'lucide-react'
 import { storeApi } from '../../api/index.js'
+import { STATE_OPTIONS, getRegionLabel } from '../../config/regions.js'
 import toast from 'react-hot-toast'
 
 const FLOOR_OPTIONS = [
@@ -99,7 +100,7 @@ export default function StoreDetailPanel({ storeId, onBack }) {
                   {store.commerceSegment?.replace('_', ' ')}
                 </span>
                 <span className="text-xs text-text-m flex items-center gap-1">
-                  <MapPin className="w-3 h-3" /> {store.primaryState}
+                  <MapPin className="w-3 h-3" /> {getRegionLabel(store.primaryState)}
                 </span>
               </div>
             </div>
@@ -150,7 +151,7 @@ export default function StoreDetailPanel({ storeId, onBack }) {
               <div key={branch._id} className="bg-midnight/40 border border-border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-semibold text-text-p">{branch.branchName}</h4>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-surface-h text-text-m">{branch.assignedState} · {branch.buildingFloor}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-surface-h text-text-m">{getRegionLabel(branch.assignedState)} · {branch.buildingFloor}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center gap-2 text-text-m">
@@ -250,9 +251,7 @@ function BranchFormModal({ storeState, staff, onClose, onSubmit, loading }) {
           />
           <div className="grid grid-cols-2 gap-3">
             <select value={form.assignedState} onChange={(e) => setForm((p) => ({ ...p, assignedState: e.target.value }))} className="bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p">
-              <option value="Abuja">Abuja</option>
-              <option value="Kano">Kano</option>
-              <option value="Kaduna">Kaduna</option>
+              {STATE_OPTIONS.map((region) => <option key={region.value} value={region.value}>{region.label}</option>)}
             </select>
             <select value={form.buildingFloor} onChange={(e) => setForm((p) => ({ ...p, buildingFloor: e.target.value }))} className="bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p">
               {FLOOR_OPTIONS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}

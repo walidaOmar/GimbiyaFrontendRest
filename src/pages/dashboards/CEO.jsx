@@ -18,6 +18,7 @@ import UserLookup           from '../../components/users/UserLookup.jsx'
 import CEOQuotaPanel        from '../../components/waivers/CEOQuotaPanel.jsx'
 import CEOPendingStoreRequests from '../../components/stores/CEOPendingStoreRequests.jsx'
 import toast                from 'react-hot-toast'
+import { REGIONS, getRegionLabel } from '../../config/regions.js'
 
 // ── MINI LINE CHART ───────────────────────────────────────────────────────────
 function LineChart({ data = [], color = '#C8A84B', height = 80 }) {
@@ -251,11 +252,10 @@ export default function CEODashboard() {
             <Card>
               <p className="section-label mb-4">Node Throughput</p>
               <div className="space-y-4">
-                {[
-                  { node: 'Abuja Hub',    color: '#C8A84B', key: 'Abuja'  },
-                  { node: 'Kano Center',  color: '#8B5CF6', key: 'Kano'   },
-                  { node: 'Kaduna Depot', color: '#F59E0B', key: 'Kaduna' },
-                ].map(({ node, color, key }) => {
+                {REGIONS.map(({ id, label }, index) => {
+                  const node = `${label} ${index === 0 ? 'Hub' : index === 1 ? 'Center' : 'Depot'}`
+                  const color = ['#C8A84B', '#8B5CF6', '#F59E0B'][index]
+                  const key = id
                   const s = stateData[key] || {}
                   const totalAcross = Object.values(stateData).reduce((sum, st) => sum + (st.totalOrders || 0), 0) || 1
                   return (
@@ -271,9 +271,9 @@ export default function CEODashboard() {
               </div>
 
               <div className="mt-6 space-y-3">
-                {Object.entries(metrics?.nodes || { Abuja: 'ONLINE', Kano: 'OPTIMIZED', Kaduna: 'SECURE' }).map(([k, v]) => (
+                {Object.entries(metrics?.nodes || Object.fromEntries(REGIONS.map((region, index) => [region.id, ['ONLINE', 'OPTIMIZED', 'SECURE'][index]]))).map(([k, v]) => (
                   <div key={k} className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-text-m">{k}</span>
+                    <span className="font-mono text-xs text-text-m">{getRegionLabel(k)}</span>
                     <Badge color="green"><GlowDot color="#00D98B" size={5} />{v}</Badge>
                   </div>
                 ))}

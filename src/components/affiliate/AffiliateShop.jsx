@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ShoppingBag, MapPin, Plus, Minus, Ticket } from 'lucide-react'
 import { productApi, orderApi } from '../../api/index.js'
+import { STATE_OPTIONS } from '../../config/regions.js'
 import { useAuthStore } from '../../store/authStore.js'
 import toast from 'react-hot-toast'
 
 export default function AffiliateShop() {
   const { user } = useAuthStore()
-  const [selectedState, setSelectedState] = useState(user?.assignedState || 'Kano')
+  const [selectedState, setSelectedState] = useState(user?.assignedState || STATE_OPTIONS[1].value)
   const [selectedFloor, setSelectedFloor] = useState('LEVEL_1')
   const [cart, setCart] = useState([])
   const [couponCode, setCouponCode] = useState('')
@@ -64,9 +65,7 @@ export default function AffiliateShop() {
         <ShoppingBag className="w-5 h-5 text-brass" />
         <div className="flex items-center gap-2">
           <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} className="bg-midnight border border-border rounded-lg px-3 py-2 text-sm text-text-p">
-            <option value="Abuja">Abuja</option>
-            <option value="Kano">Kano</option>
-            <option value="Kaduna">Kaduna</option>
+            {STATE_OPTIONS.map((region) => <option key={region.value} value={region.value}>{region.label}</option>)}
           </select>
           <select value={selectedFloor} onChange={(e) => setSelectedFloor(e.target.value)} className="bg-midnight border border-border rounded-lg px-3 py-2 text-sm text-text-p">
             <option value="LEVEL_1">Level 1</option>

@@ -12,6 +12,7 @@ import {
   Modal, Spinner, EmptyState, Skeleton, StatCard,
 } from '../../components/ui/index.jsx'
 import { CartCouponInput } from '../../components/waivers/CartCouponInput.jsx'
+import { STATE_OPTIONS } from '../../config/regions.js'
 import toast from 'react-hot-toast'
 
 const MILESTONES = ['PENDING','CONFIRMED','PROCESSING','DISPATCHED','DELIVERED']
@@ -125,11 +126,11 @@ export default function BuyerDashboard() {
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex bg-surface-h border border-border rounded-btn p-0.5">
-              {['Abuja','Kano','Kaduna'].map(s => (
-                <button key={s} onClick={() => setSelectedState(s)}
+              {STATE_OPTIONS.map(({ value, label }) => (
+                <button key={value} onClick={() => setSelectedState(value)}
                   className={`px-4 py-1.5 rounded-[6px] font-mono text-xs transition-all ${
-                    selectedState === s ? 'bg-brass text-midnight font-bold' : 'text-text-m hover:text-text-p'
-                  }`}>{s}</button>
+                    selectedState === value ? 'bg-brass text-midnight font-bold' : 'text-text-m hover:text-text-p'
+                  }`}>{label}</button>
               ))}
             </div>
             <div className="flex bg-surface-h border border-border rounded-btn p-0.5">
