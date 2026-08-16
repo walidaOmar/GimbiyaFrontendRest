@@ -22,6 +22,11 @@ const StockDashboard   = lazy(() => import('./pages/dashboards/Operations.jsx').
 const RiderDashboard   = lazy(() => import('./pages/dashboards/Operations.jsx').then(m => ({ default: m.RiderDashboard })))
 const AffiliateDashboard = lazy(() => import('./pages/dashboards/Affiliate.jsx'))
 const CoordinatorDashboard = lazy(() => import('./pages/dashboards/Coordinator.jsx').then(m => ({ default: m.CoordinatorDashboard })))
+const PropertyAdminDashboard = lazy(() => import('./pages/dashboards/PropertyAdminDashboard.jsx'))
+const DealInitiatorDashboard = lazy(() => import('./pages/dashboards/DealInitiatorDashboard.jsx'))
+const ProductManager = lazy(() => import('./pages/dashboards/ProductManager.jsx'))
+const UnifiedMarketplace = lazy(() => import('./pages/UnifiedMarketplace.jsx'))
+const PropertyDetail = lazy(() => import('./pages/PropertyDetail.jsx'))
 
 // ── Query client ──────────────────────────────────────────────────────────────
 const queryClient = new QueryClient({
@@ -49,6 +54,8 @@ function DashboardRedirect() {
     super_admin:           '/dashboard/ceo',
     developer_coordinator: '/dashboard/coordinator',
     business_owner:        '/dashboard/merchant',
+    property_admin:        '/dashboard/property-admin',
+    deal_initiator:       '/dashboard/deal-initiator',
     stock_manager:         '/dashboard/stock',
     delivery:              '/dashboard/rider',
     affiliate:             '/dashboard/affiliate',
@@ -115,6 +122,9 @@ export default function App() {
                 <Route path="merchant/listings"  element={<MerchantDashboard />} />
                 <Route path="merchant/settlement"element={<MerchantDashboard />} />
                 <Route path="merchant/analytics" element={<MerchantDashboard />} />
+                <Route path="property-admin" element={<RequireAuth allowedRoles={['property_admin']}><PropertyAdminDashboard /></RequireAuth>} />
+                <Route path="deal-initiator" element={<RequireAuth allowedRoles={['deal_initiator']}><DealInitiatorDashboard /></RequireAuth>} />
+                <Route path="product-manager" element={<RequireAuth allowedRoles={['business_owner']}><ProductManager /></RequireAuth>} />
                 <Route path="stock"        element={<StockDashboard />} />
                 <Route path="stock/manifest" element={<StockDashboard />} />
                 <Route path="stock/audit"  element={<StockDashboard />} />
@@ -125,6 +135,10 @@ export default function App() {
                 <Route path="affiliate/payouts"   element={<AffiliateDashboard />} />
                 <Route path="buyer"        element={<BuyerDashboard />} />
               </Route>
+
+              {/* Marketplace routes */}
+              <Route path="/marketplace" element={<PublicLayout><UnifiedMarketplace /></PublicLayout>} />
+              <Route path="/properties/:id" element={<PublicLayout><PropertyDetail /></PublicLayout>} />
 
               {/* Shop routes */}
               <Route path="/shop" element={<PublicLayout><BuyerDashboard /></PublicLayout>} />

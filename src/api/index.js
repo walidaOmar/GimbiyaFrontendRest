@@ -61,13 +61,34 @@ export const authApi = {
 // ── PRODUCTS ──────────────────────────────────────────────────────────────────
 export const productApi = {
   getCatalog:  (params) => api.get('/products', { params }),
+  getAll:      (params) => api.get('/products', { params }),
   getOne:      (id)     => api.get(`/products/${id}`),
   publish:     (data)   => api.post('/products', data),
+  create:      (data)   => api.post('/products', data),
   myListings:  (params) => api.get('/products/merchant/my-listings', { params }),
+  getMyListings: (params) => api.get('/products/merchant/my-listings', { params }),
   updatePrice: (id, priceKobo) => api.patch(`/products/${id}/price`, { priceKobo }),
+  update:      (id, data) => api.patch(`/products/${id}`, data),
+  delete:      (id) => api.delete(`/products/${id}`),
   toggle:      (id, isActive)  => api.patch(`/products/${id}/toggle`, { isActive }),
   analytics:   ()       => api.get('/products/merchant/analytics'),
+  getAnalytics: ()      => api.get('/products/merchant/analytics'),
   settlement:  (params) => api.get('/products/merchant/settlement', { params }),
+}
+
+// ── PROPERTIES ────────────────────────────────────────────────────────────────
+export const propertyApi = {
+  getPublic: (params) => api.get('/properties', { params }),
+  getById: (id) => api.get(`/properties/${id}`),
+  create: (data) => api.post('/properties', data),
+  update: (id, data) => api.patch(`/properties/${id}`, data),
+  delete: (id) => api.delete(`/properties/${id}`),
+  getMyListings: (params) => api.get('/properties/admin/my-listings', { params }),
+  getDashboard: () => api.get('/properties/admin/dashboard'),
+  getDealInitiatorDashboard: () => api.get('/properties/deal-initiator/dashboard'),
+  createInquiry: (id, data) => api.post(`/properties/${id}/inquire`, data),
+  assignInquiry: (id, data) => api.patch(`/properties/inquiries/${id}/assign`, data),
+  updateInquiryStatus: (id, data) => api.patch(`/properties/inquiries/${id}/status`, data),
 }
 
 // ── ORDERS ────────────────────────────────────────────────────────────────────

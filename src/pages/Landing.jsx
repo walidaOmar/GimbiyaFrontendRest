@@ -154,10 +154,10 @@ export default function Landing() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link
-              to="/register"
+              to="/marketplace"
               className="btn btn-primary text-base px-8 py-4 text-midnight font-bold shadow-brass-lg hover:shadow-brass group"
             >
-              Start Shopping
+              Browse Marketplace
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link

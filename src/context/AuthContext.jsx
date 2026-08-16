@@ -9,6 +9,8 @@ export const ROLE_ROUTES = {
   super_admin:            '/dashboard/ceo',
   developer_coordinator:  '/dashboard/coordinator',
   business_owner:         '/dashboard/merchant',
+  property_admin:         '/dashboard/property-admin',
+  deal_initiator:        '/dashboard/deal-initiator',
   stock_manager:          '/dashboard/stock',
   delivery:               '/dashboard/rider',
   affiliate:              '/dashboard/affiliate',
@@ -49,16 +51,25 @@ export function AuthProvider({ children }) {
 // ── Route Guards ──────────────────────────────────────────────────────────────
 
 /** Redirects unauthenticated users to /login */
-export function RequireAuth({ children }) {
+export function RequireAuth({ children, allowedRoles = null }) {
   const user      = useAuthStore((s) => s.user)
   const navigate  = useNavigate()
   const location  = useLocation()
 
   useEffect(() => {
-    if (!user) navigate('/login', { state: { from: location }, replace: true })
-  }, [user, navigate, location])
+    if (!user) {
+      navigate('/login', { state: { from: location }, replace: true })
+      return
+    }
+
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+      const destination = ROLE_ROUTES[user.role] || '/dashboard/buyer'
+      navigate(destination, { replace: true })
+    }
+  }, [user, navigate, location, allowedRoles])
 
   if (!user) return null
+  if (allowedRoles && !allowedRoles.includes(user.role)) return null
   return children
 }
 
