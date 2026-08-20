@@ -4,6 +4,7 @@ import {
   LayoutDashboard, Package, ShoppingCart, Truck, Users,
   BarChart3, Settings, TrendingUp, Warehouse, MapPin,
   Link2, FileCheck, ChevronRight,
+  Target,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore.js'
 import { GlowDot }     from '../ui/index.jsx'
@@ -32,12 +33,9 @@ const NAV_CONFIG = {
   ],
   property_admin: [
     { label: 'Portfolio', path: '/dashboard/property-admin', icon: LayoutDashboard },
-    { label: 'Listings', path: '/dashboard/property-admin', icon: Package },
-    { label: 'Inquiries', path: '/dashboard/property-admin', icon: Users },
-    { label: 'Staff', path: '/dashboard/property-admin', icon: Users },
   ],
   deal_initiator: [
-    { label: 'My Deals', path: '/dashboard/deal-initiator', icon: TrendingUp },
+    { label: 'My Deals', path: '/dashboard/deal-initiator', icon: Target },
   ],
   stock_manager: [
     { label: 'Warehouse',      path: '/dashboard/stock',             icon: Warehouse },
