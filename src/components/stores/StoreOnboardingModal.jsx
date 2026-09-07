@@ -19,6 +19,7 @@ export default function StoreOnboardingModal({ isOpen, onClose }) {
   const classification = useMemo(() => BUSINESS_CLASSIFICATION.find((item) => item.value === form.sector), [form.sector])
   const categories = getCategories(form.sector)
   const subcategories = getSubcategories(form.sector, form.category)
+  const isCoordinator = user?.role === 'developer_coordinator'
 
   const setField = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value, ...(field === 'sector' ? { category: '', subcategory: '' } : {}), ...(field === 'category' ? { subcategory: '' } : {}) }))
   const setAccountField = (field) => (event) => setForm((current) => ({ ...current, accountDetails: { ...current.accountDetails, [field]: event.target.value } }))
@@ -28,9 +29,20 @@ export default function StoreOnboardingModal({ isOpen, onClose }) {
     event.preventDefault()
     setLoading(true)
     try {
-      await storeApi.onboard({ ...form, businessName: form.name, businessEmail: form.email, businessPhone: form.phone, primaryState: form.state, commerceSegment: classification.businessType, businessType: classification.businessType, marketTier: classification.marketTier })
+      const payload = {
+        ...form,
+        businessName: form.name,
+        businessEmail: form.email,
+        businessPhone: form.phone,
+        primaryState: form.state,
+        commerceSegment: classification.businessType,
+        businessType: classification.businessType,
+        marketTier: classification.marketTier,
+      }
+      if (isCoordinator) await storeApi.submitRequest(payload)
+      else await storeApi.onboard(payload)
       setDone(true)
-      toast.success('Store onboarding submitted.')
+      toast.success(isCoordinator ? 'Store request submitted for CEO approval.' : 'Store onboarding submitted.')
     } catch (error) {
       toast.error(error.response?.data?.message || 'Store onboarding failed')
     } finally { setLoading(false) }

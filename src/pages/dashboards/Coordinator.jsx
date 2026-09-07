@@ -4,7 +4,7 @@ import { motion }           from 'framer-motion'
 import { Users, Store, TrendingUp, MapPin, RefreshCw, Ticket, LayoutGrid, Plus } from 'lucide-react'
 import { userApi }          from '../../api/index.js'
 import { useAuthStore }     from '../../store/authStore.js'
-import CoordinatorStoreRequestModal from '../../components/stores/CoordinatorStoreRequestModal.jsx'
+import StoreOnboardingModal from '../../components/stores/StoreOnboardingModal.jsx'
 import {
   Card, StatCard, Badge, StatusBadge,
   EmptyState, Skeleton, GlowDot,
@@ -149,10 +149,9 @@ export function CoordinatorDashboard() {
         </Card>
       )}
 
-      <CoordinatorStoreRequestModal
+      <StoreOnboardingModal
         isOpen={showOnboardModal}
         onClose={() => setShowOnboardModal(false)}
-        coordinatorState={user?.assignedState}
       />
     </div>
   )

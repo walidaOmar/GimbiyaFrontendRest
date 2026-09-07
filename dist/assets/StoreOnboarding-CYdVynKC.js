@@ -1,1 +1,0 @@
-import{j as r}from"./query-CdA3hVAV.js";import{S as t}from"./StoreOnboardingModal-8hmuk1yF.js";import{u as a}from"./vendor-Nd7hzJW-.js";import"./index-Dtdj8Axt.js";import"./motion-DNxYSlKn.js";import"./icons-C6mNug6L.js";import"./businessClassification-QDl2Eri0.js";function d(){const o=a();return r.jsx(t,{isOpen:!0,onClose:()=>o("/dashboard")})}export{d as default};

@@ -9,6 +9,7 @@ import AffiliateOnboardingModal from '../../components/affiliate/AffiliateOnboar
 import AffiliateAnalytics from '../../components/affiliate/AffiliateAnalytics.jsx'
 import AffiliateInvoicePanel from '../../components/affiliate/AffiliateInvoicePanel.jsx'
 import DeepLinkGenerator from '../../components/affiliate/DeepLinkGenerator.jsx'
+import StoreOnboardingModal from '../../components/stores/StoreOnboardingModal.jsx'
 import { Card, StatCard, Badge, EmptyState, Skeleton, GlowDot } from '../../components/ui/index.jsx'
 import { useAuthStore } from '../../store/authStore.js'
 import toast from 'react-hot-toast'
@@ -28,6 +29,7 @@ export default function AffiliateDashboard() {
   const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState('overview')
   const [showOnboardModal, setShowOnboardModal] = useState(false)
+  const [showStoreOnboardModal, setShowStoreOnboardModal] = useState(false)
 
   const { data: summary, isLoading, refetch } = useQuery({
     queryKey: ['affiliate-summary'],
@@ -113,6 +115,9 @@ export default function AffiliateDashboard() {
             <button onClick={() => setShowOnboardModal(true)} className="flex items-center gap-2 px-4 py-2 bg-brass text-midnight rounded-lg text-sm font-bold hover:bg-brass/90">
               <Plus className="w-4 h-4" /> New Onboarding
             </button>
+            <button onClick={() => setShowStoreOnboardModal(true)} className="flex items-center gap-2 px-4 py-2 bg-surface-h border border-border text-text-p rounded-lg text-sm font-bold hover:border-brass hover:text-brass">
+              <Plus className="w-4 h-4" /> Onboard Store
+            </button>
           </div>
           <p className="text-sm text-text-m">Use the button above to submit onboarding requests for your network.</p>
         </Card>
@@ -168,6 +173,10 @@ export default function AffiliateDashboard() {
         isOpen={showOnboardModal}
         onClose={() => setShowOnboardModal(false)}
         userState={user?.assignedState}
+      />
+      <StoreOnboardingModal
+        isOpen={showStoreOnboardModal}
+        onClose={() => setShowStoreOnboardModal(false)}
       />
     </div>
   )
