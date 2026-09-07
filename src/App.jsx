@@ -28,6 +28,7 @@ const ProductManager = lazy(() => import('./pages/dashboards/ProductManager.jsx'
 const StaffManagement = lazy(() => import('./pages/dashboards/StaffManagement.jsx'))
 const StaffOnboarding = lazy(() => import('./pages/dashboards/StaffOnboarding.jsx'))
 const StoreOnboarding = lazy(() => import('./pages/dashboards/StoreOnboarding.jsx'))
+const SovereignMarketWorkspace = lazy(() => import('./pages/dashboards/SovereignMarketWorkspace.jsx'))
 const UnifiedMarketplace = lazy(() => import('./pages/UnifiedMarketplace.jsx'))
 const PropertyDetail = lazy(() => import('./pages/PropertyDetail.jsx'))
 
@@ -120,9 +121,17 @@ export default function App() {
                 <Route path="ceo/pending"  element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
                 <Route path="ceo/users"    element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
                 <Route path="ceo/waivers"  element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
+                <Route path="ceo/incubator-:view" element={<RoleGuard allowed={['ceo', 'super_admin']}><SovereignMarketWorkspace /></RoleGuard>} />
+                <Route path="ceo/wallet" element={<RoleGuard allowed={['ceo', 'super_admin']}><SovereignMarketWorkspace /></RoleGuard>} />
+                <Route path="ceo/team" element={<RoleGuard allowed={['ceo', 'super_admin']}><SovereignMarketWorkspace /></RoleGuard>} />
+                <Route path="ceo/reports" element={<RoleGuard allowed={['ceo', 'super_admin', 'auditor', 'support']}><SovereignMarketWorkspace /></RoleGuard>} />
                 <Route path="coordinator"  element={<RoleGuard allowed={['developer_coordinator']}><CoordinatorDashboard /></RoleGuard>} />
                 <Route path="coordinator/stores" element={<RoleGuard allowed={['developer_coordinator']}><CoordinatorDashboard /></RoleGuard>} />
                 <Route path="coordinator/staff"  element={<RoleGuard allowed={['developer_coordinator']}><CoordinatorDashboard /></RoleGuard>} />
+                <Route path="coordinator/incubator-:view" element={<RoleGuard allowed={['developer_coordinator']}><SovereignMarketWorkspace /></RoleGuard>} />
+                <Route path="coordinator/wallet" element={<RoleGuard allowed={['developer_coordinator']}><SovereignMarketWorkspace /></RoleGuard>} />
+                <Route path="coordinator/team" element={<RoleGuard allowed={['developer_coordinator']}><SovereignMarketWorkspace /></RoleGuard>} />
+                <Route path="coordinator/reports" element={<RoleGuard allowed={['developer_coordinator']}><SovereignMarketWorkspace /></RoleGuard>} />
                 <Route path="staff" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffManagement /></RequireAuth>} />
                 <Route path="staff/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffOnboarding /></RequireAuth>} />
                 <Route path="stores/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator', 'affiliate']}><StoreOnboarding /></RequireAuth>} />
@@ -130,6 +139,7 @@ export default function App() {
                 <Route path="merchant/listings"  element={<MerchantDashboard />} />
                 <Route path="merchant/settlement"element={<MerchantDashboard />} />
                 <Route path="merchant/analytics" element={<MerchantDashboard />} />
+                <Route path="merchant/reports" element={<RequireAuth allowedRoles={['business_owner']}><SovereignMarketWorkspace /></RequireAuth>} />
                 <Route path="property-admin" element={<RequireAuth allowedRoles={['property_admin']}><PropertyAdminDashboard /></RequireAuth>} />
                 <Route path="deal-initiator" element={<RequireAuth allowedRoles={['deal_initiator']}><DealInitiatorDashboard /></RequireAuth>} />
                 <Route path="product-manager" element={<RequireAuth allowedRoles={['business_owner']}><ProductManager /></RequireAuth>} />
@@ -141,6 +151,10 @@ export default function App() {
                 <Route path="affiliate"           element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
                 <Route path="affiliate/campaigns" element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
                 <Route path="affiliate/payouts"   element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
+                <Route path="affiliate/incubator-:view" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
+                <Route path="affiliate/wallet" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
+                <Route path="affiliate/team" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
+                <Route path="affiliate/reports" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
                 <Route path="buyer"        element={<BuyerDashboard />} />
               </Route>
 
