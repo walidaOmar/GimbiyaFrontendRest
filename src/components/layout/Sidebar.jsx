@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, ShoppingCart, Truck, Users,
   BarChart3, Settings, TrendingUp, Warehouse, MapPin,
   Link2, FileCheck, ChevronRight,
-  Target,
+  Target, UserPlus, Building2,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore.js'
 import { GlowDot }     from '../ui/index.jsx'
@@ -18,11 +18,15 @@ const NAV_CONFIG = {
     { label: 'Escrow Summary',   path: '/dashboard/ceo/escrow',     icon: TrendingUp },
     { label: 'System Metrics',   path: '/dashboard/ceo/metrics',    icon: BarChart3 },
     { label: 'Users',            path: '/dashboard/ceo/users',      icon: Users },
+    { label: 'Staff Management', path: '/dashboard/staff',          icon: UserPlus },
+    { label: 'Store Onboarding', path: '/dashboard/stores/onboard',  icon: Building2 },
   ],
   developer_coordinator: [
     { label: 'Regional Hub',   path: '/dashboard/coordinator',        icon: LayoutDashboard },
     { label: 'Storefronts',    path: '/dashboard/coordinator/stores', icon: Package },
     { label: 'Staff',          path: '/dashboard/coordinator/staff',  icon: Users },
+    { label: 'Staff Onboarding', path: '/dashboard/staff/onboard',     icon: UserPlus },
+    { label: 'Store Onboarding', path: '/dashboard/stores/onboard',     icon: Building2 },
   ],
   business_owner: [
     { label: 'Store Overview', path: '/dashboard/merchant',              icon: LayoutDashboard },
@@ -50,6 +54,7 @@ const NAV_CONFIG = {
     { label: 'Overview',       path: '/dashboard/affiliate',              icon: LayoutDashboard },
     { label: 'Campaigns',      path: '/dashboard/affiliate/campaigns',    icon: Link2 },
     { label: 'Payouts',        path: '/dashboard/affiliate/payouts',      icon: TrendingUp },
+    { label: 'Store Onboarding', path: '/dashboard/stores/onboard',        icon: Building2 },
   ],
   buyer: [
     { label: 'My Orders',      path: '/dashboard/buyer',          icon: ShoppingCart },

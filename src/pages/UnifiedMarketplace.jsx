@@ -1,251 +1,43 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { productApi, propertyApi } from '../api/index.js'
-import { Card, Badge, Input, Select, Button, Spinner } from '../components/ui/index.jsx'
-import {
-  Search, MapPin, BedDouble, Bath, Maximize, Home, Briefcase, LandPlot, Factory,
-  Package, ShoppingBag, Filter, X, Building2,
-} from 'lucide-react'
+import { Badge, Button, Card, EmptyState, Input, Select, Spinner } from '../components/ui/index.jsx'
+import { Building2, Filter, MapPin, Package, Search, ShoppingBag, X } from 'lucide-react'
 import { formatNaira } from '../utils/index.js'
 
-const PROPERTY_TYPE_ICONS = {
-  residential: Home,
-  commercial: Briefcase,
-  land: LandPlot,
-  industrial: Factory,
+const TIER_LABELS = {
+  consumer: { label: 'Public Retail', badge: 'B2C', color: 'green', note: 'Retail products available to everyone.' },
+  wholesale: { label: 'Wholesale Procurement', badge: 'B2B', color: 'amber', note: 'Inventory available for business restocking.' },
+  manufacturing: { label: 'Manufacturer Direct', badge: 'B2B', color: 'purple', note: 'Direct-source inventory for bulk procurement.' },
+  all: { label: 'Full Catalog', badge: 'ADMIN', color: 'muted', note: 'All catalog visibility enabled.' },
+}
+
+function ProductCard({ product, showBulkPricing }) {
+  const isB2B = showBulkPricing && product.marketTier !== 'consumer'
+  const price = product.priceKobo || product.price || 0
+  return <Card className="overflow-hidden hover:border-brass/80 transition-colors h-full p-0 flex flex-col">
+    <div className="h-48 bg-surface-h relative overflow-hidden">{product.imageUrls?.[0] || product.imageUrl ? <img src={product.imageUrls?.[0] || product.imageUrl} alt={product.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-brass/10"><Package className="w-14 h-14 text-brass opacity-30" /></div>}<div className="absolute top-3 left-3"><Badge color={isB2B ? 'amber' : 'blue'}>{isB2B ? 'B2B' : 'Retail'}</Badge></div></div>
+    <div className="p-4 flex flex-col flex-1"><div className="flex items-center justify-between gap-2 mb-2"><span className="font-mono text-[10px] uppercase text-text-m truncate">{product.store?.businessType || product.category || 'Product'}</span>{isB2B && product.minimumOrderQuantity && <Badge color="amber">MOQ: {product.minimumOrderQuantity}</Badge>}</div><h3 className="font-body font-semibold text-text-p mb-1">{product.name}</h3><p className="font-mono text-[10px] text-text-m mb-3">{product.store?.name || product.assignedState || 'Gimbiya Marketplace'}</p><div className="flex items-baseline gap-2"><span className="text-lg font-black text-brass">{formatNaira(price / 100)}</span><span className="font-mono text-[10px] text-text-m">per unit</span></div>{isB2B && product.bulkPricingTiers?.length > 0 && <div className="mt-3 pt-3 border-t border-border space-y-1.5"><p className="font-mono text-[10px] font-bold text-text-m uppercase">Bulk Pricing</p>{product.bulkPricingTiers.map((tier, index) => <div key={`${tier.minQty}-${index}`} className="flex justify-between text-xs"><span className="text-text-m">{tier.minQty}+ units</span><span className="text-success font-bold">{formatNaira((tier.priceKobo || 0) / 100)}</span></div>)}</div>}<Link to="/shop" className="btn btn-primary mt-4 w-full text-center text-xs">{isB2B ? 'Add to Procurement List' : 'Add to Cart'}</Link></div>
+  </Card>
 }
 
 export default function UnifiedMarketplace() {
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState('all')
+  const [tab, setTab] = useState('products')
   const [filters, setFilters] = useState({ search: '', state: '', minPrice: '', maxPrice: '', sortBy: 'createdAt' })
-  const [page, setPage] = useState(1)
-  const [total, setTotal] = useState(0)
   const [showFilters, setShowFilters] = useState(false)
+  const params = Object.fromEntries(Object.entries({ limit: 50, ...filters }).filter(([, value]) => value !== ''))
+  const productsQuery = useQuery({ queryKey: ['products', params], queryFn: () => productApi.getCatalog(params).then((response) => response.data), staleTime: 30000 })
+  const propertiesQuery = useQuery({ queryKey: ['marketplace-properties', params], queryFn: () => propertyApi.getPublic(params).then((response) => response.data), staleTime: 30000, enabled: tab === 'properties' })
+  const products = productsQuery.data?.products || productsQuery.data?.items || []
+  const properties = propertiesQuery.data?.properties || propertiesQuery.data?.items || []
+  const tierMeta = TIER_LABELS[productsQuery.data?.meta?.marketTier] || TIER_LABELS.consumer
+  const loading = tab === 'properties' ? propertiesQuery.isLoading : productsQuery.isLoading
+  const updateFilter = (field) => (event) => setFilters((current) => ({ ...current, [field]: event.target.value }))
 
-  const fetchItems = async () => {
-    try {
-      setLoading(true)
-      const params = { page, limit: 12, sortBy: filters.sortBy, ...filters }
-      Object.keys(params).forEach((k) => {
-        if (params[k] === '' || params[k] === null || params[k] === undefined) delete params[k]
-      })
-
-      let allItems = []
-      let totalCount = 0
-
-      if (tab === 'all' || tab === 'products') {
-        const { data } = await productApi.getAll({
-          ...params,
-          assignedState: params.state,
-          search: params.search,
-          minPrice: params.minPrice,
-          maxPrice: params.maxPrice,
-        })
-        const prods = (data.products || data.items || []).map((p) => ({ ...p, _itemType: 'product' }))
-        allItems = [...allItems, ...prods]
-        totalCount += data.pagination?.total || data.total || prods.length
-      }
-
-      if (tab === 'all' || tab === 'properties') {
-        const { data } = await propertyApi.getPublic({
-          ...params,
-          state: params.state,
-          search: params.search,
-          minPrice: params.minPrice,
-          maxPrice: params.maxPrice,
-        })
-        const props = (data.properties || data.items || []).map((p) => ({ ...p, _itemType: 'property' }))
-        allItems = [...allItems, ...props]
-        totalCount += data.pagination?.total || data.total || props.length
-      }
-
-      if (filters.sortBy === 'priceKobo') {
-        allItems.sort((a, b) => (b.priceKobo || 0) - (a.priceKobo || 0))
-      } else {
-        allItems.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-      }
-
-      setItems(allItems)
-      setTotal(totalCount)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchItems()
-  }, [page, tab, filters.sortBy])
-
-  const handleSearch = () => {
-    setPage(1)
-    fetchItems()
-  }
-
-  const clearFilters = () => {
-    setFilters({ search: '', state: '', minPrice: '', maxPrice: '', sortBy: 'createdAt' })
-    setPage(1)
-  }
-
-  return (
-    <div className="min-h-screen bg-midnight text-text-p">
-      <div className="bg-[#0D4A3A] py-16 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="font-display text-4xl md:text-5xl font-bold text-text-p mb-4">Gimbiya Marketplace</h1>
-          <p className="font-body text-lg text-brass mb-8">Products, properties & services — all in one place</p>
-          <div className="max-w-2xl mx-auto flex gap-2">
-            <div className="relative flex-1">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-text-m" />
-              <Input
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="Search products, properties, brands..."
-                className="pl-10 w-full bg-white text-midnight border-0 h-12"
-              />
-            </div>
-            <Button onClick={handleSearch} className="h-12 px-6">Search</Button>
-            <Button variant="secondary" onClick={() => setShowFilters(!showFilters)} className="h-12 px-4"><Filter className="w-5 h-5" /></Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-surface border-b border-border px-6 py-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex gap-2 mb-4 flex-wrap">
-            {[
-              { id: 'all', label: 'All Items', icon: ShoppingBag },
-              { id: 'products', label: 'Products', icon: Package },
-              { id: 'properties', label: 'Properties', icon: Building2 },
-            ].map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => { setTab(id); setPage(1) }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-btn text-sm font-medium transition-colors ${tab === id ? 'bg-brass text-midnight' : 'text-text-m hover:text-text-p'}`}
-              >
-                <Icon className="w-4 h-4" /> {label}
-              </button>
-            ))}
-          </div>
-
-          {showFilters && (
-            <div className="flex flex-wrap gap-4 items-end">
-              <div>
-                <label className="input-label">State/Location</label>
-                <Input value={filters.state} onChange={(e) => setFilters({ ...filters, state: e.target.value })} placeholder="e.g. Lagos" className="w-40 bg-midnight border-border" />
-              </div>
-              <div>
-                <label className="input-label">Min Price (₦)</label>
-                <Input type="number" value={filters.minPrice} onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })} className="w-32 bg-midnight border-border" />
-              </div>
-              <div>
-                <label className="input-label">Max Price (₦)</label>
-                <Input type="number" value={filters.maxPrice} onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })} className="w-32 bg-midnight border-border" />
-              </div>
-              <div>
-                <label className="input-label">Sort By</label>
-                <Select value={filters.sortBy} onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })} className="w-40 bg-midnight border-border">
-                  <option value="createdAt">Newest</option>
-                  <option value="priceKobo">Price: High to Low</option>
-                </Select>
-              </div>
-              <Button onClick={handleSearch}>Apply</Button>
-              <Button variant="secondary" onClick={clearFilters} className="flex items-center gap-1"><X className="w-3 h-3" /> Clear</Button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <p className="font-mono text-xs uppercase tracking-wider text-text-m">{items.length} of {total} results</p>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center py-20"><Spinner size={12} /></div>
-        ) : (
-          <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {items.map((item) => {
-                if (item._itemType === 'property') {
-                  const Icon = PROPERTY_TYPE_ICONS[item.propertyType] || Home
-                  return (
-                    <Link key={item._id} to={`/properties/${item._id}`} className="group">
-                      <Card className="overflow-hidden hover:border-brass/80 transition-colors h-full p-0">
-                        <div className="h-48 bg-surface-h relative overflow-hidden">
-                          {item.imageUrls?.[0] ? (
-                            <img src={item.imageUrls[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-brass/10"><Icon className="w-16 h-16 text-brass opacity-30" /></div>
-                          )}
-                          <div className="absolute top-3 left-3 flex gap-2">
-                            <Badge color="muted">{item.listingType}</Badge>
-                            <Badge color="purple">Property</Badge>
-                          </div>
-                          <div className="absolute bottom-3 right-3"><p className="text-lg font-bold text-text-p drop-shadow-lg">{formatNaira((item.priceKobo || 0) / 100)}</p></div>
-                        </div>
-                        <div className="p-4">
-                          <h3 className="font-body font-semibold text-text-p mb-1 group-hover:text-brass transition-colors">{item.title}</h3>
-                          <p className="font-mono text-[10px] text-text-m flex items-center gap-1 mb-2"><MapPin className="w-3 h-3" /> {item.city}, {item.state}</p>
-                          <div className="flex items-center gap-3 text-[11px] text-text-m flex-wrap">
-                            {item.bedrooms !== null && <span className="flex items-center gap-1"><BedDouble className="w-3 h-3" /> {item.bedrooms}</span>}
-                            {item.bathrooms !== null && <span className="flex items-center gap-1"><Bath className="w-3 h-3" /> {item.bathrooms}</span>}
-                            {item.squareMeters !== null && <span className="flex items-center gap-1"><Maximize className="w-3 h-3" /> {item.squareMeters}m²</span>}
-                          </div>
-                          {item.priceNegotiable && <p className="font-mono text-[10px] text-success mt-2">Price negotiable</p>}
-                        </div>
-                      </Card>
-                    </Link>
-                  )
-                }
-
-                return (
-                  <Link key={item._id} to="/shop" className="group">
-                    <Card className="overflow-hidden hover:border-brass/80 transition-colors h-full p-0">
-                      <div className="h-48 bg-surface-h relative overflow-hidden">
-                        {item.imageUrl ? (
-                          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-brass/10"><Package className="w-16 h-16 text-brass opacity-30" /></div>
-                        )}
-                        <div className="absolute top-3 left-3"><Badge color="blue">Product</Badge></div>
-                        <div className="absolute bottom-3 right-3"><p className="text-lg font-bold text-text-p drop-shadow-lg">{formatNaira((item.priceKobo || 0) / 100)}</p></div>
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-body font-semibold text-text-p mb-1 group-hover:text-brass transition-colors">{item.name}</h3>
-                        <p className="font-mono text-[10px] text-text-m mb-2">{item.category || 'Uncategorized'} · {item.assignedState}</p>
-                        <div className="flex justify-between items-center">
-                          <p className="font-mono text-[10px] text-text-m">{item.stock} in stock</p>
-                          <p className="font-mono text-[10px] text-text-m">{item.buildingFloor}</p>
-                        </div>
-                      </div>
-                    </Card>
-                  </Link>
-                )
-              })}
-            </div>
-
-            {!items.length && (
-              <div className="text-center py-20">
-                <ShoppingBag className="w-16 h-16 text-text-m mx-auto mb-4" />
-                <p className="text-text-m text-lg">No items found.</p>
-                <Button variant="secondary" onClick={clearFilters} className="mt-4">Clear Filters</Button>
-              </div>
-            )}
-
-            {total > 12 && (
-              <div className="flex justify-center gap-2 mt-8">
-                <Button variant="secondary" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</Button>
-                <span className="px-4 py-2 text-text-m">Page {page} of {Math.ceil(total / 12)}</span>
-                <Button variant="secondary" disabled={page >= Math.ceil(total / 12)} onClick={() => setPage(page + 1)}>Next</Button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  )
+  return <div className="min-h-screen bg-midnight text-text-p">
+    <div className="bg-[#0D4A3A] py-12 px-6"><div className="max-w-7xl mx-auto"><div className="flex flex-wrap items-start justify-between gap-4 mb-8"><div><p className="section-label text-brass mb-2">Gimbiya Marketplace</p><h1 className="font-display text-4xl font-bold">One catalog. The right visibility.</h1></div><div className="flex items-center gap-3 bg-midnight/30 border border-white/10 px-4 py-3 rounded-btn"><Badge color={tierMeta.color}>{tierMeta.badge}</Badge><div><p className="text-sm font-bold">{tierMeta.label}</p><p className="text-[10px] text-text-m">{tierMeta.note}</p></div></div></div><div className="max-w-3xl flex gap-2"><Input value={filters.search} onChange={updateFilter('search')} onKeyDown={(event) => event.key === 'Enter' && productsQuery.refetch()} placeholder="Search products, properties, brands..." icon={Search} className="bg-white text-midnight border-0 h-12" /><Button onClick={() => productsQuery.refetch()} className="h-12 px-5">Search</Button><Button variant="secondary" onClick={() => setShowFilters(!showFilters)} className="h-12 px-4" aria-label="Toggle filters"><Filter className="w-5 h-5" /></Button></div></div></div>
+    <div className="bg-surface border-b border-border px-6 py-4"><div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4"><div className="flex gap-2"><button onClick={() => setTab('products')} className={`flex items-center gap-2 px-4 py-2 rounded-btn text-sm ${tab === 'products' ? 'bg-brass text-midnight' : 'text-text-m hover:text-text-p'}`}><Package className="w-4 h-4" /> Products</button><button onClick={() => setTab('properties')} className={`flex items-center gap-2 px-4 py-2 rounded-btn text-sm ${tab === 'properties' ? 'bg-brass text-midnight' : 'text-text-m hover:text-text-p'}`}><Building2 className="w-4 h-4" /> Properties</button></div>{showFilters && <div className="flex flex-wrap gap-3 items-end"><Input label="State" value={filters.state} onChange={updateFilter('state')} className="w-40 bg-midnight" /><Input label="Min price" type="number" value={filters.minPrice} onChange={updateFilter('minPrice')} className="w-32 bg-midnight" /><Input label="Max price" type="number" value={filters.maxPrice} onChange={updateFilter('maxPrice')} className="w-32 bg-midnight" /><Select label="Sort" value={filters.sortBy} onChange={updateFilter('sortBy')} options={[{ value: 'createdAt', label: 'Newest' }, { value: 'priceKobo', label: 'Price' }]} className="w-32 bg-midnight" /><Button variant="ghost" onClick={() => setFilters({ search: '', state: '', minPrice: '', maxPrice: '', sortBy: 'createdAt' })}><X className="w-4 h-4" /></Button></div>}</div></div>
+    <div className="max-w-7xl mx-auto px-6 py-8">{loading ? <div className="flex justify-center py-20"><Spinner size={12} /></div> : tab === 'products' ? (!products.length ? <EmptyState icon={ShoppingBag} title="No products found" description="Try adjusting your search or filters." /> : <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">{products.map((product) => <ProductCard key={product._id} product={product} showBulkPricing={productsQuery.data?.meta?.marketTier !== 'consumer'} />)}</div>) : (!properties.length ? <EmptyState icon={Building2} title="No properties found" description="Try adjusting your search or filters." /> : <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">{properties.map((property) => <Link key={property._id} to={`/properties/${property._id}`}><Card className="overflow-hidden p-0 h-full"><div className="h-48 bg-surface-h">{property.imageUrls?.[0] && <img src={property.imageUrls[0]} alt={property.title} className="w-full h-full object-cover" />}</div><div className="p-4"><h3 className="font-semibold">{property.title}</h3><p className="text-xs text-text-m mt-2 flex items-center gap-1"><MapPin className="w-3 h-3" />{property.city}, {property.state}</p><p className="text-brass font-bold mt-3">{formatNaira((property.priceKobo || 0) / 100)}</p></div></Card></Link>)}</div>)}</div>
+  </div>
 }

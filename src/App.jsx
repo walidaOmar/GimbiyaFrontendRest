@@ -25,6 +25,9 @@ const CoordinatorDashboard = lazy(() => import('./pages/dashboards/Coordinator.j
 const PropertyAdminDashboard = lazy(() => import('./pages/dashboards/PropertyAdminDashboard.jsx'))
 const DealInitiatorDashboard = lazy(() => import('./pages/dashboards/DealInitiatorDashboard.jsx'))
 const ProductManager = lazy(() => import('./pages/dashboards/ProductManager.jsx'))
+const StaffManagement = lazy(() => import('./pages/dashboards/StaffManagement.jsx'))
+const StaffOnboarding = lazy(() => import('./pages/dashboards/StaffOnboarding.jsx'))
+const StoreOnboarding = lazy(() => import('./pages/dashboards/StoreOnboarding.jsx'))
 const UnifiedMarketplace = lazy(() => import('./pages/UnifiedMarketplace.jsx'))
 const PropertyDetail = lazy(() => import('./pages/PropertyDetail.jsx'))
 
@@ -118,6 +121,9 @@ export default function App() {
                 <Route path="coordinator"  element={<CoordinatorDashboard />} />
                 <Route path="coordinator/stores" element={<CoordinatorDashboard />} />
                 <Route path="coordinator/staff"  element={<CoordinatorDashboard />} />
+                <Route path="staff" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffManagement /></RequireAuth>} />
+                <Route path="staff/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffOnboarding /></RequireAuth>} />
+                <Route path="stores/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator', 'affiliate']}><StoreOnboarding /></RequireAuth>} />
                 <Route path="merchant"           element={<MerchantDashboard />} />
                 <Route path="merchant/listings"  element={<MerchantDashboard />} />
                 <Route path="merchant/settlement"element={<MerchantDashboard />} />

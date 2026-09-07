@@ -182,6 +182,8 @@ export const userApi = {
   me:          ()     => api.get('/users/me'),
   updateMe:    (data) => api.patch('/users/me', data),
   list:        (params) => api.get('/users', { params }),
+  staff:       (params) => api.get('/users/staff', { params }),
+  onboardStaff:(data) => api.post('/users/onboard-staff', data),
   updateRole:  (id, data) => api.patch(`/users/${id}/role`, data),
 }
 

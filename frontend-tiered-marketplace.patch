@@ -1,0 +1,503 @@
+diff --git a/src/App.jsx b/src/App.jsx
+index 69d0733..9cd1e19 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -25,6 +25,9 @@ const CoordinatorDashboard = lazy(() => import('./pages/dashboards/Coordinator.j
+ const PropertyAdminDashboard = lazy(() => import('./pages/dashboards/PropertyAdminDashboard.jsx'))
+ const DealInitiatorDashboard = lazy(() => import('./pages/dashboards/DealInitiatorDashboard.jsx'))
+ const ProductManager = lazy(() => import('./pages/dashboards/ProductManager.jsx'))
++const StaffManagement = lazy(() => import('./pages/dashboards/StaffManagement.jsx'))
++const StaffOnboarding = lazy(() => import('./pages/dashboards/StaffOnboarding.jsx'))
++const StoreOnboarding = lazy(() => import('./pages/dashboards/StoreOnboarding.jsx'))
+ const UnifiedMarketplace = lazy(() => import('./pages/UnifiedMarketplace.jsx'))
+ const PropertyDetail = lazy(() => import('./pages/PropertyDetail.jsx'))
+ 
+@@ -118,6 +121,9 @@ export default function App() {
+                 <Route path="coordinator"  element={<CoordinatorDashboard />} />
+                 <Route path="coordinator/stores" element={<CoordinatorDashboard />} />
+                 <Route path="coordinator/staff"  element={<CoordinatorDashboard />} />
++                <Route path="staff" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffManagement /></RequireAuth>} />
++                <Route path="staff/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffOnboarding /></RequireAuth>} />
++                <Route path="stores/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator', 'affiliate']}><StoreOnboarding /></RequireAuth>} />
+                 <Route path="merchant"           element={<MerchantDashboard />} />
+                 <Route path="merchant/listings"  element={<MerchantDashboard />} />
+                 <Route path="merchant/settlement"element={<MerchantDashboard />} />
+diff --git a/src/api/index.js b/src/api/index.js
+index 4f2ca62..86f140d 100644
+--- a/src/api/index.js
++++ b/src/api/index.js
+@@ -182,6 +182,8 @@ export const userApi = {
+   me:          ()     => api.get('/users/me'),
+   updateMe:    (data) => api.patch('/users/me', data),
+   list:        (params) => api.get('/users', { params }),
++  staff:       (params) => api.get('/users/staff', { params }),
++  onboardStaff:(data) => api.post('/users/onboard-staff', data),
+   updateRole:  (id, data) => api.patch(`/users/${id}/role`, data),
+ }
+ 
+diff --git a/src/components/layout/Sidebar.jsx b/src/components/layout/Sidebar.jsx
+index 2793bea..ebfed5a 100644
+--- a/src/components/layout/Sidebar.jsx
++++ b/src/components/layout/Sidebar.jsx
+@@ -4,7 +4,7 @@ import {
+   LayoutDashboard, Package, ShoppingCart, Truck, Users,
+   BarChart3, Settings, TrendingUp, Warehouse, MapPin,
+   Link2, FileCheck, ChevronRight,
+-  Target,
++  Target, UserPlus, Building2,
+ } from 'lucide-react'
+ import { useAuthStore } from '../../store/authStore.js'
+ import { GlowDot }     from '../ui/index.jsx'
+@@ -18,11 +18,15 @@ const NAV_CONFIG = {
+     { label: 'Escrow Summary',   path: '/dashboard/ceo/escrow',     icon: TrendingUp },
+     { label: 'System Metrics',   path: '/dashboard/ceo/metrics',    icon: BarChart3 },
+     { label: 'Users',            path: '/dashboard/ceo/users',      icon: Users },
++    { label: 'Staff Management', path: '/dashboard/staff',          icon: UserPlus },
++    { label: 'Store Onboarding', path: '/dashboard/stores/onboard',  icon: Building2 },
+   ],
+   developer_coordinator: [
+     { label: 'Regional Hub',   path: '/dashboard/coordinator',        icon: LayoutDashboard },
+     { label: 'Storefronts',    path: '/dashboard/coordinator/stores', icon: Package },
+     { label: 'Staff',          path: '/dashboard/coordinator/staff',  icon: Users },
++    { label: 'Staff Onboarding', path: '/dashboard/staff/onboard',     icon: UserPlus },
++    { label: 'Store Onboarding', path: '/dashboard/stores/onboard',     icon: Building2 },
+   ],
+   business_owner: [
+     { label: 'Store Overview', path: '/dashboard/merchant',              icon: LayoutDashboard },
+@@ -50,6 +54,7 @@ const NAV_CONFIG = {
+     { label: 'Overview',       path: '/dashboard/affiliate',              icon: LayoutDashboard },
+     { label: 'Campaigns',      path: '/dashboard/affiliate/campaigns',    icon: Link2 },
+     { label: 'Payouts',        path: '/dashboard/affiliate/payouts',      icon: TrendingUp },
++    { label: 'Store Onboarding', path: '/dashboard/stores/onboard',        icon: Building2 },
+   ],
+   buyer: [
+     { label: 'My Orders',      path: '/dashboard/buyer',          icon: ShoppingCart },
+diff --git a/src/pages/UnifiedMarketplace.jsx b/src/pages/UnifiedMarketplace.jsx
+index cd23547..1b6a719 100644
+--- a/src/pages/UnifiedMarketplace.jsx
++++ b/src/pages/UnifiedMarketplace.jsx
+@@ -1,251 +1,43 @@
+-import { useEffect, useState } from 'react'
++import { useState } from 'react'
+ import { Link } from 'react-router-dom'
++import { useQuery } from '@tanstack/react-query'
+ import { productApi, propertyApi } from '../api/index.js'
+-import { Card, Badge, Input, Select, Button, Spinner } from '../components/ui/index.jsx'
+-import {
+-  Search, MapPin, BedDouble, Bath, Maximize, Home, Briefcase, LandPlot, Factory,
+-  Package, ShoppingBag, Filter, X, Building2,
+-} from 'lucide-react'
++import { Badge, Button, Card, EmptyState, Input, Select, Spinner } from '../components/ui/index.jsx'
++import { Building2, Filter, MapPin, Package, Search, ShoppingBag, X } from 'lucide-react'
+ import { formatNaira } from '../utils/index.js'
+ 
+-const PROPERTY_TYPE_ICONS = {
+-  residential: Home,
+-  commercial: Briefcase,
+-  land: LandPlot,
+-  industrial: Factory,
++const TIER_LABELS = {
++  consumer: { label: 'Public Retail', badge: 'B2C', color: 'green', note: 'Retail products available to everyone.' },
++  wholesale: { label: 'Wholesale Procurement', badge: 'B2B', color: 'amber', note: 'Inventory available for business restocking.' },
++  manufacturing: { label: 'Manufacturer Direct', badge: 'B2B', color: 'purple', note: 'Direct-source inventory for bulk procurement.' },
++  all: { label: 'Full Catalog', badge: 'ADMIN', color: 'muted', note: 'All catalog visibility enabled.' },
++}
++
++function ProductCard({ product, showBulkPricing }) {
++  const isB2B = showBulkPricing && product.marketTier !== 'consumer'
++  const price = product.priceKobo || product.price || 0
++  return <Card className="overflow-hidden hover:border-brass/80 transition-colors h-full p-0 flex flex-col">
++    <div className="h-48 bg-surface-h relative overflow-hidden">{product.imageUrls?.[0] || product.imageUrl ? <img src={product.imageUrls?.[0] || product.imageUrl} alt={product.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-brass/10"><Package className="w-14 h-14 text-brass opacity-30" /></div>}<div className="absolute top-3 left-3"><Badge color={isB2B ? 'amber' : 'blue'}>{isB2B ? 'B2B' : 'Retail'}</Badge></div></div>
++    <div className="p-4 flex flex-col flex-1"><div className="flex items-center justify-between gap-2 mb-2"><span className="font-mono text-[10px] uppercase text-text-m truncate">{product.store?.businessType || product.category || 'Product'}</span>{isB2B && product.minimumOrderQuantity && <Badge color="amber">MOQ: {product.minimumOrderQuantity}</Badge>}</div><h3 className="font-body font-semibold text-text-p mb-1">{product.name}</h3><p className="font-mono text-[10px] text-text-m mb-3">{product.store?.name || product.assignedState || 'Gimbiya Marketplace'}</p><div className="flex items-baseline gap-2"><span className="text-lg font-black text-brass">{formatNaira(price / 100)}</span><span className="font-mono text-[10px] text-text-m">per unit</span></div>{isB2B && product.bulkPricingTiers?.length > 0 && <div className="mt-3 pt-3 border-t border-border space-y-1.5"><p className="font-mono text-[10px] font-bold text-text-m uppercase">Bulk Pricing</p>{product.bulkPricingTiers.map((tier, index) => <div key={`${tier.minQty}-${index}`} className="flex justify-between text-xs"><span className="text-text-m">{tier.minQty}+ units</span><span className="text-success font-bold">{formatNaira((tier.priceKobo || 0) / 100)}</span></div>)}</div>}<Link to="/shop" className="btn btn-primary mt-4 w-full text-center text-xs">{isB2B ? 'Add to Procurement List' : 'Add to Cart'}</Link></div>
++  </Card>
+ }
+ 
+ export default function UnifiedMarketplace() {
+-  const [items, setItems] = useState([])
+-  const [loading, setLoading] = useState(true)
+-  const [tab, setTab] = useState('all')
++  const [tab, setTab] = useState('products')
+   const [filters, setFilters] = useState({ search: '', state: '', minPrice: '', maxPrice: '', sortBy: 'createdAt' })
+-  const [page, setPage] = useState(1)
+-  const [total, setTotal] = useState(0)
+   const [showFilters, setShowFilters] = useState(false)
+-
+-  const fetchItems = async () => {
+-    try {
+-      setLoading(true)
+-      const params = { page, limit: 12, sortBy: filters.sortBy, ...filters }
+-      Object.keys(params).forEach((k) => {
+-        if (params[k] === '' || params[k] === null || params[k] === undefined) delete params[k]
+-      })
+-
+-      let allItems = []
+-      let totalCount = 0
+-
+-      if (tab === 'all' || tab === 'products') {
+-        const { data } = await productApi.getAll({
+-          ...params,
+-          assignedState: params.state,
+-          search: params.search,
+-          minPrice: params.minPrice,
+-          maxPrice: params.maxPrice,
+-        })
+-        const prods = (data.products || data.items || []).map((p) => ({ ...p, _itemType: 'product' }))
+-        allItems = [...allItems, ...prods]
+-        totalCount += data.pagination?.total || data.total || prods.length
+-      }
+-
+-      if (tab === 'all' || tab === 'properties') {
+-        const { data } = await propertyApi.getPublic({
+-          ...params,
+-          state: params.state,
+-          search: params.search,
+-          minPrice: params.minPrice,
+-          maxPrice: params.maxPrice,
+-        })
+-        const props = (data.properties || data.items || []).map((p) => ({ ...p, _itemType: 'property' }))
+-        allItems = [...allItems, ...props]
+-        totalCount += data.pagination?.total || data.total || props.length
+-      }
+-
+-      if (filters.sortBy === 'priceKobo') {
+-        allItems.sort((a, b) => (b.priceKobo || 0) - (a.priceKobo || 0))
+-      } else {
+-        allItems.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+-      }
+-
+-      setItems(allItems)
+-      setTotal(totalCount)
+-    } catch (err) {
+-      console.error(err)
+-    } finally {
+-      setLoading(false)
+-    }
+-  }
+-
+-  useEffect(() => {
+-    fetchItems()
+-  }, [page, tab, filters.sortBy])
+-
+-  const handleSearch = () => {
+-    setPage(1)
+-    fetchItems()
+-  }
+-
+-  const clearFilters = () => {
+-    setFilters({ search: '', state: '', minPrice: '', maxPrice: '', sortBy: 'createdAt' })
+-    setPage(1)
+-  }
+-
+-  return (
+-    <div className="min-h-screen bg-midnight text-text-p">
+-      <div className="bg-[#0D4A3A] py-16 px-6">
+-        <div className="max-w-6xl mx-auto text-center">
+-          <h1 className="font-display text-4xl md:text-5xl font-bold text-text-p mb-4">Gimbiya Marketplace</h1>
+-          <p className="font-body text-lg text-brass mb-8">Products, properties & services — all in one place</p>
+-          <div className="max-w-2xl mx-auto flex gap-2">
+-            <div className="relative flex-1">
+-              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-text-m" />
+-              <Input
+-                value={filters.search}
+-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+-                placeholder="Search products, properties, brands..."
+-                className="pl-10 w-full bg-white text-midnight border-0 h-12"
+-              />
+-            </div>
+-            <Button onClick={handleSearch} className="h-12 px-6">Search</Button>
+-            <Button variant="secondary" onClick={() => setShowFilters(!showFilters)} className="h-12 px-4"><Filter className="w-5 h-5" /></Button>
+-          </div>
+-        </div>
+-      </div>
+-
+-      <div className="bg-surface border-b border-border px-6 py-4">
+-        <div className="max-w-6xl mx-auto">
+-          <div className="flex gap-2 mb-4 flex-wrap">
+-            {[
+-              { id: 'all', label: 'All Items', icon: ShoppingBag },
+-              { id: 'products', label: 'Products', icon: Package },
+-              { id: 'properties', label: 'Properties', icon: Building2 },
+-            ].map(({ id, label, icon: Icon }) => (
+-              <button
+-                key={id}
+-                onClick={() => { setTab(id); setPage(1) }}
+-                className={`flex items-center gap-2 px-4 py-2 rounded-btn text-sm font-medium transition-colors ${tab === id ? 'bg-brass text-midnight' : 'text-text-m hover:text-text-p'}`}
+-              >
+-                <Icon className="w-4 h-4" /> {label}
+-              </button>
+-            ))}
+-          </div>
+-
+-          {showFilters && (
+-            <div className="flex flex-wrap gap-4 items-end">
+-              <div>
+-                <label className="input-label">State/Location</label>
+-                <Input value={filters.state} onChange={(e) => setFilters({ ...filters, state: e.target.value })} placeholder="e.g. Lagos" className="w-40 bg-midnight border-border" />
+-              </div>
+-              <div>
+-                <label className="input-label">Min Price (₦)</label>
+-                <Input type="number" value={filters.minPrice} onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })} className="w-32 bg-midnight border-border" />
+-              </div>
+-              <div>
+-                <label className="input-label">Max Price (₦)</label>
+-                <Input type="number" value={filters.maxPrice} onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })} className="w-32 bg-midnight border-border" />
+-              </div>
+-              <div>
+-                <label className="input-label">Sort By</label>
+-                <Select value={filters.sortBy} onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })} className="w-40 bg-midnight border-border">
+-                  <option value="createdAt">Newest</option>
+-                  <option value="priceKobo">Price: High to Low</option>
+-                </Select>
+-              </div>
+-              <Button onClick={handleSearch}>Apply</Button>
+-              <Button variant="secondary" onClick={clearFilters} className="flex items-center gap-1"><X className="w-3 h-3" /> Clear</Button>
+-            </div>
+-          )}
+-        </div>
+-      </div>
+-
+-      <div className="max-w-6xl mx-auto px-6 py-8">
+-        <div className="flex justify-between items-center mb-6">
+-          <p className="font-mono text-xs uppercase tracking-wider text-text-m">{items.length} of {total} results</p>
+-        </div>
+-
+-        {loading ? (
+-          <div className="flex justify-center py-20"><Spinner size={12} /></div>
+-        ) : (
+-          <>
+-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+-              {items.map((item) => {
+-                if (item._itemType === 'property') {
+-                  const Icon = PROPERTY_TYPE_ICONS[item.propertyType] || Home
+-                  return (
+-                    <Link key={item._id} to={`/properties/${item._id}`} className="group">
+-                      <Card className="overflow-hidden hover:border-brass/80 transition-colors h-full p-0">
+-                        <div className="h-48 bg-surface-h relative overflow-hidden">
+-                          {item.imageUrls?.[0] ? (
+-                            <img src={item.imageUrls[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+-                          ) : (
+-                            <div className="w-full h-full flex items-center justify-center bg-brass/10"><Icon className="w-16 h-16 text-brass opacity-30" /></div>
+-                          )}
+-                          <div className="absolute top-3 left-3 flex gap-2">
+-                            <Badge color="muted">{item.listingType}</Badge>
+-                            <Badge color="purple">Property</Badge>
+-                          </div>
+-                          <div className="absolute bottom-3 right-3"><p className="text-lg font-bold text-text-p drop-shadow-lg">{formatNaira((item.priceKobo || 0) / 100)}</p></div>
+-                        </div>
+-                        <div className="p-4">
+-                          <h3 className="font-body font-semibold text-text-p mb-1 group-hover:text-brass transition-colors">{item.title}</h3>
+-                          <p className="font-mono text-[10px] text-text-m flex items-center gap-1 mb-2"><MapPin className="w-3 h-3" /> {item.city}, {item.state}</p>
+-                          <div className="flex items-center gap-3 text-[11px] text-text-m flex-wrap">
+-                            {item.bedrooms !== null && <span className="flex items-center gap-1"><BedDouble className="w-3 h-3" /> {item.bedrooms}</span>}
+-                            {item.bathrooms !== null && <span className="flex items-center gap-1"><Bath className="w-3 h-3" /> {item.bathrooms}</span>}
+-                            {item.squareMeters !== null && <span className="flex items-center gap-1"><Maximize className="w-3 h-3" /> {item.squareMeters}m²</span>}
+-                          </div>
+-                          {item.priceNegotiable && <p className="font-mono text-[10px] text-success mt-2">Price negotiable</p>}
+-                        </div>
+-                      </Card>
+-                    </Link>
+-                  )
+-                }
+-
+-                return (
+-                  <Link key={item._id} to="/shop" className="group">
+-                    <Card className="overflow-hidden hover:border-brass/80 transition-colors h-full p-0">
+-                      <div className="h-48 bg-surface-h relative overflow-hidden">
+-                        {item.imageUrl ? (
+-                          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+-                        ) : (
+-                          <div className="w-full h-full flex items-center justify-center bg-brass/10"><Package className="w-16 h-16 text-brass opacity-30" /></div>
+-                        )}
+-                        <div className="absolute top-3 left-3"><Badge color="blue">Product</Badge></div>
+-                        <div className="absolute bottom-3 right-3"><p className="text-lg font-bold text-text-p drop-shadow-lg">{formatNaira((item.priceKobo || 0) / 100)}</p></div>
+-                      </div>
+-                      <div className="p-4">
+-                        <h3 className="font-body font-semibold text-text-p mb-1 group-hover:text-brass transition-colors">{item.name}</h3>
+-                        <p className="font-mono text-[10px] text-text-m mb-2">{item.category || 'Uncategorized'} · {item.assignedState}</p>
+-                        <div className="flex justify-between items-center">
+-                          <p className="font-mono text-[10px] text-text-m">{item.stock} in stock</p>
+-                          <p className="font-mono text-[10px] text-text-m">{item.buildingFloor}</p>
+-                        </div>
+-                      </div>
+-                    </Card>
+-                  </Link>
+-                )
+-              })}
+-            </div>
+-
+-            {!items.length && (
+-              <div className="text-center py-20">
+-                <ShoppingBag className="w-16 h-16 text-text-m mx-auto mb-4" />
+-                <p className="text-text-m text-lg">No items found.</p>
+-                <Button variant="secondary" onClick={clearFilters} className="mt-4">Clear Filters</Button>
+-              </div>
+-            )}
+-
+-            {total > 12 && (
+-              <div className="flex justify-center gap-2 mt-8">
+-                <Button variant="secondary" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</Button>
+-                <span className="px-4 py-2 text-text-m">Page {page} of {Math.ceil(total / 12)}</span>
+-                <Button variant="secondary" disabled={page >= Math.ceil(total / 12)} onClick={() => setPage(page + 1)}>Next</Button>
+-              </div>
+-            )}
+-          </>
+-        )}
+-      </div>
+-    </div>
+-  )
++  const params = Object.fromEntries(Object.entries({ limit: 50, ...filters }).filter(([, value]) => value !== ''))
++  const productsQuery = useQuery({ queryKey: ['products', params], queryFn: () => productApi.getCatalog(params).then((response) => response.data), staleTime: 30000 })
++  const propertiesQuery = useQuery({ queryKey: ['marketplace-properties', params], queryFn: () => propertyApi.getPublic(params).then((response) => response.data), staleTime: 30000, enabled: tab === 'properties' })
++  const products = productsQuery.data?.products || productsQuery.data?.items || []
++  const properties = propertiesQuery.data?.properties || propertiesQuery.data?.items || []
++  const tierMeta = TIER_LABELS[productsQuery.data?.meta?.marketTier] || TIER_LABELS.consumer
++  const loading = tab === 'properties' ? propertiesQuery.isLoading : productsQuery.isLoading
++  const updateFilter = (field) => (event) => setFilters((current) => ({ ...current, [field]: event.target.value }))
++
++  return <div className="min-h-screen bg-midnight text-text-p">
++    <div className="bg-[#0D4A3A] py-12 px-6"><div className="max-w-7xl mx-auto"><div className="flex flex-wrap items-start justify-between gap-4 mb-8"><div><p className="section-label text-brass mb-2">Gimbiya Marketplace</p><h1 className="font-display text-4xl font-bold">One catalog. The right visibility.</h1></div><div className="flex items-center gap-3 bg-midnight/30 border border-white/10 px-4 py-3 rounded-btn"><Badge color={tierMeta.color}>{tierMeta.badge}</Badge><div><p className="text-sm font-bold">{tierMeta.label}</p><p className="text-[10px] text-text-m">{tierMeta.note}</p></div></div></div><div className="max-w-3xl flex gap-2"><Input value={filters.search} onChange={updateFilter('search')} onKeyDown={(event) => event.key === 'Enter' && productsQuery.refetch()} placeholder="Search products, properties, brands..." icon={Search} className="bg-white text-midnight border-0 h-12" /><Button onClick={() => productsQuery.refetch()} className="h-12 px-5">Search</Button><Button variant="secondary" onClick={() => setShowFilters(!showFilters)} className="h-12 px-4" aria-label="Toggle filters"><Filter className="w-5 h-5" /></Button></div></div></div>
++    <div className="bg-surface border-b border-border px-6 py-4"><div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4"><div className="flex gap-2"><button onClick={() => setTab('products')} className={`flex items-center gap-2 px-4 py-2 rounded-btn text-sm ${tab === 'products' ? 'bg-brass text-midnight' : 'text-text-m hover:text-text-p'}`}><Package className="w-4 h-4" /> Products</button><button onClick={() => setTab('properties')} className={`flex items-center gap-2 px-4 py-2 rounded-btn text-sm ${tab === 'properties' ? 'bg-brass text-midnight' : 'text-text-m hover:text-text-p'}`}><Building2 className="w-4 h-4" /> Properties</button></div>{showFilters && <div className="flex flex-wrap gap-3 items-end"><Input label="State" value={filters.state} onChange={updateFilter('state')} className="w-40 bg-midnight" /><Input label="Min price" type="number" value={filters.minPrice} onChange={updateFilter('minPrice')} className="w-32 bg-midnight" /><Input label="Max price" type="number" value={filters.maxPrice} onChange={updateFilter('maxPrice')} className="w-32 bg-midnight" /><Select label="Sort" value={filters.sortBy} onChange={updateFilter('sortBy')} options={[{ value: 'createdAt', label: 'Newest' }, { value: 'priceKobo', label: 'Price' }]} className="w-32 bg-midnight" /><Button variant="ghost" onClick={() => setFilters({ search: '', state: '', minPrice: '', maxPrice: '', sortBy: 'createdAt' })}><X className="w-4 h-4" /></Button></div>}</div></div>
++    <div className="max-w-7xl mx-auto px-6 py-8">{loading ? <div className="flex justify-center py-20"><Spinner size={12} /></div> : tab === 'products' ? (!products.length ? <EmptyState icon={ShoppingBag} title="No products found" description="Try adjusting your search or filters." /> : <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">{products.map((product) => <ProductCard key={product._id} product={product} showBulkPricing={productsQuery.data?.meta?.marketTier !== 'consumer'} />)}</div>) : (!properties.length ? <EmptyState icon={Building2} title="No properties found" description="Try adjusting your search or filters." /> : <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">{properties.map((property) => <Link key={property._id} to={`/properties/${property._id}`}><Card className="overflow-hidden p-0 h-full"><div className="h-48 bg-surface-h">{property.imageUrls?.[0] && <img src={property.imageUrls[0]} alt={property.title} className="w-full h-full object-cover" />}</div><div className="p-4"><h3 className="font-semibold">{property.title}</h3><p className="text-xs text-text-m mt-2 flex items-center gap-1"><MapPin className="w-3 h-3" />{property.city}, {property.state}</p><p className="text-brass font-bold mt-3">{formatNaira((property.priceKobo || 0) / 100)}</p></div></Card></Link>)}</div>)}</div>
++  </div>
+ }
+diff --git a/src/config/businessClassification.js b/src/config/businessClassification.js
+new file mode 100644
+index 0000000..c68124e
+--- /dev/null
++++ b/src/config/businessClassification.js
+@@ -0,0 +1,45 @@
++// The backend remains the source of truth. This tree only drives the cascading UI.
++export const BUSINESS_CLASSIFICATION = [
++  { value: 'retail', label: 'Retail', businessType: 'retailer', marketTier: 'consumer', categories: [
++    { value: 'food_grocery', label: 'Food & Grocery Retail', subcategories: ['Supermarkets', 'Specialty Grocers', 'Convenience Stores', 'Fresh Produce', 'Packaged Foods'] },
++    { value: 'fashion', label: 'Fashion & Apparel', subcategories: ['Clothing', 'Footwear', 'Accessories', 'Tailoring', 'Sportswear'] },
++    { value: 'beauty', label: 'Beauty & Personal Care', subcategories: ['Cosmetics', 'Skincare', 'Haircare', 'Barbering', 'Fragrance'] },
++    { value: 'electronics', label: 'Electronics & Technology', subcategories: ['Mobile Devices', 'Computers', 'Home Electronics', 'Accessories', 'Repairs'] },
++    { value: 'home_lifestyle', label: 'Home & Lifestyle', subcategories: ['Furniture', 'Home Decor', 'Kitchenware', 'Bedding', 'Household Goods'] },
++  ] },
++  { value: 'wholesale', label: 'Wholesale', businessType: 'wholesaler', marketTier: 'wholesale', categories: [
++    { value: 'consumer_goods', label: 'Consumer Goods Wholesale', subcategories: ['Food Distribution', 'Household Supplies', 'Personal Care', 'General Merchandise', 'Import Distribution'] },
++    { value: 'fashion_distribution', label: 'Fashion Distribution', subcategories: ['Textiles', 'Ready-to-Wear', 'Footwear', 'Accessories', 'Uniforms'] },
++    { value: 'building_materials', label: 'Building Materials', subcategories: ['Cement & Aggregates', 'Finishes', 'Plumbing', 'Electrical', 'Hardware'] },
++    { value: 'agricultural_inputs', label: 'Agricultural Inputs', subcategories: ['Seeds', 'Fertilizer', 'Farm Tools', 'Animal Feed', 'Irrigation'] },
++    { value: 'industrial_supplies', label: 'Industrial Supplies', subcategories: ['Packaging', 'Safety Equipment', 'Cleaning Supplies', 'Machinery Parts', 'Office Supplies'] },
++  ] },
++  { value: 'manufacturing', label: 'Manufacturing', businessType: 'manufacturer', marketTier: 'manufacturing', categories: [
++    { value: 'food_manufacturing', label: 'Food Manufacturing', subcategories: ['Beverages', 'Baked Goods', 'Packaged Foods', 'Spices', 'Processed Produce'] },
++    { value: 'textile_manufacturing', label: 'Textile Manufacturing', subcategories: ['Garments', 'Fabric', 'Leather Goods', 'Footwear', 'Home Textiles'] },
++    { value: 'chemical_manufacturing', label: 'Chemical Manufacturing', subcategories: ['Soaps', 'Paints', 'Cosmetics', 'Industrial Chemicals', 'Pharmaceuticals'] },
++    { value: 'construction_manufacturing', label: 'Construction Manufacturing', subcategories: ['Blocks', 'Metalwork', 'Doors & Windows', 'Roofing', 'Furniture Components'] },
++    { value: 'equipment_manufacturing', label: 'Equipment Manufacturing', subcategories: ['Machinery', 'Electrical Equipment', 'Solar Equipment', 'Tools', 'Vehicle Parts'] },
++  ] },
++]
++
++export const STAFF_ROLES = [
++  { value: 'developer_coordinator', label: 'State Coordinator', creators: ['super_admin'] },
++  { value: 'affiliate', label: 'Affiliate', creators: ['super_admin'] },
++  { value: 'property_admin', label: 'Property Admin', creators: ['super_admin'] },
++  { value: 'deal_initiator', label: 'Deal Initiator', creators: ['super_admin'] },
++  { value: 'auditor', label: 'Auditor', creators: ['super_admin'] },
++  { value: 'support', label: 'Support', creators: ['super_admin'] },
++  { value: 'business_owner', label: 'Business Owner', creators: ['super_admin', 'developer_coordinator'] },
++  { value: 'manager', label: 'Manager', creators: ['super_admin', 'developer_coordinator'] },
++  { value: 'stock_manager', label: 'Stock Manager', creators: ['super_admin', 'developer_coordinator'] },
++  { value: 'delivery', label: 'Delivery', creators: ['super_admin', 'developer_coordinator'] },
++]
++
++export function getCategories(sector) {
++  return BUSINESS_CLASSIFICATION.find((item) => item.value === sector)?.categories || []
++}
++
++export function getSubcategories(sector, category) {
++  return getCategories(sector).find((item) => item.value === category)?.subcategories || []
++}
+diff --git a/src/pages/dashboards/StaffManagement.jsx b/src/pages/dashboards/StaffManagement.jsx
+new file mode 100644
+index 0000000..65320fb
+--- /dev/null
++++ b/src/pages/dashboards/StaffManagement.jsx
+@@ -0,0 +1,26 @@
++import { useState } from 'react'
++import { useQuery } from '@tanstack/react-query'
++import { Link } from 'react-router-dom'
++import { ChevronDown, Search, UserPlus, Users } from 'lucide-react'
++import { userApi } from '../../api/index.js'
++import { Badge, Button, Card, EmptyState, Input, Skeleton, StatusBadge } from '../../components/ui/index.jsx'
++import { useAuthStore } from '../../store/authStore.js'
++import { getRegionLabel } from '../../config/regions.js'
++
++const ROLE_COLORS = { business_owner: 'blue', manager: 'blue', developer_coordinator: 'purple', delivery: 'amber', stock_manager: 'green', affiliate: 'purple' }
++
++export default function StaffManagement() {
++  const user = useAuthStore((state) => state.user)
++  const [search, setSearch] = useState('')
++  const [role, setRole] = useState('')
++  const [expanded, setExpanded] = useState(null)
++  const params = { search, role, ...(user?.role === 'developer_coordinator' ? { assignedState: user.assignedState } : {}) }
++  const { data, isLoading } = useQuery({ queryKey: ['staff', params], queryFn: () => userApi.staff(params).then((response) => response.data), staleTime: 30000 })
++  const staff = data?.users || data?.staff || data?.items || []
++
++  return <div className="space-y-6">
++    <div className="flex items-start justify-between gap-4 flex-wrap"><div><p className="section-label mb-1">People and permissions</p><h1 className="font-display text-3xl font-bold">Staff Management</h1><p className="text-sm text-text-m mt-2">{user?.role === 'developer_coordinator' ? `${getRegionLabel(user.assignedState)} staff registry` : 'All platform staff registry'}</p></div><Link to="/dashboard/staff/onboard" className="btn btn-primary"><UserPlus className="w-4 h-4" /> Onboard Staff</Link></div>
++    <Card><div className="flex flex-wrap gap-3"><Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name, email, or phone" icon={Search} className="min-w-64" /><select value={role} onChange={(event) => setRole(event.target.value)} className="input w-48"><option value="">All roles</option><option value="business_owner">Business Owner</option><option value="manager">Manager</option><option value="delivery">Delivery</option><option value="stock_manager">Stock Manager</option><option value="affiliate">Affiliate</option></select></div></Card>
++    {isLoading ? <Card><div className="space-y-2">{[1, 2, 3, 4].map((item) => <Skeleton key={item} className="h-16" />)}</div></Card> : !staff.length ? <Card><EmptyState icon={Users} title="No staff found" description="Try another search or onboard a new team member." /></Card> : <Card><div className="space-y-2">{staff.map((member) => { const isOpen = expanded === member._id; return <div key={member._id} className="border border-border rounded-btn overflow-hidden"><button className="w-full flex items-center justify-between gap-4 p-4 text-left hover:bg-surface-h" onClick={() => setExpanded(isOpen ? null : member._id)}><div className="flex items-center gap-3 min-w-0"><div className="w-9 h-9 rounded-full bg-brass/10 text-brass flex items-center justify-center font-bold">{member.name?.[0]?.toUpperCase()}</div><div className="min-w-0"><p className="font-semibold truncate">{member.name || 'Unnamed user'}</p><p className="text-xs text-text-m truncate">{member.email} {member.phone && `| ${member.phone}`}</p></div></div><div className="flex items-center gap-2 flex-shrink-0"><Badge color={ROLE_COLORS[member.role] || 'muted'}>{member.role?.replaceAll('_', ' ')}</Badge><StatusBadge status={member.kycStatus || member.status || 'PENDING'} /><ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} /></div></button>{isOpen && <div className="grid sm:grid-cols-2 gap-3 border-t border-border bg-midnight/40 p-4 text-sm"><p><span className="text-text-m">Account:</span> {member.isActive === false ? 'Inactive' : 'Active'}</p><p><span className="text-text-m">State:</span> {member.assignedState || 'Global'}</p><p><span className="text-text-m">Store:</span> {member.store?.name || member.assignedStore?.name || 'Not assigned'}</p><p><span className="text-text-m">Onboarded by:</span> {member.onboardedBy?.name || member.onboardedBy?.email || 'System'}</p><p className="sm:col-span-2"><span className="text-text-m">Notes:</span> {member.onboardingNotes || 'No onboarding notes.'}</p></div>}</div> })}</div></Card>}
++  </div>
++}
+diff --git a/src/pages/dashboards/StaffOnboarding.jsx b/src/pages/dashboards/StaffOnboarding.jsx
+new file mode 100644
+index 0000000..7ed2516
+--- /dev/null
++++ b/src/pages/dashboards/StaffOnboarding.jsx
+@@ -0,0 +1,20 @@
++import { useState } from 'react'
++import toast from 'react-hot-toast'
++import { CheckCircle, UserPlus } from 'lucide-react'
++import { userApi } from '../../api/index.js'
++import { Badge, Button, Card, Input, Select } from '../../components/ui/index.jsx'
++import { STATE_OPTIONS } from '../../config/regions.js'
++import { STAFF_ROLES } from '../../config/businessClassification.js'
++import { useAuthStore } from '../../store/authStore.js'
++
++export default function StaffOnboarding() {
++  const user = useAuthStore((state) => state.user)
++  const allowedRoles = STAFF_ROLES.filter((item) => item.creators.includes(user?.role))
++  const [loading, setLoading] = useState(false)
++  const [done, setDone] = useState(false)
++  const [form, setForm] = useState({ name: '', email: '', phone: '', role: allowedRoles[0]?.value || '', assignedState: user?.role === 'developer_coordinator' ? user.assignedState : '', onboardingNotes: '' })
++  const setField = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }))
++  const submit = async (event) => { event.preventDefault(); setLoading(true); try { await userApi.onboardStaff(form); setDone(true); toast.success('Staff onboarding submitted.') } catch (error) { toast.error(error.response?.data?.message || 'Staff onboarding failed') } finally { setLoading(false) } }
++  if (done) return <Card className="max-w-xl mx-auto text-center py-12"><CheckCircle className="w-12 h-12 text-success mx-auto mb-4" /><h1 className="font-display text-2xl font-bold">Staff member submitted</h1><p className="text-text-m mt-2 mb-6">The account is now awaiting the backend verification workflow.</p><Button onClick={() => { setDone(false); setForm({ name: '', email: '', phone: '', role: allowedRoles[0]?.value || '', assignedState: user?.role === 'developer_coordinator' ? user.assignedState : '', onboardingNotes: '' }) }}>Add another</Button></Card>
++  return <div className="space-y-6 max-w-3xl"><div><p className="section-label mb-1">Team access</p><h1 className="font-display text-3xl font-bold">Staff Onboarding</h1><p className="text-sm text-text-m mt-2">Create a role-aware staff account within your permission scope.</p></div><Card><form onSubmit={submit} className="grid sm:grid-cols-2 gap-4"><Input label="Full name" required value={form.name} onChange={setField('name')} placeholder="Full name" /><Input label="Email" required type="email" value={form.email} onChange={setField('email')} placeholder="name@example.com" /><Input label="Phone" value={form.phone} onChange={setField('phone')} placeholder="+234..." /><Select label="Role" value={form.role} onChange={setField('role')} options={allowedRoles.map((item) => ({ value: item.value, label: item.label }))} /><Select label="Assigned state" required={!user?.assignedState} disabled={Boolean(user?.assignedState)} value={form.assignedState} onChange={setField('assignedState')} options={[{ value: '', label: user?.assignedState ? user.assignedState : 'Select a state' }, ...STATE_OPTIONS]} /><div className="sm:col-span-2"><label className="input-label">Onboarding notes</label><textarea value={form.onboardingNotes} onChange={setField('onboardingNotes')} rows={4} className="input w-full resize-none" placeholder="Context for verification or assignment" /></div><div className="sm:col-span-2 flex items-center justify-between border-t border-border pt-4"><Badge color="muted"><UserPlus className="w-3 h-3 inline mr-1" /> Creator: {user?.role}</Badge><Button type="submit" loading={loading}>Submit staff member</Button></div></form></Card></div>
++}
+diff --git a/src/pages/dashboards/StoreOnboarding.jsx b/src/pages/dashboards/StoreOnboarding.jsx
+new file mode 100644
+index 0000000..0181164
+--- /dev/null
++++ b/src/pages/dashboards/StoreOnboarding.jsx
+@@ -0,0 +1,25 @@
++import { useMemo, useState } from 'react'
++import toast from 'react-hot-toast'
++import { Building2, CheckCircle } from 'lucide-react'
++import { storeApi } from '../../api/index.js'
++import { Badge, Button, Card, Input, Select } from '../../components/ui/index.jsx'
++import { STATE_OPTIONS } from '../../config/regions.js'
++import { BUSINESS_CLASSIFICATION, getCategories, getSubcategories } from '../../config/businessClassification.js'
++import { useAuthStore } from '../../store/authStore.js'
++
++const initialForm = { name: '', email: '', phone: '', state: '', floorLevel: '', sector: 'retail', category: '', subcategory: '', ownerId: '' }
++
++export default function StoreOnboarding() {
++  const user = useAuthStore((state) => state.user)
++  const [step, setStep] = useState(1)
++  const [form, setForm] = useState({ ...initialForm, state: user?.assignedState || STATE_OPTIONS[0]?.value || '' })
++  const [loading, setLoading] = useState(false)
++  const [done, setDone] = useState(false)
++  const categories = getCategories(form.sector)
++  const subcategories = getSubcategories(form.sector, form.category)
++  const classification = useMemo(() => BUSINESS_CLASSIFICATION.find((item) => item.value === form.sector), [form.sector])
++  const setField = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value, ...(field === 'sector' ? { category: '', subcategory: '' } : {}), ...(field === 'category' ? { subcategory: '' } : {}) }))
++  const submit = async (event) => { event.preventDefault(); setLoading(true); try { await storeApi.onboard({ ...form, businessType: classification.businessType, marketTier: classification.marketTier }); setDone(true); toast.success('Store onboarding submitted.') } catch (error) { toast.error(error.response?.data?.message || 'Store onboarding failed') } finally { setLoading(false) } }
++  if (done) return <Card className="max-w-xl mx-auto text-center py-12"><CheckCircle className="w-12 h-12 text-success mx-auto mb-4" /><h1 className="font-display text-2xl font-bold">Store submitted</h1><p className="text-text-m mt-2">The store is pending backend verification.</p><Button className="mt-6" onClick={() => { setDone(false); setStep(1); setForm({ ...initialForm, state: user?.assignedState || STATE_OPTIONS[0]?.value || '' }) }}>Onboard another store</Button></Card>
++  return <div className="space-y-6 max-w-4xl"><div><p className="section-label mb-1">Business registry</p><h1 className="font-display text-3xl font-bold">Store Onboarding</h1><p className="text-sm text-text-m mt-2">Classification determines the store's marketplace visibility tier.</p></div><div className="flex gap-2">{['Business details', 'Classification', 'Review'].map((label, index) => <div key={label} className={`flex-1 border-b-2 pb-2 text-xs font-mono ${step >= index + 1 ? 'border-brass text-brass' : 'border-border text-text-m'}`}>{index + 1}. {label}</div>)}</div><Card><form onSubmit={submit} className="grid sm:grid-cols-2 gap-4">{step === 1 && <><Input label="Store name" required value={form.name} onChange={setField('name')} placeholder="Business name" /><Input label="Owner email" type="email" required value={form.email} onChange={setField('email')} placeholder="owner@example.com" /><Input label="Phone" value={form.phone} onChange={setField('phone')} placeholder="+234..." /><Input label="Floor or unit" value={form.floorLevel} onChange={setField('floorLevel')} placeholder="Floor 2, Unit 14" /><Select label="State / node" disabled={Boolean(user?.assignedState)} required value={form.state} onChange={setField('state')} options={[{ value: '', label: 'Select a node' }, ...STATE_OPTIONS]} /><Input label="Owner ID (optional)" value={form.ownerId} onChange={setField('ownerId')} placeholder="Existing user ID" /></>}{step === 2 && <><Select label="Sector" required value={form.sector} onChange={setField('sector')} options={BUSINESS_CLASSIFICATION.map((item) => ({ value: item.value, label: item.label }))} /><Select label="Primary category" required value={form.category} onChange={setField('category')} options={[{ value: '', label: 'Select category' }, ...categories.map((item) => ({ value: item.value, label: item.label }))]} /><Select label="Secondary subcategory" required value={form.subcategory} onChange={setField('subcategory')} options={[{ value: '', label: 'Select subcategory' }, ...subcategories.map((item) => ({ value: item, label: item }))]} /><div className="sm:col-span-2 bg-brass/5 border border-brass/20 rounded-btn p-4"><p className="text-sm">Backend-derived business type: <strong>{classification.businessType}</strong></p><p className="text-sm text-text-m mt-1">Marketplace tier: <strong className="text-brass">{classification.marketTier}</strong></p></div></>}{step === 3 && <div className="sm:col-span-2 space-y-3"><p className="section-label">Review submission</p>{[['Store', form.name], ['Node', form.state], ['Sector', classification.label], ['Category', form.category], ['Subcategory', form.subcategory]].map(([label, value]) => <div key={label} className="flex justify-between border-b border-border py-2 text-sm"><span className="text-text-m">{label}</span><span>{value || 'Not provided'}</span></div>)}<p className="text-xs text-text-m pt-2">The backend validates this classification and controls the final visibility tier.</p></div>}<div className="sm:col-span-2 flex justify-between border-t border-border pt-4"><Button type="button" variant="ghost" disabled={step === 1} onClick={() => setStep(step - 1)}>Back</Button>{step < 3 ? <Button type="button" onClick={() => setStep(step + 1)}>Continue</Button> : <Button type="submit" loading={loading}><Building2 className="w-4 h-4" /> Submit store</Button>}</div></form></Card></div>
++}
