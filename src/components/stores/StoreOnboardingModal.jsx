@@ -1,333 +1,48 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  X, Building2, Upload, CheckCircle, Landmark,
-  MapPin, CreditCard, User, Hash, FileText,
-} from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Building2, CheckCircle, ChevronLeft, ChevronRight, FileText, MapPin, X } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { storeApi } from '../../api/index.js'
 import { STATE_OPTIONS } from '../../config/regions.js'
-import toast from 'react-hot-toast'
+import { BUSINESS_CLASSIFICATION, getCategories, getSubcategories } from '../../config/businessClassification.js'
+import { useAuthStore } from '../../store/authStore.js'
+
+const INITIAL_FORM = { name: '', email: '', phone: '', ownerId: '', state: '', floorLevel: '', sector: 'retail', category: '', subcategory: '', nin: '', cacNumber: '', tinNumber: '', businessAddress: '', homeAddress: '', accountDetails: { bankName: '', accountNumber: '', accountName: '' } }
+const createInitialForm = (state) => ({ ...INITIAL_FORM, state: state || STATE_OPTIONS[0]?.value || '' })
 
 export default function StoreOnboardingModal({ isOpen, onClose }) {
+  const user = useAuthStore((state) => state.user)
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
+  const [form, setForm] = useState(() => createInitialForm(user?.assignedState))
+  const classification = useMemo(() => BUSINESS_CLASSIFICATION.find((item) => item.value === form.sector), [form.sector])
+  const categories = getCategories(form.sector)
+  const subcategories = getSubcategories(form.sector, form.category)
 
-  const [form, setForm] = useState({
-    businessName: '',
-    businessEmail: '',
-    businessPhone: '',
-    nin: '',
-    cacNumber: '',
-    tinNumber: '',
-    businessAddress: '',
-    homeAddress: '',
-    primaryState: STATE_OPTIONS[1].value,
-    commerceSegment: 'retailer',
-    accountDetails: { bankName: '', accountNumber: '', accountName: '' },
-  })
+  const setField = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value, ...(field === 'sector' ? { category: '', subcategory: '' } : {}), ...(field === 'category' ? { subcategory: '' } : {}) }))
+  const setAccountField = (field) => (event) => setForm((current) => ({ ...current, accountDetails: { ...current.accountDetails, [field]: event.target.value } }))
+  const reset = () => { setStep(1); setDone(false); setForm(createInitialForm(user?.assignedState)); onClose?.() }
 
-  const setField = (key) => (e) => setForm((p) => ({ ...p, [key]: e.target.value }))
-  const setAccount = (key) => (e) => setForm((p) => ({
-    ...p,
-    accountDetails: { ...p.accountDetails, [key]: e.target.value },
-  }))
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const submit = async (event) => {
+    event.preventDefault()
     setLoading(true)
     try {
-      await storeApi.onboard(form)
+      await storeApi.onboard({ ...form, businessName: form.name, businessEmail: form.email, businessPhone: form.phone, primaryState: form.state, commerceSegment: classification.businessType, businessType: classification.businessType, marketTier: classification.marketTier })
       setDone(true)
-      toast.success('Store onboarding submitted. It will appear in Pending for verification.')
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Submission failed')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const reset = () => {
-    setStep(1)
-    setDone(false)
-    setForm({
-      businessName: '',
-      businessEmail: '',
-      businessPhone: '',
-      nin: '',
-      cacNumber: '',
-      tinNumber: '',
-      businessAddress: '',
-      homeAddress: '',
-      primaryState: STATE_OPTIONS[1].value,
-      commerceSegment: 'retailer',
-      accountDetails: { bankName: '', accountNumber: '', accountName: '' },
-    })
-    onClose()
+      toast.success('Store onboarding submitted.')
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Store onboarding failed')
+    } finally { setLoading(false) }
   }
 
   if (!isOpen) return null
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-        onClick={reset}
-      >
-        <motion.div
-          initial={{ scale: 0.95, y: 20 }}
-          animate={{ scale: 1, y: 0 }}
-          className="w-full max-w-2xl bg-surface-l border border-border rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-brass/10 flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-brass" />
-              </div>
-              <div>
-                <h3 className="font-display font-bold text-text-p">Onboard New Store</h3>
-                <p className="text-xs text-text-m">CEO verification required before activation</p>
-              </div>
-            </div>
-            <button onClick={reset} className="p-2 hover:bg-surface-h rounded-lg transition-colors">
-              <X className="w-5 h-5 text-text-m" />
-            </button>
-          </div>
-
-          {done ? (
-            <div className="p-8 text-center">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-emerald-400" />
-              </div>
-              <h4 className="font-display text-xl font-bold text-text-p mb-2">Store Submitted!</h4>
-              <p className="text-sm text-text-m mb-6">
-                The store is now in Pending. Go to the Pending tab to verify and activate it.
-              </p>
-              <button onClick={reset} className="btn btn-primary px-8">Done</button>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center gap-2 px-6 py-3 border-b border-border shrink-0 bg-midnight/30">
-                {[
-                  { n: 1, l: 'Business Info' },
-                  { n: 2, l: 'KYC Documents' },
-                  { n: 3, l: 'Account Details' },
-                ].map((s) => (
-                  <div key={s.n} className={`flex items-center gap-2 text-xs font-mono ${step >= s.n ? 'text-brass' : 'text-text-d'}`}>
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold border ${step >= s.n ? 'border-brass bg-brass/10' : 'border-border bg-surface-h'}`}>
-                      {s.n}
-                    </span>
-                    {s.l}
-                    {s.n < 3 && <span className="text-border mx-1">→</span>}
-                  </div>
-                ))}
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
-                {step === 1 && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider">Business Name</label>
-                      <input
-                        required
-                        value={form.businessName}
-                        onChange={setField('businessName')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                        placeholder="e.g. Alhaji Musa Enterprises"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider">Business Email</label>
-                      <input
-                        required
-                        type="email"
-                        value={form.businessEmail}
-                        onChange={setField('businessEmail')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                        placeholder="store@example.com"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider">Business Phone</label>
-                      <input
-                        value={form.businessPhone}
-                        onChange={setField('businessPhone')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                        placeholder="+234..."
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider">Primary State</label>
-                      <select
-                        required
-                        value={form.primaryState}
-                        onChange={setField('primaryState')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                      >
-                        {STATE_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider">Commerce Segment</label>
-                      <select
-                        required
-                        value={form.commerceSegment}
-                        onChange={setField('commerceSegment')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                      >
-                        <option value="manufacturer">🏭 Manufacturer</option>
-                        <option value="wholesaler">📦 Wholesaler</option>
-                        <option value="retailer">🛒 Retailer</option>
-                        <option value="service_provider">🔧 Service Provider</option>
-                        <option value="logistics">🚚 Logistics</option>
-                      </select>
-                    </div>
-                    <div className="col-span-2">
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider">Business Address</label>
-                      <textarea
-                        required
-                        value={form.businessAddress}
-                        onChange={setField('businessAddress')}
-                        rows={2}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none resize-none"
-                        placeholder="Full business address..."
-                      />
-                    </div>
-                    <div className="flex justify-end col-span-2">
-                      <button type="button" onClick={() => setStep(2)} className="btn btn-primary px-6">Next: KYC →</button>
-                    </div>
-                  </div>
-                )}
-
-                {step === 2 && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
-                        <Hash className="w-3 h-3" /> NIN (Owner)
-                      </label>
-                      <input
-                        required
-                        value={form.nin}
-                        onChange={setField('nin')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                        placeholder="National Identification Number"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
-                        <FileText className="w-3 h-3" /> CAC Number
-                      </label>
-                      <input
-                        required
-                        value={form.cacNumber}
-                        onChange={setField('cacNumber')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                        placeholder="Corporate Affairs Commission"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
-                        <FileText className="w-3 h-3" /> TIN Number
-                      </label>
-                      <input
-                        required
-                        value={form.tinNumber}
-                        onChange={setField('tinNumber')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                        placeholder="Tax Identification Number"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
-                        <MapPin className="w-3 h-3" /> Home Address (Owner)
-                      </label>
-                      <textarea
-                        required
-                        value={form.homeAddress}
-                        onChange={setField('homeAddress')}
-                        rows={2}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none resize-none"
-                        placeholder="Owner's residential address..."
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider">ID Document URL</label>
-                      <div className="flex gap-2">
-                        <input
-                          className="flex-1 bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                          placeholder="Firebase Storage URL for scanned ID/CAC"
-                          disabled
-                        />
-                        <button type="button" className="px-3 py-2 bg-surface-h border border-border rounded-lg text-text-m">
-                          <Upload className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-text-d mt-1">Paste URL after uploading to Firebase Storage</p>
-                    </div>
-                    <div className="flex justify-between col-span-2">
-                      <button type="button" onClick={() => setStep(1)} className="btn btn-ghost px-6">← Back</button>
-                      <button type="button" onClick={() => setStep(3)} className="btn btn-primary px-6">Next: Account →</button>
-                    </div>
-                  </div>
-                )}
-
-                {step === 3 && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
-                        <Landmark className="w-3 h-3" /> Bank Name
-                      </label>
-                      <input
-                        value={form.accountDetails.bankName}
-                        onChange={setAccount('bankName')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                        placeholder="e.g. First Bank of Nigeria"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
-                        <CreditCard className="w-3 h-3" /> Account Number
-                      </label>
-                      <input
-                        value={form.accountDetails.accountNumber}
-                        onChange={setAccount('accountNumber')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                        placeholder="10-digit account number"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-mono text-text-m mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
-                        <User className="w-3 h-3" /> Account Name
-                      </label>
-                      <input
-                        value={form.accountDetails.accountName}
-                        onChange={setAccount('accountName')}
-                        className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-brass outline-none"
-                        placeholder="Name on account"
-                      />
-                    </div>
-                    <div className="col-span-2 bg-brass/5 border border-brass/20 rounded-lg p-3 mt-2">
-                      <p className="text-xs text-text-m">
-                        <span className="text-brass font-bold">Note:</span> The store will be created in <span className="text-text-p font-semibold">PENDING</span> status. You must verify it from the Pending tab to activate the business owner account.
-                      </p>
-                    </div>
-                    <div className="flex justify-between col-span-2 pt-2">
-                      <button type="button" onClick={() => setStep(2)} className="btn btn-ghost px-6">← Back</button>
-                      <button type="submit" disabled={loading} className="btn btn-primary px-8 flex items-center gap-2">
-                        {loading ? 'Submitting...' : 'Submit for Verification'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </form>
-            </>
-          )}
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  )
+  return <AnimatePresence><motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={reset}><motion.div className="w-full max-w-3xl bg-surface-l border border-border rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col" initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} onClick={(event) => event.stopPropagation()}>
+    <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-brass/10 flex items-center justify-center"><Building2 className="w-5 h-5 text-brass" /></div><div><h3 className="font-display font-bold text-text-p">Onboard New Store</h3><p className="text-xs text-text-m">Classification controls marketplace visibility.</p></div></div><button onClick={reset} className="p-2 hover:bg-surface-h rounded-lg" aria-label="Close store onboarding"><X className="w-5 h-5 text-text-m" /></button></div>
+    {done ? <div className="p-10 text-center"><CheckCircle className="w-14 h-14 text-success mx-auto mb-4" /><h4 className="font-display text-xl font-bold text-text-p">Store Submitted</h4><p className="text-sm text-text-m mt-2 mb-6">The store is pending backend verification.</p><button onClick={reset} className="btn btn-primary px-8">Done</button></div> : <><div className="flex items-center gap-2 px-6 py-3 border-b border-border bg-midnight/30 shrink-0">{['Business details', 'Classification', 'Review & submit'].map((label, index) => <div key={label} className={`flex items-center gap-2 text-xs font-mono ${step >= index + 1 ? 'text-brass' : 'text-text-d'}`}><span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold border ${step >= index + 1 ? 'border-brass bg-brass/10' : 'border-border bg-surface-h'}`}>{index + 1}</span>{label}{index < 2 && <span className="text-border mx-1">→</span>}</div>)}</div><form onSubmit={submit} className="p-6 space-y-4 overflow-y-auto">
+      {step === 1 && <div className="grid grid-cols-2 gap-4"><div className="col-span-2"><label className="input-label">Store name</label><input required value={form.name} onChange={setField('name')} className="input w-full" placeholder="Business name" /></div><div><label className="input-label">Owner email</label><input required type="email" value={form.email} onChange={setField('email')} className="input w-full" placeholder="owner@example.com" /></div><div><label className="input-label">Phone</label><input value={form.phone} onChange={setField('phone')} className="input w-full" placeholder="+234..." /></div><div><label className="input-label">State / node</label><select required disabled={Boolean(user?.assignedState)} value={form.state} onChange={setField('state')} className="input w-full">{STATE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div><div><label className="input-label">Floor or unit</label><input value={form.floorLevel} onChange={setField('floorLevel')} className="input w-full" placeholder="Floor 2, Unit 14" /></div><div className="col-span-2"><label className="input-label">Owner ID (optional)</label><input value={form.ownerId} onChange={setField('ownerId')} className="input w-full" placeholder="Existing user ID" /></div></div>}
+      {step === 2 && <div className="grid grid-cols-2 gap-4"><div><label className="input-label">Sector</label><select required value={form.sector} onChange={setField('sector')} className="input w-full">{BUSINESS_CLASSIFICATION.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div><div><label className="input-label">Primary category</label><select required value={form.category} onChange={setField('category')} className="input w-full"><option value="">Select category</option>{categories.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div><div><label className="input-label">Secondary subcategory</label><select required value={form.subcategory} onChange={setField('subcategory')} className="input w-full"><option value="">Select subcategory</option>{subcategories.map((item) => <option key={item} value={item}>{item}</option>)}</select></div><div className="bg-brass/5 border border-brass/20 rounded-btn p-3"><p className="text-xs text-text-m">Marketplace tier</p><p className="text-sm font-bold text-brass mt-1">{classification.marketTier}</p></div><div className="col-span-2"><label className="input-label">Business address</label><textarea required value={form.businessAddress} onChange={setField('businessAddress')} rows={2} className="input w-full resize-none" placeholder="Full business address" /></div></div>}
+      {step === 3 && <div className="grid grid-cols-2 gap-4"><div><label className="input-label">NIN</label><input required value={form.nin} onChange={setField('nin')} className="input w-full" /></div><div><label className="input-label"><FileText className="w-3 h-3 inline mr-1" /> CAC number</label><input required value={form.cacNumber} onChange={setField('cacNumber')} className="input w-full" /></div><div><label className="input-label">TIN number</label><input required value={form.tinNumber} onChange={setField('tinNumber')} className="input w-full" /></div><div><label className="input-label"><MapPin className="w-3 h-3 inline mr-1" /> Home address</label><input required value={form.homeAddress} onChange={setField('homeAddress')} className="input w-full" /></div><div><label className="input-label">Bank name</label><input value={form.accountDetails.bankName} onChange={setAccountField('bankName')} className="input w-full" /></div><div><label className="input-label">Account number</label><input value={form.accountDetails.accountNumber} onChange={setAccountField('accountNumber')} className="input w-full" /></div><div className="col-span-2 bg-brass/5 border border-brass/20 rounded-btn p-4"><p className="text-sm">{form.name} will be submitted as a <strong>{classification.label}</strong> store in <strong className="text-brass">{form.state}</strong>.</p><p className="text-xs text-text-m mt-1">The backend validates classification and controls the final visibility tier.</p></div></div>}
+      <div className="flex justify-between border-t border-border pt-4"><button type="button" className="btn btn-ghost" disabled={step === 1} onClick={() => setStep(step - 1)}><ChevronLeft className="w-4 h-4" /> Back</button>{step < 3 ? <button type="button" className="btn btn-primary" onClick={() => setStep(step + 1)}>Continue <ChevronRight className="w-4 h-4" /></button> : <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Submitting...' : 'Submit for verification'}</button>}</div>
+    </form></>}</motion.div></motion.div></AnimatePresence>
 }

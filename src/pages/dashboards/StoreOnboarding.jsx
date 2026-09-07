@@ -1,25 +1,8 @@
-import { useMemo, useState } from 'react'
-import toast from 'react-hot-toast'
-import { Building2, CheckCircle } from 'lucide-react'
-import { storeApi } from '../../api/index.js'
-import { Badge, Button, Card, Input, Select } from '../../components/ui/index.jsx'
-import { STATE_OPTIONS } from '../../config/regions.js'
-import { BUSINESS_CLASSIFICATION, getCategories, getSubcategories } from '../../config/businessClassification.js'
-import { useAuthStore } from '../../store/authStore.js'
-
-const initialForm = { name: '', email: '', phone: '', state: '', floorLevel: '', sector: 'retail', category: '', subcategory: '', ownerId: '' }
+import { useNavigate } from 'react-router-dom'
+import StoreOnboardingModal from '../../components/stores/StoreOnboardingModal.jsx'
 
 export default function StoreOnboarding() {
-  const user = useAuthStore((state) => state.user)
-  const [step, setStep] = useState(1)
-  const [form, setForm] = useState({ ...initialForm, state: user?.assignedState || STATE_OPTIONS[0]?.value || '' })
-  const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState(false)
-  const categories = getCategories(form.sector)
-  const subcategories = getSubcategories(form.sector, form.category)
-  const classification = useMemo(() => BUSINESS_CLASSIFICATION.find((item) => item.value === form.sector), [form.sector])
-  const setField = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value, ...(field === 'sector' ? { category: '', subcategory: '' } : {}), ...(field === 'category' ? { subcategory: '' } : {}) }))
-  const submit = async (event) => { event.preventDefault(); setLoading(true); try { await storeApi.onboard({ ...form, businessType: classification.businessType, marketTier: classification.marketTier }); setDone(true); toast.success('Store onboarding submitted.') } catch (error) { toast.error(error.response?.data?.message || 'Store onboarding failed') } finally { setLoading(false) } }
-  if (done) return <Card className="max-w-xl mx-auto text-center py-12"><CheckCircle className="w-12 h-12 text-success mx-auto mb-4" /><h1 className="font-display text-2xl font-bold">Store submitted</h1><p className="text-text-m mt-2">The store is pending backend verification.</p><Button className="mt-6" onClick={() => { setDone(false); setStep(1); setForm({ ...initialForm, state: user?.assignedState || STATE_OPTIONS[0]?.value || '' }) }}>Onboard another store</Button></Card>
-  return <div className="space-y-6 max-w-4xl"><div><p className="section-label mb-1">Business registry</p><h1 className="font-display text-3xl font-bold">Store Onboarding</h1><p className="text-sm text-text-m mt-2">Classification determines the store's marketplace visibility tier.</p></div><div className="flex gap-2">{['Business details', 'Classification', 'Review'].map((label, index) => <div key={label} className={`flex-1 border-b-2 pb-2 text-xs font-mono ${step >= index + 1 ? 'border-brass text-brass' : 'border-border text-text-m'}`}>{index + 1}. {label}</div>)}</div><Card><form onSubmit={submit} className="grid sm:grid-cols-2 gap-4">{step === 1 && <><Input label="Store name" required value={form.name} onChange={setField('name')} placeholder="Business name" /><Input label="Owner email" type="email" required value={form.email} onChange={setField('email')} placeholder="owner@example.com" /><Input label="Phone" value={form.phone} onChange={setField('phone')} placeholder="+234..." /><Input label="Floor or unit" value={form.floorLevel} onChange={setField('floorLevel')} placeholder="Floor 2, Unit 14" /><Select label="State / node" disabled={Boolean(user?.assignedState)} required value={form.state} onChange={setField('state')} options={[{ value: '', label: 'Select a node' }, ...STATE_OPTIONS]} /><Input label="Owner ID (optional)" value={form.ownerId} onChange={setField('ownerId')} placeholder="Existing user ID" /></>}{step === 2 && <><Select label="Sector" required value={form.sector} onChange={setField('sector')} options={BUSINESS_CLASSIFICATION.map((item) => ({ value: item.value, label: item.label }))} /><Select label="Primary category" required value={form.category} onChange={setField('category')} options={[{ value: '', label: 'Select category' }, ...categories.map((item) => ({ value: item.value, label: item.label }))]} /><Select label="Secondary subcategory" required value={form.subcategory} onChange={setField('subcategory')} options={[{ value: '', label: 'Select subcategory' }, ...subcategories.map((item) => ({ value: item, label: item }))]} /><div className="sm:col-span-2 bg-brass/5 border border-brass/20 rounded-btn p-4"><p className="text-sm">Backend-derived business type: <strong>{classification.businessType}</strong></p><p className="text-sm text-text-m mt-1">Marketplace tier: <strong className="text-brass">{classification.marketTier}</strong></p></div></>}{step === 3 && <div className="sm:col-span-2 space-y-3"><p className="section-label">Review submission</p>{[['Store', form.name], ['Node', form.state], ['Sector', classification.label], ['Category', form.category], ['Subcategory', form.subcategory]].map(([label, value]) => <div key={label} className="flex justify-between border-b border-border py-2 text-sm"><span className="text-text-m">{label}</span><span>{value || 'Not provided'}</span></div>)}<p className="text-xs text-text-m pt-2">The backend validates this classification and controls the final visibility tier.</p></div>}<div className="sm:col-span-2 flex justify-between border-t border-border pt-4"><Button type="button" variant="ghost" disabled={step === 1} onClick={() => setStep(step - 1)}>Back</Button>{step < 3 ? <Button type="button" onClick={() => setStep(step + 1)}>Continue</Button> : <Button type="submit" loading={loading}><Building2 className="w-4 h-4" /> Submit store</Button>}</div></form></Card></div>
+  const navigate = useNavigate()
+
+  return <StoreOnboardingModal isOpen onClose={() => navigate('/dashboard')} />
 }
