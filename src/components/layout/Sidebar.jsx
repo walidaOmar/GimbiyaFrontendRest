@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   LayoutDashboard, Package, ShoppingCart, Truck, Users,
@@ -134,6 +135,7 @@ const ROLE_COLORS = {
 export function Sidebar({ collapsed = false }) {
   const location = useLocation()
   const user     = useAuthStore((s) => s.user)
+  const [openMenus, setOpenMenus] = useState({})
   if (!user) return null
 
   const navItems = NAV_CONFIG[user.role] || NAV_CONFIG.buyer
@@ -170,42 +172,39 @@ export function Sidebar({ collapsed = false }) {
       <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
         {navItems.map(({ label: l, path, icon: Icon, children }) => {
           const hasActiveChild = children?.some(child => location.pathname === child.path)
+          const isExpanded = Boolean(openMenus[l] || hasActiveChild)
           const isActive = location.pathname === path ||
             (path && path !== '/dashboard/buyer' && location.pathname.startsWith(path + '/')) ||
             hasActiveChild
 
           return (
             <div key={path || l}>
-              <Link to={path || children?.[0]?.path || '#'} title={collapsed ? l : undefined}>
-              <motion.div
-                whileHover={{ x: collapsed ? 0 : 2 }}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-btn
-                  transition-colors duration-150 relative overflow-hidden
-                  ${isActive
-                    ? 'bg-brass/10 text-brass'
-                    : 'text-text-m hover:text-text-p hover:bg-surface-h'
-                  }
-                `}
-              >
-                {isActive && (
+              {children ? (
+                <button
+                  type="button"
+                  title={collapsed ? l : undefined}
+                  onClick={() => setOpenMenus(menus => ({ ...menus, [l]: !isExpanded }))}
+                  className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-btn transition-colors duration-150 relative overflow-hidden ${isActive ? 'bg-brass/10 text-brass' : 'text-text-m hover:text-text-p hover:bg-surface-h'}`}
+                >
+                  {isActive && <span className="absolute left-0 top-0 bottom-0 w-0.5 rounded-r" style={{ background: color }} />}
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  {!collapsed && <span className="font-body text-sm font-medium truncate">{l}</span>}
+                  {!collapsed && <ChevronDown className={`w-3 h-3 ml-auto transition-transform ${isExpanded ? 'rotate-180' : ''}`} />}
+                </button>
+              ) : (
+                <Link to={path} title={collapsed ? l : undefined}>
                   <motion.div
-                    layoutId="activeTab"
-                    className="absolute left-0 top-0 bottom-0 w-0.5 rounded-r"
-                    style={{ background: color }}
-                  />
-                )}
-                <Icon className="w-4 h-4 flex-shrink-0" />
-                {!collapsed && (
-                  <span className="font-body text-sm font-medium truncate">{l}</span>
-                )}
-                {!collapsed && children && <ChevronDown className={`w-3 h-3 ml-auto transition-transform ${isActive ? 'rotate-180' : ''}`} />}
-                {!collapsed && isActive && !children && (
-                  <ChevronRight className="w-3 h-3 ml-auto opacity-60" />
-                )}
-              </motion.div>
-              </Link>
-              {!collapsed && children && isActive && (
+                    whileHover={{ x: collapsed ? 0 : 2 }}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-btn transition-colors duration-150 relative overflow-hidden ${isActive ? 'bg-brass/10 text-brass' : 'text-text-m hover:text-text-p hover:bg-surface-h'}`}
+                  >
+                    {isActive && <motion.div layoutId="activeTab" className="absolute left-0 top-0 bottom-0 w-0.5 rounded-r" style={{ background: color }} />}
+                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    {!collapsed && <span className="font-body text-sm font-medium truncate">{l}</span>}
+                    {!collapsed && isActive && <ChevronRight className="w-3 h-3 ml-auto opacity-60" />}
+                  </motion.div>
+                </Link>
+              )}
+              {!collapsed && children && isExpanded && (
                 <div className="ml-7 mt-1 space-y-0.5 border-l border-border pl-2">
                   {children.map(({ label: childLabel, path: childPath, icon: ChildIcon }) => {
                     const childActive = location.pathname === childPath
