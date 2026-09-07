@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider }        from '@tanstack/react-query'
 import { Toaster }                                 from 'react-hot-toast'
 import { Suspense, lazy, useEffect }               from 'react'
 
-import { AuthProvider, RequireAuth, RequireGuest } from './context/AuthContext.jsx'
+import { AuthProvider, RequireAuth, RequireGuest, RoleGuard } from './context/AuthContext.jsx'
 import { useAuthStore }                            from './store/authStore.js'
 import { Navbar }                                  from './components/layout/Navbar.jsx'
 import { DashboardLayout }                         from './components/layout/DashboardLayout.jsx'
@@ -15,13 +15,13 @@ const Login            = lazy(() => import('./pages/auth/Login.jsx'))
 const Register         = lazy(() => import('./pages/auth/Register.jsx'))
 const ForgotPassword   = lazy(() => import('./pages/auth/ForgotReset.jsx').then(m => ({ default: m.ForgotPassword })))
 const ResetPassword    = lazy(() => import('./pages/auth/ForgotReset.jsx').then(m => ({ default: m.ResetPassword })))
-const CEODashboard     = lazy(() => import('./pages/dashboards/CEO.jsx'))
+const CEODashboard     = lazy(() => import('./pages/dashboards/CEOBrassDashboard.jsx'))
 const BuyerDashboard   = lazy(() => import('./pages/dashboards/Buyer.jsx'))
 const MerchantDashboard= lazy(() => import('./pages/dashboards/Merchant.jsx'))
 const StockDashboard   = lazy(() => import('./pages/dashboards/Operations.jsx').then(m => ({ default: m.StockDashboard })))
 const RiderDashboard   = lazy(() => import('./pages/dashboards/Operations.jsx').then(m => ({ default: m.RiderDashboard })))
-const AffiliateDashboard = lazy(() => import('./pages/dashboards/Affiliate.jsx'))
-const CoordinatorDashboard = lazy(() => import('./pages/dashboards/Coordinator.jsx').then(m => ({ default: m.CoordinatorDashboard })))
+const AffiliateDashboard = lazy(() => import('./pages/dashboards/AffiliateTrackingDashboard.jsx'))
+const CoordinatorDashboard = lazy(() => import('./pages/dashboards/CoordinatorTrackingDashboard.jsx'))
 const PropertyAdminDashboard = lazy(() => import('./pages/dashboards/PropertyAdminDashboard.jsx'))
 const DealInitiatorDashboard = lazy(() => import('./pages/dashboards/DealInitiatorDashboard.jsx'))
 const ProductManager = lazy(() => import('./pages/dashboards/ProductManager.jsx'))
@@ -54,6 +54,7 @@ function PageLoader() {
 function DashboardRedirect() {
   const user = useAuthStore(s => s.user)
   const ROUTES = {
+    ceo:                   '/dashboard/ceo',
     super_admin:           '/dashboard/ceo',
     developer_coordinator: '/dashboard/coordinator',
     business_owner:        '/dashboard/merchant',
@@ -106,21 +107,22 @@ export default function App() {
               <Route path="/register" element={<RequireGuest><PublicLayout><Register /></PublicLayout></RequireGuest>} />
               <Route path="/forgot-password" element={<PublicLayout><ForgotPassword /></PublicLayout>} />
               <Route path="/reset-password/:token" element={<PublicLayout><ResetPassword /></PublicLayout>} />
+              <Route path="/unauthorized" element={<PublicLayout><div className="min-h-[70vh] flex items-center justify-center"><div className="card text-center"><p className="section-label mb-2">Access denied</p><h1 className="font-display text-2xl font-bold">Unauthorized</h1><p className="text-text-m mt-2">Your role cannot access this dashboard.</p></div></div></PublicLayout>} />
 
               {/* Protected dashboards */}
               <Route path="/dashboard" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
                 <Route index element={<DashboardRedirect />} />
-                <Route path="ceo"          element={<CEODashboard />} />
-                <Route path="ceo/kyc"      element={<CEODashboard />} />
-                <Route path="ceo/escrow"   element={<CEODashboard />} />
-                <Route path="ceo/metrics"  element={<CEODashboard />} />
-                <Route path="ceo/stores"   element={<CEODashboard />} />
-                <Route path="ceo/pending"  element={<CEODashboard />} />
-                <Route path="ceo/users"    element={<CEODashboard />} />
-                <Route path="ceo/waivers"  element={<CEODashboard />} />
-                <Route path="coordinator"  element={<CoordinatorDashboard />} />
-                <Route path="coordinator/stores" element={<CoordinatorDashboard />} />
-                <Route path="coordinator/staff"  element={<CoordinatorDashboard />} />
+                <Route path="ceo"          element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
+                <Route path="ceo/kyc"      element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
+                <Route path="ceo/escrow"   element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
+                <Route path="ceo/metrics"  element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
+                <Route path="ceo/stores"   element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
+                <Route path="ceo/pending"  element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
+                <Route path="ceo/users"    element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
+                <Route path="ceo/waivers"  element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
+                <Route path="coordinator"  element={<RoleGuard allowed={['developer_coordinator']}><CoordinatorDashboard /></RoleGuard>} />
+                <Route path="coordinator/stores" element={<RoleGuard allowed={['developer_coordinator']}><CoordinatorDashboard /></RoleGuard>} />
+                <Route path="coordinator/staff"  element={<RoleGuard allowed={['developer_coordinator']}><CoordinatorDashboard /></RoleGuard>} />
                 <Route path="staff" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffManagement /></RequireAuth>} />
                 <Route path="staff/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffOnboarding /></RequireAuth>} />
                 <Route path="stores/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator', 'affiliate']}><StoreOnboarding /></RequireAuth>} />
@@ -136,9 +138,9 @@ export default function App() {
                 <Route path="stock/audit"  element={<StockDashboard />} />
                 <Route path="rider"        element={<RiderDashboard />} />
                 <Route path="rider/active" element={<RiderDashboard />} />
-                <Route path="affiliate"           element={<AffiliateDashboard />} />
-                <Route path="affiliate/campaigns" element={<AffiliateDashboard />} />
-                <Route path="affiliate/payouts"   element={<AffiliateDashboard />} />
+                <Route path="affiliate"           element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
+                <Route path="affiliate/campaigns" element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
+                <Route path="affiliate/payouts"   element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
                 <Route path="buyer"        element={<BuyerDashboard />} />
               </Route>
 

@@ -6,6 +6,7 @@ const AuthContext = createContext(null)
 
 // Role → default dashboard route
 export const ROLE_ROUTES = {
+  ceo:                    '/dashboard/ceo',
   super_admin:            '/dashboard/ceo',
   developer_coordinator:  '/dashboard/coordinator',
   business_owner:         '/dashboard/merchant',
@@ -93,6 +94,18 @@ export function RequireGuest({ children }) {
 export function RequireRole({ roles, children, fallback = null }) {
   const user = useAuthStore((s) => s.user)
   if (!user || !roles.includes(user.role)) return fallback
+  return children
+}
+
+export function RoleGuard({ allowed, children }) {
+  const user = useAuthStore((s) => s.user)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (user && !allowed.includes(user.role)) navigate('/unauthorized', { replace: true })
+  }, [user, allowed, navigate])
+
+  if (!user || !allowed.includes(user.role)) return null
   return children
 }
 

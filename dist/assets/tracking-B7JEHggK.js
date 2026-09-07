@@ -1,0 +1,1 @@
+function e(r=0){return`₦${(Number(r||0)/100).toLocaleString("en-NG",{maximumFractionDigits:0})}`}function t(r=0){return`${Math.round(Number(r||0))}%`}function i(r,o=[]){for(const n of o)if(Array.isArray(r==null?void 0:r[n]))return r[n];return[]}export{e as f,i as l,t as p};

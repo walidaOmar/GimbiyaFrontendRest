@@ -143,10 +143,17 @@ export const deliveryApi = {
 export const ceoApi = {
   metrics:     ()     => api.get('/ceo/metrics'),
   telemetry:   (params) => api.get('/ceo/telemetry', { params }),
-  kycQueue:    (params) => api.get('/ceo/kyc', { params }),
-  adjudicate:  (data) => api.post('/ceo/kyc/adjudicate', data),
-  revokeAccess:(data) => api.post('/ceo/users/revoke', data),
-  escrow:      (params) => api.get('/ceo/escrow', { params }),
+  kycQueue:    (params) => api.get('/ceo/metrics', { params }),
+  adjudicate:  (data) => api.post('/ceo/adjudicate', data),
+  revokeAccess:(data) => api.post('/ceo/revokeAccess', data),
+  escrow:      (data) => api.post('/ceo/escrow', data),
+}
+
+// ── TRACKING ─────────────────────────────────────────────────────────────────
+export const trackingApi = {
+  me:          () => api.get('/tracking/me'),
+  affiliate:   () => api.get('/tracking/affiliate/summary'),
+  coordinator: () => api.get('/tracking/coordinator/region'),
 }
 
 // ── AFFILIATE ─────────────────────────────────────────────────────────────────

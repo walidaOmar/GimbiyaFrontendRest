@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.local
+
+# Vite output is committed in this repository when generated assets change.
+# Keep dist tracked while ignoring any untracked local-only artifacts.
