@@ -12,6 +12,7 @@ import {
   Modal, Spinner, EmptyState, Skeleton, StatCard,
 } from '../../components/ui/index.jsx'
 import { CartCouponInput } from '../../components/waivers/CartCouponInput.jsx'
+import { ServiceLogisticsAccordion } from '../../components/stores/ServiceLogisticsAccordion.jsx'
 import { STATE_OPTIONS } from '../../config/regions.js'
 import toast from 'react-hot-toast'
 
@@ -51,7 +52,7 @@ function OrderTracker({ status }) {
 
 export default function BuyerDashboard() {
   const qc = useQueryClient()
-  const { selectedState, setSelectedState, selectedFloor, setSelectedFloor, cartItems, addToCart, removeFromCart, updateCartQty, clearCart, cartTotal } = useMallStore()
+  const { selectedState, setSelectedState, selectedFloor, setSelectedFloor, cartItems, addToCart, removeFromCart, updateCartQty, addServiceToCartItem, removeServiceFromCartItem, clearCart, cartTotal } = useMallStore()
   const [view,  setView]              = useState('shop')  // shop | cart | orders
   const [checkoutModal, setCheckout]  = useState(false)
   const [otpModal, setOtpModal]       = useState(null)
@@ -88,11 +89,18 @@ export default function BuyerDashboard() {
 
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0)
   const totalNaira = cartTotal() / 100
+  const orderOtps = otpModal?.otps?.length
+    ? otpModal.otps
+    : otpModal?.rawOtp ? [{ rawOtp: otpModal.rawOtp }] : []
 
   const handleCheckout = () => {
     if (!address.trim()) { toast.error('Please enter a delivery address'); return }
     checkoutMut.mutate({
-      cartItems: cartItems.map(i => ({ productId: i.productId, quantity: i.quantity })),
+      cartItems: cartItems.map(i => ({
+        productId: i.productId,
+        quantity: i.quantity,
+        serviceItems: (i.serviceItems || []).map(service => ({ offeringId: service.offeringId })),
+      })),
       shippingAddress: address,
       buyerPhone: '',
     })
@@ -103,10 +111,6 @@ export default function BuyerDashboard() {
 
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <p className="section-label mb-1">Consumer Marketplace</p>
-          <h1 className="font-display text-3xl font-bold text-text-p">Gimbiya Mall</h1>
-        </div>
         <div className="flex gap-2">
           {['shop','cart','orders'].map(v => (
             <button key={v} onClick={() => setView(v)}
@@ -226,26 +230,34 @@ export default function BuyerDashboard() {
           ) : (
             <div className="space-y-4">
               {cartItems.map(item => (
-                <Card key={item.productId} className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-btn bg-surface-h border border-border flex items-center justify-center flex-shrink-0">
-                    <Package className="w-7 h-7 text-text-d" />
+                <Card key={item.productId} className="flex flex-col gap-2">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-btn bg-surface-h border border-border flex items-center justify-center flex-shrink-0">
+                      <Package className="w-7 h-7 text-text-d" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-body text-sm font-semibold text-text-p truncate">{item.name}</p>
+                      <p className="font-mono text-xs text-brass">₦{(item.priceKobo / 100).toLocaleString()}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => updateCartQty(item.productId, item.quantity - 1)}
+                        className="btn-icon w-7 h-7"><Minus className="w-3 h-3" /></button>
+                      <span className="font-mono text-sm w-6 text-center">{item.quantity}</span>
+                      <button onClick={() => updateCartQty(item.productId, item.quantity + 1)}
+                        className="btn-icon w-7 h-7"><Plus className="w-3 h-3" /></button>
+                      <button onClick={() => removeFromCart(item.productId)}
+                        className="btn-icon w-7 h-7 text-danger hover:text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                    <p className="font-mono text-sm font-bold text-brass w-20 text-right">
+                      ₦{((item.priceKobo * item.quantity + (item.serviceItems || []).reduce((sum, service) => sum + service.priceKobo, 0)) / 100).toLocaleString()}
+                    </p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-body text-sm font-semibold text-text-p truncate">{item.name}</p>
-                    <p className="font-mono text-xs text-brass">₦{(item.priceKobo / 100).toLocaleString()}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => updateCartQty(item.productId, item.quantity - 1)}
-                      className="btn-icon w-7 h-7"><Minus className="w-3 h-3" /></button>
-                    <span className="font-mono text-sm w-6 text-center">{item.quantity}</span>
-                    <button onClick={() => updateCartQty(item.productId, item.quantity + 1)}
-                      className="btn-icon w-7 h-7"><Plus className="w-3 h-3" /></button>
-                    <button onClick={() => removeFromCart(item.productId)}
-                      className="btn-icon w-7 h-7 text-danger hover:text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
-                  <p className="font-mono text-sm font-bold text-brass w-20 text-right">
-                    ₦{((item.priceKobo * item.quantity) / 100).toLocaleString()}
-                  </p>
+                  <ServiceLogisticsAccordion
+                    cartItem={item}
+                    assignedState={selectedState}
+                    onServiceAdded={(offering) => addServiceToCartItem(item.productId, offering)}
+                    onServiceRemoved={(offeringId) => removeServiceFromCartItem(item.productId, offeringId)}
+                  />
                 </Card>
               ))}
 
@@ -354,16 +366,20 @@ export default function BuyerDashboard() {
               <p className="font-mono text-xs text-text-m mb-1">Order Reference</p>
               <p className="font-mono text-sm font-bold text-text-p">{otpModal.orderRef}</p>
             </div>
-            <div className="bg-midnight border border-brass/30 rounded-card p-4">
-              <p className="font-mono text-xs text-brass mb-2 tracking-widest">YOUR DELIVERY OTP</p>
-              <p className="font-mono text-5xl font-black text-brass tracking-[0.5em] mb-2"
-                 style={{ textShadow: '0 0 20px rgba(200,168,75,0.6)' }}>
-                {otpModal.rawOtp}
-              </p>
-              <p className="font-mono text-[10px] text-text-d">
-                Share this code ONLY with the rider at delivery. Do not share before.
-              </p>
-            </div>
+            {orderOtps.map((otp, index) => (
+              <div key={otp.fulfillmentGroupId || index} className="bg-midnight border border-brass/30 rounded-card p-4">
+                <p className="font-mono text-xs text-brass mb-2 tracking-widest">
+                  {otpModal.isMultiMerchant ? `OTP FOR PART ${index + 1} OF YOUR ORDER` : 'YOUR DELIVERY OTP'}
+                </p>
+                <p className="font-mono text-5xl font-black text-brass tracking-[0.5em] mb-2"
+                   style={{ textShadow: '0 0 20px rgba(200,168,75,0.6)' }}>
+                  {otp.rawOtp}
+                </p>
+                <p className="font-mono text-[10px] text-text-d">
+                  Share this code ONLY with the rider at delivery. Do not share before.
+                </p>
+              </div>
+            ))}
             <div className="grid grid-cols-2 gap-2 text-left">
               <div className="bg-surface-h rounded-btn p-3">
                 <p className="font-mono text-[10px] text-text-m">You Pay</p>

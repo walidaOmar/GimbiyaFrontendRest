@@ -10,6 +10,7 @@ import { useMallStore }  from '../../store/mallStore.js'
 import { STATE_OPTIONS } from '../../config/regions.js'
 import { ROLE_ROUTES }   from '../../context/AuthContext.jsx'
 import { GlowDot }       from '../ui/index.jsx'
+import { PublicIdBadge } from '../users/PublicIdBadge.jsx'
 import toast             from 'react-hot-toast'
 
 const STATES = STATE_OPTIONS
@@ -129,6 +130,7 @@ export function Navbar() {
                   <span className="hidden sm:block font-body text-sm text-text-p max-w-[100px] truncate">
                     {user.name}
                   </span>
+                  {isDashboard && <span className="hidden xl:block"><PublicIdBadge /></span>}
                   <ChevronDown className={`w-3 h-3 text-text-m transition-transform ${userMenu ? 'rotate-180' : ''}`} />
                 </button>
 

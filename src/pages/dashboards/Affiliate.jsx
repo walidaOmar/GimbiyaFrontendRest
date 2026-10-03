@@ -106,7 +106,14 @@ export default function AffiliateDashboard() {
       ) : activeTab === 'shop' ? (
         <AffiliateShop />
       ) : activeTab === 'onboarding' ? (
-        <Card>
+        <Card> <div className="flex bg-surface-h border border-border rounded-btn p-0.5">
+              {[{v:'LEVEL_1',l:'Commerce'},{v:'LEVEL_2',l:'Industry'}].map(({v,l}) => (
+                <button key={v} onClick={() => setSelectedFloor(v)}
+                  className={`px-4 py-1.5 rounded-[6px] font-mono text-xs transition-all ${
+                    selectedFloor === v ? 'bg-brass text-midnight font-bold' : 'text-text-m hover:text-text-p'
+                  }`}>{l}</button>
+              ))}
+            </div>
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="section-label">Onboard New Members</p>

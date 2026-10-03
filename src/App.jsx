@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { QueryClient, QueryClientProvider }        from '@tanstack/react-query'
 import { Toaster }                                 from 'react-hot-toast'
 import { Suspense, lazy, useEffect }               from 'react'
@@ -18,6 +18,7 @@ const ResetPassword    = lazy(() => import('./pages/auth/ForgotReset.jsx').then(
 const CEODashboard     = lazy(() => import('./pages/dashboards/CEOBrassDashboard.jsx'))
 const BuyerDashboard   = lazy(() => import('./pages/dashboards/Buyer.jsx'))
 const MerchantDashboard= lazy(() => import('./pages/dashboards/Merchant.jsx'))
+const CheckoutPaymentPanel = lazy(() => import('./pages/dashboards/CheckoutPaymentPanel.jsx').then(m => ({ default: m.CheckoutPaymentPanel })))
 const StockDashboard   = lazy(() => import('./pages/dashboards/Operations.jsx').then(m => ({ default: m.StockDashboard })))
 const RiderDashboard   = lazy(() => import('./pages/dashboards/Operations.jsx').then(m => ({ default: m.RiderDashboard })))
 const AffiliateDashboard = lazy(() => import('./pages/dashboards/AffiliateTrackingDashboard.jsx'))
@@ -71,6 +72,11 @@ function DashboardRedirect() {
 
 function PublicLayout({ children }) {
   return <div className="min-h-screen bg-midnight"><Navbar />{children}</div>
+}
+
+function CheckoutPaymentRoute() {
+  const { orderId } = useParams()
+  return <PublicLayout><CheckoutPaymentPanel orderId={orderId} /></PublicLayout>
 }
 
 function DeepLinkHandler() {
@@ -135,19 +141,20 @@ export default function App() {
                 <Route path="staff" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffManagement /></RequireAuth>} />
                 <Route path="staff/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffOnboarding /></RequireAuth>} />
                 <Route path="stores/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator', 'affiliate']}><StoreOnboarding /></RequireAuth>} />
-                <Route path="merchant"           element={<MerchantDashboard />} />
-                <Route path="merchant/listings"  element={<MerchantDashboard />} />
-                <Route path="merchant/settlement"element={<MerchantDashboard />} />
-                <Route path="merchant/analytics" element={<MerchantDashboard />} />
+                <Route path="merchant"           element={<RequireAuth allowedRoles={['business_owner', 'manager']}><MerchantDashboard /></RequireAuth>} />
+                <Route path="merchant/listings"  element={<RequireAuth allowedRoles={['business_owner', 'manager']}><MerchantDashboard /></RequireAuth>} />
+                <Route path="merchant/settlement"element={<RequireAuth allowedRoles={['business_owner', 'manager']}><MerchantDashboard /></RequireAuth>} />
+                <Route path="merchant/analytics" element={<RequireAuth allowedRoles={['business_owner', 'manager']}><MerchantDashboard /></RequireAuth>} />
+                <Route path="merchant/fulfillment" element={<RequireAuth allowedRoles={['business_owner', 'manager']}><MerchantDashboard /></RequireAuth>} />
                 <Route path="merchant/reports" element={<RequireAuth allowedRoles={['business_owner']}><SovereignMarketWorkspace /></RequireAuth>} />
                 <Route path="property-admin" element={<RequireAuth allowedRoles={['property_admin']}><PropertyAdminDashboard /></RequireAuth>} />
                 <Route path="deal-initiator" element={<RequireAuth allowedRoles={['deal_initiator']}><DealInitiatorDashboard /></RequireAuth>} />
                 <Route path="product-manager" element={<RequireAuth allowedRoles={['business_owner']}><ProductManager /></RequireAuth>} />
-                <Route path="stock"        element={<StockDashboard />} />
-                <Route path="stock/manifest" element={<StockDashboard />} />
-                <Route path="stock/audit"  element={<StockDashboard />} />
-                <Route path="rider"        element={<RiderDashboard />} />
-                <Route path="rider/active" element={<RiderDashboard />} />
+                <Route path="stock"        element={<RequireAuth allowedRoles={['stock_manager']}><StockDashboard /></RequireAuth>} />
+                <Route path="stock/manifest" element={<RequireAuth allowedRoles={['stock_manager']}><StockDashboard /></RequireAuth>} />
+                <Route path="stock/audit"  element={<RequireAuth allowedRoles={['stock_manager']}><StockDashboard /></RequireAuth>} />
+                <Route path="rider"        element={<RequireAuth allowedRoles={['delivery']}><RiderDashboard /></RequireAuth>} />
+                <Route path="rider/active" element={<RequireAuth allowedRoles={['delivery']}><RiderDashboard /></RequireAuth>} />
                 <Route path="affiliate"           element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
                 <Route path="affiliate/campaigns" element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
                 <Route path="affiliate/payouts"   element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
@@ -155,7 +162,7 @@ export default function App() {
                 <Route path="affiliate/wallet" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
                 <Route path="affiliate/team" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
                 <Route path="affiliate/reports" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="buyer"        element={<BuyerDashboard />} />
+                <Route path="buyer"        element={<RequireAuth allowedRoles={['buyer']}><BuyerDashboard /></RequireAuth>} />
               </Route>
 
               {/* Marketplace routes */}
@@ -165,6 +172,7 @@ export default function App() {
               {/* Shop routes */}
               <Route path="/shop" element={<PublicLayout><BuyerDashboard /></PublicLayout>} />
               <Route path="/cart" element={<RequireAuth><PublicLayout><BuyerDashboard /></PublicLayout></RequireAuth>} />
+              <Route path="/checkout/payment/:orderId" element={<RequireAuth allowedRoles={['buyer']}><CheckoutPaymentRoute /></RequireAuth>} />
 
               {/* 404 */}
               <Route path="*" element={

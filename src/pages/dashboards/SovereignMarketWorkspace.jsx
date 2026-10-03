@@ -112,13 +112,22 @@ export default function SovereignMarketWorkspace() {
   const role = useAuthStore(state => state.user?.role)
   const isBusinessOwner = role === 'business_owner'
   const view = useMemo(() => location.pathname.split('/').pop().replace(/^incubator-/, ''), [location.pathname])
-  if (view === 'wallet') return <WalletView />
-  if (view === 'team') return <TeamView />
-  if (view === 'reports') return <ReportsView isBusinessOwner={isBusinessOwner} />
-  if (view === 'remote-request') return <RequestsView remote />
-  if (view === 'prequalified-businesses') return <BusinessesView />
-  if (view === 'prequalified-pool') return <BusinessesView pool />
-  if (view === 'lookup') return <LookupView />
-  if (view === 'income-commissions') return <WalletView />
-  return <RequestsView />
+  let content
+  if (view === 'wallet') content = <WalletView />
+  else if (view === 'team') content = <TeamView />
+  else if (view === 'reports') content = <ReportsView isBusinessOwner={isBusinessOwner} />
+  else if (view === 'remote-request') content = <RequestsView remote />
+  else if (view === 'prequalified-businesses') content = <BusinessesView />
+  else if (view === 'prequalified-pool') content = <BusinessesView pool />
+  else if (view === 'lookup') content = <LookupView />
+  else if (view === 'income-commissions') content = <WalletView />
+  else content = <RequestsView />
+
+  return <div className="space-y-4">
+    <div role="status" className="flex flex-wrap items-center gap-2 border border-amber-500/50 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+      <Badge color="amber">DEMO MOCK</Badge>
+      <span className="font-semibold">Sample data only. This is not live merchant or platform data.</span>
+    </div>
+    {content}
+  </div>
 }

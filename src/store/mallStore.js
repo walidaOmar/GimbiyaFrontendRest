@@ -11,7 +11,10 @@ export const useMallStore = create((set, get) => ({
   // Cart (optimistic local state)
   cartItems: [],
   cartCount: () => get().cartItems.reduce((s, i) => s + i.quantity, 0),
-  cartTotal: () => get().cartItems.reduce((s, i) => s + i.priceKobo * i.quantity, 0),
+  cartTotal: () => get().cartItems.reduce(
+    (sum, item) => sum + item.priceKobo * item.quantity + (item.serviceItems || []).reduce((serviceSum, service) => serviceSum + service.priceKobo, 0),
+    0
+  ),
 
   addToCart: (product, quantity = 1) => {
     set((state) => {
@@ -51,6 +54,30 @@ export const useMallStore = create((set, get) => ({
     set((state) => ({
       cartItems: state.cartItems.map((i) =>
         i.productId === productId ? { ...i, quantity } : i
+      ),
+    }))
+  },
+
+  addServiceToCartItem: (productId, offering) => {
+    set((state) => ({
+      cartItems: state.cartItems.map((item) =>
+        item.productId === productId
+          ? { ...item, serviceItems: [...(item.serviceItems || []), {
+            offeringId: offering._id,
+            serviceType: offering.serviceType,
+            priceKobo: offering.priceKobo,
+          }] }
+          : item
+      ),
+    }))
+  },
+
+  removeServiceFromCartItem: (productId, offeringId) => {
+    set((state) => ({
+      cartItems: state.cartItems.map((item) =>
+        item.productId === productId
+          ? { ...item, serviceItems: (item.serviceItems || []).filter((service) => service.offeringId !== offeringId) }
+          : item
       ),
     }))
   },
