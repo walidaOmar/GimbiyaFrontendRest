@@ -1,15 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ShoppingCart, Menu, X, ChevronDown, LogOut,
-  User, LayoutDashboard, Bell,
+  User, LayoutDashboard,
 } from 'lucide-react'
 import { useAuthStore }  from '../../store/authStore.js'
 import { useMallStore }  from '../../store/mallStore.js'
 import { STATE_OPTIONS } from '../../config/regions.js'
 import { ROLE_ROUTES }   from '../../context/AuthContext.jsx'
-import { GlowDot }       from '../ui/index.jsx'
 import { PublicIdBadge } from '../users/PublicIdBadge.jsx'
 import toast             from 'react-hot-toast'
 
@@ -23,26 +22,37 @@ export function Navbar() {
   const [menuOpen, setMenu] = useState(false)
   const [userMenu, setUser] = useState(false)
 
+  useEffect(() => {
+    setMenu(false)
+    setUser(false)
+  }, [location.pathname])
+
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0)
   const isDashboard = location.pathname.startsWith('/dashboard')
 
   const handleLogout = async () => {
-    await logout()
-    toast.success('Logged out successfully')
-    navigate('/')
+    try {
+      await logout()
+      setMenu(false)
+      setUser(false)
+      toast.success('Logged out successfully')
+      navigate('/')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Logout failed')
+    }
   }
 
   const dashboardRoute = user ? (ROLE_ROUTES[user.role] || '/dashboard/buyer') : '/login'
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-border/60 glass bg-midnight/90">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+    <nav aria-label="Main navigation" className="sticky top-0 z-40 border-b border-border/60 glass bg-midnight/90">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 min-h-16 flex items-center justify-between gap-2 sm:gap-4">
 
         {/* ── Logo ── */}
-        <Link to="/" className="flex items-center gap-3 flex-shrink-0 group">
+        <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0 group">
           <div className="relative w-9 h-9">
             {/* Simplified logo mark — golden crown crown */}
-            <svg viewBox="0 0 36 36" className="w-full h-full">
+            <svg viewBox="0 0 36 36" className="w-full h-full" aria-hidden="true">
               <circle cx="18" cy="18" r="17" fill="#0D4A3A" stroke="#C8A84B" strokeWidth="1.5"/>
               <polygon
                 points="18,8 22,16 28,13 24,22 12,22 8,13 14,16"
@@ -63,12 +73,13 @@ export function Navbar() {
 
         {/* ── State Selector (non-dashboard) ── */}
         {!isDashboard && (
-          <div className="hidden md:flex items-center gap-1 bg-surface-h border border-border rounded-btn px-1 py-1">
+          <div role="group" aria-label="Select region" className="hidden lg:flex items-center gap-1 bg-surface-h border border-border rounded-btn px-1 py-1">
             {STATES.map((s) => (
               <button
                 key={s.value}
                 onClick={() => setSelectedState(s.value)}
-                className={`px-3 py-1.5 rounded-[6px] font-mono text-xs transition-all duration-150 ${
+                aria-pressed={selectedState === s.value}
+                className={`px-2 xl:px-3 py-1.5 rounded-[6px] font-mono text-xs transition-all duration-150 ${
                   selectedState === s.value
                     ? 'bg-brass text-midnight font-bold'
                     : 'text-text-m hover:text-brass'
@@ -81,7 +92,7 @@ export function Navbar() {
         )}
 
         {/* ── Right Actions ── */}
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-1 sm:gap-2 ml-auto flex-shrink-0">
 
           {/* Cart — buyer only */}
           {user?.role === 'buyer' && (
@@ -109,7 +120,7 @@ export function Navbar() {
               {/* Dashboard link */}
               <Link
                 to={dashboardRoute}
-                className="hidden sm:flex btn btn-ghost text-xs gap-1.5"
+                className="hidden lg:flex btn btn-ghost text-xs gap-1.5"
               >
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
@@ -119,8 +130,10 @@ export function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setUser(!userMenu)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-btn hover:bg-surface-h transition-colors"
+                  className="flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-2 rounded-btn hover:bg-surface-h transition-colors"
                   aria-expanded={userMenu}
+                  aria-controls="navbar-user-menu"
+                  aria-label="User menu"
                 >
                   <div className="w-8 h-8 rounded-full bg-brass/20 border border-brass/40 flex items-center justify-center">
                     <span className="font-display font-bold text-brass text-sm">
@@ -137,6 +150,7 @@ export function Navbar() {
                 <AnimatePresence>
                   {userMenu && (
                     <motion.div
+                      id="navbar-user-menu"
                       initial={{ opacity: 0, y: -4, scale: 0.97 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -4, scale: 0.97 }}
@@ -183,16 +197,18 @@ export function Navbar() {
             </>
           ) : (
             <div className="flex items-center gap-2">
-              <Link to="/login"    className="btn btn-ghost text-sm hidden sm:flex">Sign In</Link>
-              <Link to="/register" className="btn btn-primary text-sm">Get Started</Link>
+              <Link to="/login"    className="btn btn-ghost text-sm hidden lg:flex">Sign In</Link>
+              <Link to="/register" className="btn btn-primary text-sm hidden lg:inline-flex">Get Started</Link>
             </div>
           )}
 
           {/* Mobile menu toggle */}
           <button
-            className="btn-icon sm:hidden"
-            onClick={() => setMenu(!menuOpen)}
-            aria-label="Toggle menu"
+            className="btn-icon lg:hidden"
+            onClick={() => setMenu((open) => !open)}
+            aria-expanded={menuOpen}
+            aria-controls="navbar-mobile-menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           >
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -203,26 +219,30 @@ export function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
+            id="navbar-mobile-menu"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="sm:hidden border-t border-border overflow-hidden bg-surface"
+            className="lg:hidden border-t border-border overflow-hidden bg-surface"
           >
             <div className="p-4 space-y-1">
               {/* State selector */}
-              <div className="flex gap-1 mb-3 bg-midnight rounded-btn p-1">
-                {STATES.map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => { setSelectedState(s.value); setMenu(false) }}
-                    className={`flex-1 py-1.5 rounded-[6px] font-mono text-xs transition-all ${
-                      selectedState === s.value ? 'bg-brass text-midnight font-bold' : 'text-text-m'
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
+              {!isDashboard && (
+                <div role="group" aria-label="Select region" className="flex gap-1 mb-3 bg-midnight rounded-btn p-1">
+                  {STATES.map((s) => (
+                    <button
+                      key={s.value}
+                      onClick={() => { setSelectedState(s.value); setMenu(false) }}
+                      aria-pressed={selectedState === s.value}
+                      className={`min-w-0 flex-1 px-1 py-1.5 rounded-[6px] font-mono text-[10px] sm:text-xs leading-tight text-center transition-all ${
+                        selectedState === s.value ? 'bg-brass text-midnight font-bold' : 'text-text-m'
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              )}
               {!user ? (
                 <>
                   <Link to="/login"    onClick={() => setMenu(false)} className="nav-item">Sign In</Link>
@@ -231,6 +251,7 @@ export function Navbar() {
               ) : (
                 <>
                   <Link to={dashboardRoute} onClick={() => setMenu(false)} className="nav-item">Dashboard</Link>
+                  <Link to="/profile" onClick={() => setMenu(false)} className="nav-item">My Profile</Link>
                   <button onClick={handleLogout} className="nav-item text-danger w-full text-left">Sign Out</button>
                 </>
               )}
