@@ -17,8 +17,8 @@ export const ROLE_ROUTES = {
   affiliate:              '/dashboard/affiliate',
   buyer:                  '/dashboard/buyer',
   manager:                '/dashboard/merchant',
-  auditor:                '/dashboard/ceo',
-  support:                '/dashboard/ceo',
+  auditor:                '/dashboard/ceo/reports',
+  support:                '/dashboard/ceo/reports',
 }
 
 export function AuthProvider({ children }) {

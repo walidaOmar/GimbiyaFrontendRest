@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider }        from '@tanstack/react-query'
 import { Toaster }                                 from 'react-hot-toast'
 import { Suspense, lazy, useEffect }               from 'react'
 
-import { AuthProvider, RequireAuth, RequireGuest, RoleGuard } from './context/AuthContext.jsx'
+import { AuthProvider, RequireAuth, RequireGuest, RoleGuard, ROLE_ROUTES } from './context/AuthContext.jsx'
 import { useAuthStore }                            from './store/authStore.js'
 import { Navbar }                                  from './components/layout/Navbar.jsx'
 import { DashboardLayout }                         from './components/layout/DashboardLayout.jsx'
@@ -55,19 +55,7 @@ function PageLoader() {
 
 function DashboardRedirect() {
   const user = useAuthStore(s => s.user)
-  const ROUTES = {
-    ceo:                   '/dashboard/ceo',
-    super_admin:           '/dashboard/ceo',
-    developer_coordinator: '/dashboard/coordinator',
-    business_owner:        '/dashboard/merchant',
-    property_admin:        '/dashboard/property-admin',
-    deal_initiator:       '/dashboard/deal-initiator',
-    stock_manager:         '/dashboard/stock',
-    delivery:              '/dashboard/rider',
-    affiliate:             '/dashboard/affiliate',
-    buyer:                 '/dashboard/buyer',
-  }
-  return <Navigate to={user ? (ROUTES[user.role] || '/dashboard/buyer') : '/login'} replace />
+  return <Navigate to={user ? (ROLE_ROUTES[user.role] || '/dashboard/buyer') : '/login'} replace />
 }
 
 function PublicLayout({ children }) {

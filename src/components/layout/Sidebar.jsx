@@ -99,6 +99,7 @@ const NAV_CONFIG = {
 }
 
 NAV_CONFIG.ceo = NAV_CONFIG.super_admin
+NAV_CONFIG.manager = NAV_CONFIG.business_owner
 NAV_CONFIG.auditor = [
   { label: 'General audit report', path: '/dashboard/ceo/reports', icon: FileBarChart },
 ]
@@ -108,6 +109,7 @@ const ROLE_LABELS = {
   super_admin:            'Global CEO',
   developer_coordinator:  'State Coordinator',
   business_owner:         'Business Owner',
+  manager:                'Manager',
   property_admin:         'Property Admin',
   deal_initiator:        'Deal Initiator',
   stock_manager:          'Stock Manager',
@@ -122,6 +124,7 @@ const ROLE_COLORS = {
   super_admin:            '#C8A84B',
   developer_coordinator:  '#8B5CF6',
   business_owner:         '#3B82F6',
+  manager:                '#3B82F6',
   property_admin:         '#14B8A6',
   deal_initiator:        '#F59E0B',
   stock_manager:          '#10B981',
