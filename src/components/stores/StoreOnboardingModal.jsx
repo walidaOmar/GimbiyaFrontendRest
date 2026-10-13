@@ -44,7 +44,10 @@ export default function StoreOnboardingModal({ isOpen, onClose }) {
       setDone(true)
       toast.success(isCoordinator ? 'Store request submitted for CEO approval.' : 'Store onboarding submitted.')
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Store onboarding failed')
+      const message = error.code === 'ECONNABORTED'
+        ? 'The server took too long to respond. Please try submitting again.'
+        : error.response?.data?.message || 'Store onboarding failed'
+      toast.error(message)
     } finally { setLoading(false) }
   }
 

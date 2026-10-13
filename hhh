@@ -1,0 +1,902 @@
+I’ll continue the review by checking whether the backend repository and an approved Property-isolation decision are available through the configured GitHub account. I’ll keep this read-only and won’t apply the packet while those contract checks remain unresolved.
+
+Ran terminal command: gh repo list walidaOmar --limit 100 --json name,description,url,isPrivate
+Tool execution failed with exit code 4
+
+Fetched [https://api.github.com/users/walidaOmar/repos?per_page=100](https://api.github.com/users/walidaOmar/repos?per_page=100)
+Completed with input: {"url":"https://api.github.com/users/walidaOmar/repos?per_page=100"}
+
+Search for `"name":"[^"]*(backend|Backend|api|API|rest|Rest)[^"]*"|"full_name":"[^"]+"`
+
+Fetched [https://api.github.com/search/repositories?q=user%3AwalidaOmar+gimbiya](https://api.github.com/search/repositories?q=user%3AwalidaOmar+gimbiya)
+Completed with input: {"url":"https://api.github.com/search/repositories?q=user%3AwalidaOmar+gimbiya"}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "/",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "README.md"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "package.json"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/routers",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/models",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/types",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Search code
+Completed with input: {
+  "query": "repo:walidaOmar/GimbiyaBackend (stock OR delivery OR handover OR signature OR submittedOtp)",
+  "perPage": 100,
+  "fields": [
+    "path",
+    "name",
+    "text_matches"
+  ]
+}
+Tool execution failed: MCP server 'github-mcp-server': failed to search code with query 'repo:walidaOmar/GimbiyaBackend (stock OR delivery OR handover OR signature OR submittedOtp)': ERROR_TYPE_QUERY_PARSING_FATAL unable to parse query!
+
+I found a public `walidaOmar/GimbiyaBackend` repository, so I can now check its checked-in stock and delivery handlers instead of stopping at frontend assumptions. I’ll compare those source contracts with the packet, while noting any repository freshness/version mismatch; nothing will be changed.
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/routers/stock.ts"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/routers/delivery.ts"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/models/Order.ts"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/models/Product.ts"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/models/User.ts"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/types/index.ts"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/routers/index.ts"
+}
+
+Search for `export const stockRouter|manifest:|adjust:|auditLog|reasonCode|deltaCount|not...`
+
+Search for `export const deliveryRouter|jobs:|active:|claim:|handover:|submittedOtp|signa...`
+
+Search for `enum UserRole|SUPER_ADMIN|COORDINATOR|BUSINESS_OWNER|MANAGER|PROPERTY|BUYER|S...`
+
+Search for `property|isolation|tRPC|express|stock|delivery|handover`
+
+Read , lines 1 to 235
+Completed with input: {
+  "path": "/tmp/1791892237211-copilot-tool-output-d69cedb355cc4d79b28673348a16615c.txt",
+  "view_range": [
+    1,
+    235
+  ]
+}
+
+Read , lines 1 to 290
+Completed with input: {
+  "path": "/tmp/1791892237033-copilot-tool-output-077fa5797aa14e01bb00550bcaee21af.txt",
+  "view_range": [
+    1,
+    290
+  ]
+}
+
+Read , lines 1 to 60
+Completed with input: {
+  "path": "/tmp/1791892237291-copilot-tool-output-58344a64413c4fed8e45ec96a53ad16f.txt",
+  "view_range": [
+    1,
+    60
+  ]
+}
+
+Read , lines 180 to 215
+Completed with input: {
+  "path": "/tmp/1791892224103-copilot-tool-output-c1383a608b184049927f8bce3baf291b.txt",
+  "view_range": [
+    180,
+    215
+  ]
+}
+
+Read , lines 125 to 255
+Completed with input: {
+  "path": "/tmp/1791892237211-copilot-tool-output-d69cedb355cc4d79b28673348a16615c.txt",
+  "view_range": [
+    125,
+    255
+  ]
+}
+
+Read , lines 130 to 285
+Completed with input: {
+  "path": "/tmp/1791892237033-copilot-tool-output-077fa5797aa14e01bb00550bcaee21af.txt",
+  "view_range": [
+    130,
+    285
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/types/schemas.ts"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/models/EscrowLedger.ts"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/index.ts"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackend",
+  "path": "server/middleware/auth.ts"
+}
+
+Read 
+Tool execution failed: Search paths do not exist: /tmp/1791892257353-copilot-tool-output-e99c4de52593436bb9ee505061ebfd83.txt
+
+Search for `trpc|listen|/api/trpc|createExpressMiddleware|fetchRequestHandler|app\.use|ex...`
+
+Read 
+Tool execution failed: Search paths do not exist: /tmp/1791892257378-copilot-tool-output-e99c4de525cc4d79b28673348a16615c.txt
+
+Search for `InventoryReason|enum InventoryReason|DAMAGED|RECOUNT|AUDIT|INBOUND|ADJUSTMENT...`
+
+Search for `DELIVERED|DISPATCHED|PROCESSING|CONFIRMED|onTime|signature|RELEASED|return \{`
+
+Read 
+Tool execution failed: Search paths do not exist: /tmp/1791892257353-copilot-tool-output-58344a64413c4fed8e45ec96a53ad16f.txt
+
+Search for `app\.use|/api/trpc|createExpressMiddleware|/health`
+
+Search for `export const stockProcedure|export const riderProcedure|stockProcedure|riderP...`
+
+Search repositories
+Completed with input: {
+  "query": "GimbiyaBackendRest in:name user:walidaOmar",
+  "perPage": 30,
+  "minimal_output": true
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "/",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "README.md"
+}
+
+The first public backend repository I found was a separate tRPC implementation, so it is not the matching contract for this REST frontend. I’ve located `GimbiyaBackendRest`, which appears to be the relevant project; I’m switching the contract check to that repository before drawing conclusions.
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/routes",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/controllers",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/models",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/middleware",
+  "fields": [
+    "name",
+    "type",
+    "path"
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "package.json"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/routes/stock.route.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/controllers/stock.controller.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/routes/delivery.route.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/controllers/delivery.controller.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/routes/deliveryV2.route.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/controllers/deliveryV2.controller.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/index.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/routes/property.route.js"
+}
+
+Search for `LOW_STOCK|export const getManifest|export const adjustStock|reasonCode|deltaC...`
+
+Search for `export const getAvailableJobs|export const getMyDeliveries|export const claim...`
+
+Search for `app\.use\(|stock\.route|delivery\.route|deliveryV2|/api/stock|/api/delivery|p...`
+
+Search for `export const getAvailableJobsV2|export const getMyDeliveriesV2|export const c...`
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/middleware/verifyToken.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/models/product.model.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/models/order.model.js"
+}
+
+Read , lines 1 to 165
+Completed with input: {
+  "path": "/tmp/1791892326916-copilot-tool-output-999bdf65ba844a778a6dab419a342fba.txt",
+  "view_range": [
+    1,
+    165
+  ]
+}
+
+Read , lines 1 to 240
+Completed with input: {
+  "path": "/tmp/1791892326872-copilot-tool-output-9791088516c74a338225fef0385afd89.txt",
+  "view_range": [
+    1,
+    240
+  ]
+}
+
+Read , lines 1 to 165
+Completed with input: {
+  "path": "/tmp/1791892326763-copilot-tool-output-b2e9a028ca434e8381fafb6098c1b10e.txt",
+  "view_range": [
+    1,
+    165
+  ]
+}
+
+Read , lines 1 to 125
+Completed with input: {
+  "path": "/tmp/1791892326666-copilot-tool-output-7b1830fa4c0949b3bf0d02d81fba8933.txt",
+  "view_range": [
+    1,
+    125
+  ]
+}
+
+Read 
+Tool execution failed: Search paths do not exist: /tmp/1791892257353-copilot-tool-output-58344a64413c4fed8e45ec96a53ad16f.txt
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/models/ledger.model.js"
+}
+
+Read , lines 185 to 245
+Completed with input: {
+  "path": "/tmp/1791892326872-copilot-tool-output-9791088516c74a338225fef0385afd89.txt",
+  "view_range": [
+    185,
+    245
+  ]
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/models/user.model.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/models/fulfillmentGroup.model.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/controllers/property.controller.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/middleware/stateIsolation.js"
+}
+
+Get commit details
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "sha": "21acaead0d4acb902e1b9696e767c080d565987b",
+  "detail": "stats"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/routes/user.route.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/routes/store.route.js"
+}
+
+Get file or directory contents
+Completed with input: {
+  "owner": "walidaOmar",
+  "repo": "GimbiyaBackendRest",
+  "path": "backend/models/ledger.model.js"
+}
+
+## Review continuation: backend contracts now checked
+
+I located the matching public REST backend, [`walidaOmar/GimbiyaBackendRest`](https://github.com/walidaOmar/GimbiyaBackendRest), and reviewed its `main` snapshot at commit [`21acaea`](https://github.com/walidaOmar/GimbiyaBackendRest/commit/21acaead0d4acb902e1b9696e767c080d565987b), dated **October 3, 2026**. That is checked-in source, not confirmation of the currently deployed backend.
+
+No files were changed or deployed. The initial frontend status was clean on `main`, ahead of `origin/main` by one commit. **Do not apply the packet yet:** the legacy Stock and Delivery contracts are now largely verified, but the packet does not cover the backend’s separate fulfillment-group Delivery workflow, and the approved Property-isolation decision is still unavailable.
+
+| Finding | Evidence from the current repository | Proposed packet location | Risk | Required correction | Test needed |
+|---|---|---|---|---|---|
+| **The packet’s branch setup runs in the wrong order.** It checks out a new branch before checking status. | The supplied Step 0 starts with `git checkout -b`; the required review check is `git status --short --branch` first. Current status was clean: `## main...origin/main [ahead 1]`. | Step 0 | Medium: it could create a branch before discovering local changes; it also proposes a branch change not needed for this review. | If implementation is approved, check status first. Don’t create or switch branches until that check is clean and branch setup is agreed. | Capture `git status --short --branch` output before any branch operation. |
+| **The shared role map matches backend role names, but auditor/support’s destination is not authorized.** The backend role model lists the 13 role names in `ROLE_ROUTES`, including `ceo`. But the packet maps auditor/support to `/dashboard/ceo`, while that route permits only CEO/super-admin. | Backend [`user.model.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/models/user.model.js); frontend `AuthContext.jsx`; proposed CEO/report guards in Step 1. | Step 1: `DashboardRedirect` and CEO/report routes. | High: auditor/support’s index redirect lands at a route that rejects them. | Give both roles an authorized default route, or leave their default unresolved until a real destination exists. Align role map, guards, and navigation. | Direct-route and dashboard-index tests for every backend-supported role, especially auditor/support. |
+| **Nested `RequireAuth` guards are viable, but the invalid role destination remains.** The outer dashboard guard authenticates without a role list; child guards independently check `allowedRoles`, render nothing when unauthorized, and navigate to the role destination. This does not make nested guards fail by itself. | `AuthContext.jsx`, `App.jsx`. | Step 1: protected dashboard routes. | High only where a denied guard redirects to an unauthorized destination; otherwise the pattern works for these routes. | Keep the guards, but verify every role redirect against the destination route’s allowlist. | Test unauthenticated, allowed, and denied access through direct URLs and nested routes. |
+| **Backend role names match, but packet navigation omits `manager`.** Manager is an actual backend role and is allowed by the packet’s merchant route; the proposed sidebar has no manager entry and falls back to buyer navigation. | Backend [`user.model.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/models/user.model.js); frontend fallback in `Sidebar.jsx`. | Step 2: `NAV_CONFIG`. | Medium: a manager can be routed to merchant but see buyer navigation. | Add manager’s intended navigation and test role destinations and menus together. | Render navigation for each supported role, including manager. |
+| **Staff/onboarding routes remain directly accessible in production, and some packet pages call routes absent from this backend snapshot.** Sidebar filtering only hides navigation. The packet leaves the client routes active. In this backend snapshot, `GET /api/users/staff`, `POST /api/users/onboard-staff`, and `POST /api/stores/onboard` are not registered; store requests instead use a coordinator-only `/api/stores/requests` route. | Proposed Step 1 routes and Step 2 filters; backend [`user.route.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/routes/user.route.js), [`store.route.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/routes/store.route.js), and mounted routes in [`backend/index.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/index.js). | High if these flows are meant to be disabled; direct access can still render UI, and API requests may fail or disagree with the UI’s apparent capability. | Block disabled UI routes in production, not only sidebar links. Reconcile the UI’s calls with the actual backend endpoints and authorization policy; do not add or assume backend routes. | Production direct-URL tests and API tests for each onboarding/staff operation and role. |
+| **Stock paths, payloads, audit fields, and the packet’s listed reasons match the backend snapshot.** The routes are `/api/stock/manifest`, `/adjust`, `/inbound`, and `/audit/:productId`; adjust takes `productId`, `deltaCount`, `reasonCode`, optional `noteText`. The manifest returns `manifest` and `lowStockThreshold`; adjustment returns `stockBefore`, `stockAfter`, `delta`, `reasonCode`, and `isLowStock`; audit returns `entries` with `deltaCount`, `reasonCode`, before/after counts, populated `actorId`, and `timestamp`. `AUDIT`, `DAMAGED`, `RECOUNT`, and `INBOUND` are accepted reasons; `RETURN` is also valid. | Proposed Step 3 | Low contract risk for the legacy Stock API; still not proof of the deployed service’s version. | Preserve the API contract. Consider exposing `RETURN` only if it is an intended UI workflow; don’t invent new reason codes or payload fields. | Backend contract tests for query parameters, valid/invalid reasons, payload shape, and audit fields. |
+| **The backend prevents negative stock, but the proposed UI can still trigger avoidable failures and hide stale-data errors.** Backend adjustment uses `$inc`, checks decrements atomically against available stock, and returns a conflict instead of allowing a negative result. The UI’s fixed `-50`/`-10` buttons don’t check displayed quantity. Also, it has no explicit manifest error state. | Backend [`stock.route.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/routes/stock.route.js), [`stock.controller.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/controllers/stock.controller.js); frontend `Operations.jsx`. | Step 3: adjustment buttons and query states. | Medium: the backend protects its invariant, but the UI can generate rejected operations or show cached inventory without indicating a failed refresh. | Keep backend validation authoritative; prevent obviously impossible decrements in the UI and show query/refetch failures distinctly. The packet also sends `noteText` without an input, so add one only if notes are intended. | Test insufficient-stock rejection, concurrent adjustment, and failed manifest refetch behavior. |
+| **The packet’s query invalidation syntax does not match installed React Query v5.** Installed version is `5.101.2`; `invalidateQueries` expects a filter object. Passing a bare key array does not scope invalidation to that key and can invalidate/refetch unrelated active queries. | `package.json`; v5 implementation at `queryClient.js`; current call in `Operations.jsx`. | Steps 3–4: `invalidateQueries` calls. | Medium: unnecessary refetches and no explicit indication if the post-mutation refresh fails. | Use v5 filters, e.g. `invalidateQueries({ queryKey: ['stock-manifest'] })`, and surface refetch errors/stale state. | Verify the intended keys refetch and unrelated keys do not. |
+| **Legacy Delivery paths and required handover fields match, but the backend enforces more than the frontend guard.** `/api/delivery/jobs`, `/active`, `/claim`, and `/handover` exist; handover requires `orderId`, exactly four numeric OTP digits, and `signatureBase64`. Delivery routes also require approved KYC. The frontend route guard checks the `delivery` role but not KYC, so a rider with pending KYC can reach a dashboard that its API calls will reject. | Backend [`delivery.route.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/routes/delivery.route.js), [`delivery.controller.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/controllers/delivery.controller.js); frontend `api/index.js`. | Step 4: Rider routes, queries, and handover. | Medium: confusing access for non-KYC-approved riders; backend remains the authority. | Preserve backend KYC enforcement and give a clear UI response to its 403; do not weaken the backend rule. | Test approved and pending-KYC riders against the dashboard API calls. |
+| **The backend exposes a second, fulfillment-group Delivery API that the packet ignores.** `/api/delivery-v2` supports group jobs with `fulfillmentGroupId`, not the legacy order-level `orderId`. It has different paths and response shapes. Its controller releases escrow per fulfillment group; the parent order is marked delivered/released only once all sibling groups are delivered. The packet implements only `/api/delivery/...`. | Backend [`deliveryV2.route.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/routes/deliveryV2.route.js), [`deliveryV2.controller.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/controllers/deliveryV2.controller.js), and [`fulfillmentGroup.model.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/models/fulfillmentGroup.model.js). | Step 4: Rider API calls and order-level UI. | High if multi-merchant/fulfillment-group orders are in scope: the new dashboard may not show or complete those jobs, and order-wide escrow wording can be wrong for partial fulfillment. | Confirm which delivery model is active for the intended orders. Support the correct version without rewriting its contract; distinguish group-level release from whole-order completion. | Integration tests for both applicable job types, per-group handover, and final parent-order state after all groups complete. |
+| **The UI offers handover for `PROCESSING` jobs, although the backend only finalizes `DISPATCHED`.** Active-delivery responses include both `DISPATCHED` and `PROCESSING`; handover lookup accepts only `DISPATCHED`. The packet renders the handover button for every `active` item. | Backend [`delivery.controller.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/controllers/delivery.controller.js); proposed Step 4 maps the whole `active` list to a handover button. | Step 4: active-delivery rendering. | Medium: the UI offers an action that the backend will reject for a `PROCESSING` item. | Gate the handover action on the verified state contract; don’t infer eligibility merely from being in the active list. | Test action visibility for each backend job state and rejection of invalid transitions. |
+| **Claim duplication is guarded server-side, but fixed-image signature submission remains invalid evidence.** The legacy claim uses a conditional update requiring `CONFIRMED` and `riderId: null`, so competing claims are resolved atomically. Handover checks rider ownership and `DISPATCHED`, compares the hashed OTP, then stores the submitted image. The proposed packet instead always submits the same 1×1 PNG. | Backend [`delivery.controller.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/controllers/delivery.controller.js); proposed Step 4’s constant `signatureBase64`. | Step 4: claim and handover. | **Critical for signature evidence**; duplicate claim risk is mitigated by the backend’s atomic claim, not by client behavior. | Implement genuine signature capture if required by this backend contract. Keep backend ownership/state/OTP checks authoritative; test concurrent handovers for one order. | Test simultaneous claims, invalid-state/OTP cases, genuine signature payload, and duplicate/concurrent handover requests. |
+| **Escrow release is confirmed by the legacy backend response, but the packet should use that response and account for V2 scope.** The V1 controller commits the order update and release-ledger entry before returning `success: true` with “Delivery confirmed. Escrow released to merchant.” Thus a V1 success response does confirm release in this source snapshot. The packet ignores the response and hardcodes its toast. V2 releases per group and may not complete the parent order. | Backend [`delivery.controller.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/controllers/delivery.controller.js), [`deliveryV2.controller.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/controllers/deliveryV2.controller.js); proposed Step 4 `onSuccess`. | Step 4: handover success handler. | Medium for V1; high if V2/group completion is presented as whole-order escrow release. | Display the verified response message/state rather than a hardcoded success claim; make the wording correspond to order versus fulfillment-group scope. | Assert the success message from actual V1/V2 response shape and test partial multi-group release. |
+| **Property routes are present in both frontend and backend, but approval of the isolation decision is not documented here.** Backend has public property listing/detail endpoints and role-protected admin/deal-initiator endpoints. This is evidence of the current contract, not evidence of an approved isolation decision. | Frontend `App.jsx`; backend [`property.route.js`](https://github.com/walidaOmar/GimbiyaBackendRest/blob/21acaead0d4acb902e1b9696e767c080d565987b/backend/routes/property.route.js). | Step 1: Property imports and routes. | Unresolved approval, not a demonstrated route-contract mismatch. | Preserve the existing Property surfaces pending the approved decision; obtain that decision before altering or signing off on isolation. | Compare imports, public routes, and role access against the approved decision when supplied. |
+| **Production navigation filtering does not block direct routes or exclude lazy code/data from the bundle.** The packet filters `devOnly` links but retains feature routes and imports. Its placeholder stops workspace rendering in production, but does not remove the lazy chunk. Current `dist` already contains a `SovereignMarketWorkspace` chunk; public landing/ticker metrics are not changed by the packet. | Existing `App.jsx`, `SovereignMarketWorkspace.jsx`, `Landing.jsx`, `LiveTicker.jsx`. | Steps 1–2 and 6. | High: UI hiding, route blocking, and bundle exclusion are conflated; fabricated public figures remain reachable. | Remove the hardcoded `96.2%` and review all current-looking public figures. Separately decide route denial and bundle exclusion; verify both from the production artifact. | Direct production route checks, visible-page metric checks, and artifact inspection after build. |
+| **`Operations.jsx` still has a README reference.** The two runtime imports are in `App.jsx`, but the README still describes it as the combined Stock/Rider/Affiliate dashboard. | `App.jsx`, `README.md`. | Steps 1 and 5. | Low/Medium: stale documentation or broken imports if deletion order is wrong. | Update imports and README before deleting; search remaining references. | Repository-wide search followed by build. |
+
+### Corrected minimal implementation sequence
+
+1. **Do not run the packet’s branch command yet.** Recheck `git status --short --branch` before any branch operation.
+2. **Settle route policy first:** fix auditor/support destinations, add manager navigation, decide production availability for staff/onboarding routes, and align those pages with the backend endpoints that actually exist.
+3. **Preserve and test the verified Stock REST contract.** Correct React Query v5 invalidation, avoid impossible decrement buttons, and show query/refetch errors; leave stock bounds and atomic writes to the backend.
+4. **Choose and implement the correct Rider workflow scope.** The legacy order-level API exists; the fulfillment-group V2 API also exists. Handle their distinct IDs, states, response shapes, and escrow scope rather than assuming one workflow covers both.
+5. **Remove the fixed signature and hardcoded Rider metric.** Use genuine signature capture for the verified handover contract. Drive success wording from authoritative response/state, especially for V2 partial fulfillment.
+6. **Keep Property imports/routes unchanged until the approved isolation decision is available.**
+7. **Only then split Stock and Rider, update the README, search all `Operations.jsx` references, and delete it.** After approval, make one small change at a time, inspect each diff, and run build and relevant tests. A successful build is not business-workflow verification.
+
+**Still not approved for file replacement.** The remaining blockers are the fulfillment-group Rider scope and missing Property-isolation decision; production route/data policy also needs to be explicit.
+
+
+I’ll first check the worktree state, then inspect the current implementation and the backend contracts the packet depends on. I won’t modify files or change branches.
+
+Ran terminal command: git status --short --branch
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/package.json"
+}
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/context/AuthContext.jsx"
+}
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/store/authStore.js"
+}
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/api/index.js"
+}
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/components/layout/DashboardLayout.jsx"
+}
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/components/layout/Sidebar.jsx"
+}
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/App.jsx"
+}
+
+Find files matching `**/*{Stock,Rider,Operations}*.jsx`
+
+Find files matching `**/*`
+
+The worktree is clean, but the current branch is already `main` and one commit ahead; I’ll leave branch state untouched. The requested Stock and Rider dashboards do not currently exist under those filenames, so I’m checking current route wiring, Operations usage, API methods, and the available backend/source references before comparing the packet.
+
+Read , lines 1 to 220
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/api/index.js",
+  "view_range": [
+    1,
+    220
+  ]
+}
+
+Read , lines 1 to 250
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/App.jsx",
+  "view_range": [
+    1,
+    250
+  ]
+}
+
+Read , lines 1 to 220
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/components/layout/Sidebar.jsx",
+  "view_range": [
+    1,
+    220
+  ]
+}
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/pages/dashboards/Operations.jsx"
+}
+
+Search for `Operations|stockApi|deliveryApi|96\.2%|signatureBase64|submittedOtp|handover|...`
+
+Search for `property_admin|/properties/|PropertyDetail|PropertyAdminDashboard`
+
+Search for `stock|delivery|handover|adjustment|AUDIT|DAMAGED|RECOUNT|INBOUND|signature|OT...`
+
+Ran terminal command: ls -la /workspaces && printf '\nRoot files:\n' && git ls-files | sed -n '1,180p' && printf '\nPatch metadata:\n' && git status --short frontend-tiered-marketplace.patch && wc -l frontend-tiered-marketplace.patch
+
+Read , lines 120 to 220
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/App.jsx",
+  "view_range": [
+    120,
+    220
+  ]
+}
+
+Read , lines 1 to 230
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/pages/dashboards/Operations.jsx",
+  "view_range": [
+    1,
+    230
+  ]
+}
+
+Read , lines 231 to 430
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/pages/dashboards/Operations.jsx",
+  "view_range": [
+    231,
+    430
+  ]
+}
+
+Read , lines 95 to 205
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/api/index.js",
+  "view_range": [
+    95,
+    205
+  ]
+}
+
+Read , lines 135 to 260
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/components/layout/Sidebar.jsx",
+  "view_range": [
+    135,
+    260
+  ]
+}
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/pages/dashboards/StaffManagement.jsx"
+}
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/pages/dashboards/StaffOnboarding.jsx"
+}
+
+Read 
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/pages/dashboards/StoreOnboarding.jsx"
+}
+
+Search for `manager|auditor|support|super_admin|developer_coordinator|stock_manager|deliv...`
+
+Search for `96\.2%|96.2|Escrow released|escrow release|signatureBase64|handover`
+
+Read , lines 1 to 160
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/README.md",
+  "view_range": [
+    1,
+    160
+  ]
+}
+
+The current repository confirms the packet is not a set of independent replacements: `Operations.jsx` currently supplies both Stock and Rider exports, and its current route/bundle is live. I’m validating the remaining contracts against the installed React Query version and checking which facts are unavailable because this workspace contains only the frontend.
+
+Read , lines 18 to 45
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/config/businessClassification.js",
+  "view_range": [
+    18,
+    45
+  ]
+}
+
+Read , lines 1 to 180
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/pages/dashboards/SovereignMarketWorkspace.jsx",
+  "view_range": [
+    1,
+    180
+  ]
+}
+
+Read , lines 1 to 220
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/components/ui/index.jsx",
+  "view_range": [
+    1,
+    220
+  ]
+}
+
+Search for `ROLE_ROUTES|ROUTE path=|role:|value: 'ceo'|value: 'buyer'|manager`
+
+Search for `signatureBase64|submittedOtp|96\.2%|Escrow released|deltaCount|reasonCode|not...`
+
+Search for `96\.2%|Sovereign|wallet|incubator|team management|Escrow released`
+
+Ran terminal command: npm ls @tanstack/react-query --depth=0 && node -e "const p=require('./node_modules/@tanstack/react-query/package.json'); console.log('installed React Query:',p.version)" && rg -n "invalidateQueries\(" node_modules/@tanstack/query-core/build/modern/queryClient.js node_modules/@tanstack/query-core/build/legacy/queryClient.js
+
+Ran terminal command: printf 'Backend sibling exists: '; if test -d /workspaces/gimbiya-backend; then echo yes; else echo no; fi; printf 'Git remotes:\n'; git remote -v; printf 'Tracked root files:\n'; git ls-files | awk 'index($0,"/")==0'
+
+Ran terminal command: rg -n -o '96\.2%|signatureBase64|Escrow released' dist/assets/Operations-Dzk8vCYq.js
+
+Read , lines 140 to 166
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/node_modules/@tanstack/query-core/build/modern/queryClient.js",
+  "view_range": [
+    140,
+    166
+  ]
+}
+
+Search for `function matchQuery|const matchQuery|queryKey === void 0|filters\.queryKey`
+
+Search for `isolation|isolat.{0,50}property|property.{0,50}isolat|decision.*property|prop...`
+
+Search for `Operations\.jsx|dashboards/Operations|from ['"].*Operations|import\(.*Operations`
+
+Search for `96\.2%|signatureBase64|Escrow released`
+
+Search for `stock/audit|stock/manifest|stock/adjust|delivery/jobs|delivery/active|deliver...`
+
+session_store_sql
+Completed with input: {
+  "description": "Find prior property isolation decision",
+  "query": "SELECT s.id, s.summary, t.timestamp, t.user_message FROM sessions s JOIN turns t ON t.session_id = s.id WHERE s.repository = 'walidaOmar/GimbiyaFrontendRest' AND t.timestamp >= now() - INTERVAL '7 days' AND (t.user_message ILIKE '%property%' OR t.user_message ILIKE '%isolation%') LIMIT 20"
+}
+
+Search for `ROLE_ROUTES|export function RequireAuth|if \(allowedRoles|const destination`
+
+Search for `function DashboardRedirect|const ROUTES|path="staff|path="stores/onboard|path...`
+
+Search for `const fallbackData|96\.2%|signatureBase64|Escrow released|qc\.invalidateQueri...`
+
+Search for `export const stockApi|manifest:|adjust:|auditLog:|export const deliveryApi|jo...`
+
+Search for `value: 'manager'|value: 'buyer'|value: 'auditor'|value: 'support'|export cons...`
+
+Search for `const h=|GMV TODAY|RIDERS ACTIVE|ESCROW LOCKED|98\.7% OTD|SovereignMarketWork...`
+
+Search for `GMV TODAY|2\.84M|1,204|98\.7% OTD|const StockDashboard|const RiderDashboard|P...`
+
+Read , lines 1 to 55
+Completed with input: {
+  "path": "/workspaces/GimbiyaFrontendRest/src/pages/Landing.jsx",
+  "view_range": [
+    1,
+    55
+  ]
+}
+
+Search for `GMV TODAY|2\.84M|1,204|98\.7% OTD|ESCROW LOCKED|RIDERS ACTIVE`
+
+**Pre-application review: do not apply the packet as written.** I made no file changes, did not change branches, and did not deploy. The required initial `git status --short --branch` returned `## main...origin/main [ahead 1]` with no uncommitted changes. I did not run a build: this is a review-only pass, and a build now would alter the existing build output.
+
+This workspace contains only the frontend; the backend source referenced by the README is absent. So the API wrapper paths and payload assumptions below can be compared with current frontend usage, but server routes, validation, state transitions, response contracts, and business rules cannot be confirmed here.
+
+| Finding | Evidence from the current repository | Proposed packet location | Risk | Required correction | Test needed |
+|---|---|---|---|---|---|
+| **Role redirects are not correct for every role.** `RequireAuth` renders authenticated users with allowed roles and redirects disallowed users to `ROLE_ROUTES[user.role]`. But `auditor` and `support` map to `/dashboard/ceo`, which the packet restricts to `ceo`/`super_admin`; their dashboard-index redirect therefore sends them to a route that rejects them. The packet’s claim that they land on the correct dashboard is not supported. | `AuthContext.jsx`, `AuthContext.jsx`, current CEO/report guards in `App.jsx`. | Step 1: `DashboardRedirect` and CEO/report routes. Step 2: auditor/support navigation. | High: users can end up on a blank/rejected route; test instructions can falsely pass. | Give auditor/support an intentional, authorized default destination—or remove the unsupported role destination until one exists. Add explicit role-destination coverage rather than treating `ROLE_ROUTES` as proof the route is reachable. | For every supported role, test dashboard-index redirect, allowed route, denied route, and the resulting destination. Include auditor/support and manager. |
+| **The role matrix has a manager navigation gap.** `manager` is present in `ROLE_ROUTES` and the merchant routes allow it, but the packet’s `NAV_CONFIG` has no `manager` entry. The sidebar falls back to buyer navigation. `STAFF_ROLES` lists ten assignable staff roles; `ROLE_ROUTES` also includes `ceo`, `super_admin`, and `buyer`. The backend’s authoritative role list is unavailable. | `AuthContext.jsx`, `Sidebar.jsx`, `businessClassification.js`. | Steps 1–2: role map and `NAV_CONFIG`. | Medium: manager is sent to merchant but sees buyer links; role coverage assertions would miss it. | Add manager’s intended navigation and confirm the supported-role list with the backend; align redirect, sidebar, and route policy. | Render sidebar and test destination for each backend-supported role, including manager and legacy `ceo`. |
+| **“Dev-only” navigation does not disable onboarding or staff routes.** The packet filters `devOnly` items from the production sidebar, but its route table still renders Staff Management, Staff Onboarding, and Store Onboarding for the listed roles. A user can enter those URLs directly. Hiding links is not route blocking, and frontend route blocking alone is not backend authorization. | Current route structure in `App.jsx`; the sidebar currently has no production route gate in `Sidebar.jsx`. | Steps 1–2: staff/store onboarding routes and `devOnly` sidebar filtering. | High: production users with an allowed client role can reach flows the packet describes as disabled. | If these routes are disabled in production, omit or explicitly block them in the production route table as well as hiding navigation. Confirm the corresponding backend endpoints enforce authorization independently. | Production-mode direct URL tests for every onboarding/staff route, plus backend authorization tests for the underlying endpoints. |
+| **The proposed production gate is not the same as route blocking or bundle exclusion.** `DevOnlyWorkspace` would render a placeholder when `PROD` is true, but the routes remain matchable. Whether the lazy-imported workspace is removed from the production bundle has not been established; the packet’s comment asserts it remains bundled without build evidence. | Current workspace is lazy-imported and routed directly in `App.jsx`; the packet adds a `PROD` conditional in Step 1. Existing checked-in workspace output is `SovereignMarketWorkspace-DCS3BIJR.js`. | Step 1: `DevOnlyWorkspace` and routes rendering it. | Medium: a placeholder can prevent rendering without proving the route is unavailable or that fabricated data is absent from assets. | State separately which routes are intentionally reachable, which render placeholders, and whether code must be excluded. Verify the actual production artifact after approval; do not claim exclusion from a source-level conditional alone. | Production build artifact inspection for the workspace chunk/data, plus direct-route tests verifying no fabricated data is rendered. |
+| **Fabricated metrics remain on reachable production surfaces.** The current Rider dashboard has a hardcoded `96.2%`, and the public landing page/ticker has hardcoded fulfillment, GMV, order, rider, and escrow figures. The packet removes none of the public landing data. The existing workspace also contains hardcoded fallback records and stats, currently routed to authenticated roles. | `Operations.jsx`, `Landing.jsx`, `LiveTicker.jsx`, `SovereignMarketWorkspace.jsx`. The current Operations build asset contains `96.2%`, the signature field, and the escrow claim: `Operations-Dzk8vCYq.js`. | Steps 1, 3, and 4: production workspace gate and new Rider dashboard. | High: fabricated business figures and claims remain visible to users; current Rider routes are reachable by delivery users. | Remove `96.2%`; replace metrics only with confirmed backend-derived values, or remove them. Include the public landing/ticker in scope. Do not present fallback workspace data as real business records. | Production-route checks for all metric surfaces, and artifact search for removed literals after build. |
+| **Stock API and audit contracts are not verified against a backend.** The frontend currently calls `/stock/manifest`, `/stock/adjust`, and `/stock/audit/:productId`; the UI assumes `manifest`, `lowStockThreshold`, `entries`, `stockBefore`, `stockAfter`, `deltaCount`, `reasonCode`, `actorId`, and `timestamp`. Those are frontend expectations, not evidence of server contracts. The proposed dashboard copies them. | `api/index.js`, `Operations.jsx`, `Operations.jsx`. | Step 3: Stock dashboard API and audit panel. | High: incorrect fields or unsupported payloads can misreport inventory/audit history. | Confirm endpoint routes, payload validation, response shape, region scoping, audit fields, and supported reason codes against backend source before implementing or retaining these assumptions. | Backend contract/integration tests for manifest, adjustment, audit response, and rejected invalid payloads. |
+| **Stock adjustments can send unsafe values and omit the note.** The UI offers `-50`, `-10`, `+10`, and `+50` without checking displayed stock; the negative buttons can request more stock than shown. It offers `AUDIT`, `DAMAGED`, `RECOUNT`, and `INBOUND` without server verification. `noteText` is sent, but there is no note input, so the current state leaves it empty. Query errors can also fall through to a “No Products” state. | `Operations.jsx`, `Operations.jsx`, adjustment controls in `Operations.jsx`. | Step 3: adjustment panel and reason controls. | High: confusing or invalid adjustments; a failed fetch may look like confirmed empty inventory. | Use only backend-approved reason codes and quantities; provide a note field if the contract requires one. Show query errors distinctly. The backend must enforce atomic stock bounds, role/region scope, and audit creation. | UI tests for out-of-range adjustments and query errors; backend tests for concurrent adjustment, negative-stock rejection, role/region scope, and audit persistence. |
+| **React Query invalidation uses the wrong v5 form.** Installed `@tanstack/react-query` is `5.101.2`. The packet copies `invalidateQueries(['stock-manifest'])` and similar calls; v5 expects a filter object. With an array, `queryKey` is not set, so the call is not scoped to that key and can invalidate/refetch unrelated active queries. It ordinarily refetches active queries, but the dashboard has no error state to distinguish a failed refresh from retained cached inventory. | Current dependency declaration in `package.json`; installed v5 implementation at `queryClient.js` and filter matching at `utils.js`. Existing copied pattern: `Operations.jsx`. | Steps 3–4: all `qc.invalidateQueries([...])` calls. | Medium: unscoped refetches and silent stale-data presentation after refresh errors. | Use v5 object filters such as `{ queryKey: ['stock-manifest'] }` and the corresponding rider keys. Provide explicit query error/refresh feedback. | Verify only the intended queries become stale/refetch after a mutation; test a failed post-mutation refetch does not appear as current inventory. |
+| **Delivery endpoint/state/response contracts are unverified.** Frontend wrappers call `/delivery/jobs`, `/delivery/active`, `/delivery/claim` with `{ orderId }`, and `/delivery/handover` with a passed-through payload. The UI assumes `jobs`, `deliveries`, order fields, and an OTP/signature shape; no backend source here establishes job states, ownership, OTP rules, signature rules, or handover response fields. | `api/index.js`, `Operations.jsx`. | Step 4: Rider queries and mutations. | High: a plausible UI contract may not match authoritative delivery workflow rules. | Verify every endpoint, response, state transition, ownership/concurrency rule, and signature/OTP requirement with the backend before finalizing the dashboard. Backend remains authoritative for claims and transitions. | Backend contract tests plus concurrent claim, invalid transition, wrong OTP, and repeated handover tests. |
+| **The proposed Rider UI submits a fixed image, not a customer signature.** A checkbox assertion does not capture a signature, yet the handover submits a constant 1×1 PNG data URL. The four-digit OTP check is only client-side and does not establish the backend’s OTP format or requirement. | `Operations.jsx`, `Operations.jsx`, `Operations.jsx`. | Step 4: `handleHandover` and OTP Handover Modal. | Critical to evidence integrity: a fixed image is falsely submitted as proof of a real signature. | Do not submit a signature until the genuine capture and server contract are confirmed. If signature is mandatory, collect genuine input; if not, remove the field and assertion only after backend confirmation. | Integration test that the actual user-provided signature/required proof is sent, and rejects missing/invalid OTP or proof per backend rules. |
+| **The success message claims escrow release without evidence.** A successful handover request triggers “Escrow released!” without inspecting the response or a verified escrow state. | `Operations.jsx`. | Step 4: handover mutation `onSuccess`. | High: falsely represents a financial/business state. | Report only that handover was submitted/confirmed unless the response or a subsequent verified state explicitly confirms release. Display escrow status only from that authoritative field/state. | Test success responses with and without a release confirmation; only the confirmed-release response may show “released.” |
+| **Deleting `Operations.jsx` has one non-code documentation reference.** Source imports are limited to the two current lazy imports in `App.jsx`—which Step 1 changes—but the README still documents `Operations.jsx` as the combined Stock/Rider/Affiliate dashboard. The packet does not update that documentation. | `App.jsx`, `README.md`. | Steps 1 and 5: import replacement and deletion. | Low/Medium: stale repository documentation; deletion is only safe after imports are changed. | Update the README directory map and verify no remaining source imports/references before deleting. | Search repository for `Operations.jsx`; confirm no source imports remain and README matches the new layout. |
+| **Property isolation compliance cannot be confirmed.** The packet retains the property dashboard and public property-detail routes/imports. I found no approved isolation decision in this repository, and the backend is absent. | `App.jsx`, `App.jsx`, `App.jsx`. | Step 1: Property imports and Marketplace routes. | Unresolved scope/compliance risk. | Obtain the approved isolation decision before changing or signing off these routes/imports; verify against it rather than assuming the current arrangement is approved. | Route/import review against the recorded decision, plus role/access tests for the approved public and admin surfaces. |
+| **The packet’s build command cannot establish workflow correctness.** `package.json` provides `npm run build` but no test or lint script. A successful build checks bundling, not authorization behavior, backend contracts, claim concurrency, stock invariants, signature capture, or escrow status. | `package.json`. | Step 6: build and manual verification claims. | High if a build is treated as business-workflow sign-off. | After approval, build and targeted route/UI tests are separate evidence; backend contract/workflow tests are also required. Report build success only as build success. | Run the build and relevant frontend/backend tests separately; manually verify role route matrix and production bundle/routes. |
+
+### Corrected minimal implementation sequence
+
+1. **Keep this review non-mutating.** The worktree is clean, but the current branch is `main` and one commit ahead of `origin/main`; do not run the packet’s branch command during review. After approval, recheck status before any branch change.
+2. **Resolve the blockers before replacements:** obtain the stock/delivery backend source or confirmed contracts, and the approved Property isolation decision. Confirm whether onboarding/staff routes are disabled in production and whether backend endpoints enforce the same policy.
+3. **Fix the route matrix first:** map every supported role to an actually authorized destination, including auditor/support and manager; add tests for nested parent/child guards, direct route access, and unauthenticated redirects. Hide navigation only as a UX choice—not as route or backend access control.
+4. **Make business-state corrections before splitting dashboards:** remove the hardcoded Rider metric, fixed signature payload, and unconditional escrow-release message. Implement signature capture and state messages only from the verified contract. Correct React Query v5 invalidation and add visible fetch/refetch error states for Stock.
+5. **Gate disabled routes and fabricated surfaces explicitly:** apply production route blocking to disabled onboarding/staff paths. Replace or remove fabricated metrics on dashboard **and public landing/ticker** surfaces. Separately verify rendered-route behavior and whether the production bundle excludes any development-only code/data.
+6. **Split Stock/Rider surgically, then delete `Operations.jsx`:** preserve the backend’s rules and API payloads, update imports and README, search all references, inspect each small diff, then run the build and relevant tests. Do not treat a successful build as proof of workflow correctness.
+
+**No packet files should be replaced yet.** The server-side contracts and Property isolation decision remain unverified, and the Rider packet contains a fixed signature and an unsupported escrow-release claim.## Pre-application review
+
+**No files were modified, no branch was changed, and nothing was deployed.** The required `git status --short --branch` check was clean: `## main...origin/main [ahead 1]`. I did not run a build, since this review must not change files and a build would not verify the business workflows in question.
+
+The backend source is not present in this workspace—the README describes it as a separate project, and no backend sibling directory is available. I can verify what the frontend currently calls and assumes, but not confirm those assumptions against backend routes, validation, response shapes, or business rules.
+
+| Finding | Evidence from the current repository | Proposed packet location | Risk | Required correction | Test needed |
+|---|---|---|---|---|---|
+| **The packet fixes an incomplete dashboard redirect but still sends auditor/support to an unauthorized page.** The current local redirect map omits `manager`, `auditor`, and `support`, so those roles fall back to the buyer dashboard. The shared `ROLE_ROUTES` includes all three, but maps auditor/support to `/dashboard/ceo`; the CEO route only allows `ceo` and `super_admin`. The reports route allows auditor/support, but is not their default destination. | `App.jsx`, `AuthContext.jsx`, `App.jsx`. | Step 1: `DashboardRedirect` and CEO/report routes. | High: auditor/support can land on a route that rejects them and renders no dashboard content. | Set each role’s default destination to a route that actually allows that role, or deliberately withhold a default until a destination exists. | Test dashboard-index redirects and allowed/denied routes for each supported role, especially auditor/support. |
+| **`RequireAuth` permits the packet’s nested guard arrangement, but there is a role-navigation failure.** The parent `/dashboard` guard has no `allowedRoles`, so authenticated users can render `DashboardLayout`; a child guard with `allowedRoles` independently returns `null` and redirects unauthorized users. Nested guards are not inherently blocking each other here. The issue is the invalid destination noted above, not nesting itself. | `AuthContext.jsx`, `App.jsx`. | Step 1: protected dashboard routes and nested `RequireAuth` guards. | High for roles redirected to a route that rejects them; otherwise the parent/child pattern works for the routes shown. | Preserve a parent authentication check and child authorization checks, but verify each redirect destination against that route’s allowlist. | Test unauthenticated, authorized, and unauthorized access through both direct URLs and dashboard navigation. |
+| **The packet’s role coverage is incomplete and internally inconsistent.** `ROLE_ROUTES` has 13 entries. `STAFF_ROLES` lists 10 assignable roles; it does not establish the complete backend-supported role list. The packet’s sidebar omits `manager`, so its fallback displays buyer links even though the packet’s merchant routes allow manager and the shared redirect maps manager to merchant. | `AuthContext.jsx`, `businessClassification.js`, `Sidebar.jsx`. | Steps 1–2: role map and `NAV_CONFIG`. | Medium: redirect, route authorization, and navigation can disagree for a supported role. | Confirm the authoritative supported roles with the backend; align destinations, route allowlists, and sidebar entries. | Role-matrix tests covering every backend-supported role, including `manager` and any legacy `ceo` role. |
+| **“Dev-only” sidebar filtering does not disable direct route access to onboarding or staff management.** The packet filters menu items in production, but leaves the staff, staff-onboard, and stores-onboard routes in the route table with their existing role allowlists. A user with one of those roles can still enter the URL directly. Client route blocking also cannot replace backend authorization. | Current routes in `App.jsx`; current sidebar selection in `Sidebar.jsx`. | Steps 1–2: onboarding routes and `devOnly` filtering. | High if those flows are intended to be disabled in production. | If disabled means unavailable, block or omit these routes in production in addition to hiding their links. Verify the backend endpoints enforce access independently. | Production-mode direct-URL tests for each route, plus backend authorization tests. |
+| **Production placeholder, route blocking, and bundle exclusion are different claims.** The packet’s `DevOnlyWorkspace` placeholder would stop the component from rendering when `PROD` is true, but it does not itself make its routes inaccessible. Whether the production bundler removes the lazy-import chunk is not established by the source. | Current lazy import and routes in `App.jsx`, `App.jsx`. | Step 1: `DevOnlyWorkspace` and routes that use it. | Medium: a placeholder is not proof of route denial, and a source conditional is not proof of bundle exclusion. | Decide which feature requires route denial, which may show a placeholder, and whether its code/data must be excluded from production. Verify the resulting build artifact rather than asserting exclusion from source. | Production direct-route tests and post-build inspection for the workspace chunk and fabricated data. |
+| **Fabricated business metrics remain outside the workspace routes.** The packet does not change public landing/ticker values; the Rider packet itself retains `96.2%`. The existing workspace also contains static fallback records and figures. Hiding a sidebar item or replacing a route with a placeholder does not remove public metrics or establish that code/data is absent from the bundle. | `Operations.jsx`, `Landing.jsx`, `LiveTicker.jsx`, `SovereignMarketWorkspace.jsx`. | Steps 1 and 4: production workspace handling and Rider metrics; not addressed for Landing/LiveTicker. | High: fabricated figures can remain reachable on public or production dashboard routes. | Remove `96.2%` and other fabricated figures, or replace them with verified backend-derived values. Include public landing/ticker and every reachable workspace route in scope. | Test reachable production pages for fabricated values and inspect the production bundle for any data that must not ship. |
+| **Current Stock API usage is visible, but the backend contract is not verified.** The frontend wrapper calls `/stock/manifest`, `/stock/adjust`, and `/stock/audit/:productId`. The dashboard assumes response fields such as `manifest`, `lowStockThreshold`, `entries`, `stockBefore`, `stockAfter`, `actorId`, and `timestamp`, and submits `productId`, `deltaCount`, `reasonCode`, and `noteText`. These frontend assumptions do not prove backend support. | `api/index.js`, `Operations.jsx`, `Operations.jsx`. | Step 3: Stock dashboard requests, payloads, and audit display. | High: unsupported fields or shapes can misrepresent inventory or audit history. | Verify paths, payloads, response fields, authorization, region scoping, audit fields, and adjustment reason codes against backend source before implementing the split. | Backend contract tests for manifest, adjustment, audit entries, rejected payloads, and access scope. |
+| **The Stock UI can request unsafe adjustments and can present stale data as current.** Fixed `-50`/`-10` choices do not check displayed stock; reason buttons are not validated against the backend; `noteText` is sent without any note input. On fetch/refetch failure, cached data may remain visible, and the UI has no explicit query-error state. After a mutation, cached manifest data can remain visible while refetching or after a failed refetch. | `Operations.jsx`, `Operations.jsx`, `Operations.jsx`. | Step 3: adjustment controls, manifest state, and mutation handling. | High: invalid adjustments or stale inventory can mislead operators. | Confirm allowed reasons and payload fields; add appropriate note entry if required; show fetch/refetch errors and distinguish stale data. Keep stock bounds, atomicity, regional scope, and audit enforcement on the backend. | Frontend tests for adjustment limits and query errors; backend tests for bounds, concurrent updates, authorization scope, and audit persistence. |
+| **The packet uses the wrong React Query invalidation shape for the installed v5 dependency.** Installed `@tanstack/react-query` is `5.101.2`. Calls such as `invalidateQueries(['stock-manifest'])` pass an array where v5 expects a filter object. This fails to scope invalidation to the intended key and can invalidate/refetch unrelated active queries. | `package.json`, v5 implementation in `queryClient.js`, current call in `Operations.jsx`. | Steps 3–4: all `invalidateQueries` calls. | Medium: unrelated queries may refetch, while stale cached results can remain after a failed refetch. | Use v5 filter objects, e.g. `{ queryKey: ['stock-manifest'] }`, for the intended keys; add visible loading/error behavior. | Verify the relevant query keys invalidate/refetch after each mutation and failures are surfaced. |
+| **Delivery endpoint and workflow contracts cannot be verified from this frontend.** Current wrappers call `/delivery/jobs`, `/delivery/active`, `/delivery/claim` with `{ orderId }`, and `/delivery/handover` with a pass-through payload. The dashboard assumes `jobs`, `deliveries`, order fields, and an OTP/signature contract. This repository does not establish valid job states, ownership rules, OTP requirements, signature requirements, or handover response fields. | `api/index.js`, `Operations.jsx`. | Step 4: Rider queries and mutations. | High: an unverified UI assumption could conflict with authoritative delivery rules. | Confirm every path, payload, response, required proof, and state transition with backend source before changing or splitting this workflow. | Backend contract and state-transition tests, including invalid state and ownership cases. |
+| **The packet submits a fixed image rather than a genuine customer signature.** The checkbox only asserts that a signature exists; it does not capture one. The mutation sends the same 1×1 PNG data URL for every order. The frontend’s four-digit check likewise does not establish server-side OTP rules. | `Operations.jsx`, `Operations.jsx`, `Operations.jsx`. | Step 4: handover payload and modal. | Critical to proof integrity: the submitted “signature” is not the customer’s signature. | Do not send a signature until the actual handover contract is confirmed. If required, capture genuine signature input; if not, remove the field only after backend confirmation. | Integration tests proving genuine captured proof is sent and missing/invalid proof is rejected when required. |
+| **The handover success message claims escrow release without checking backend confirmation.** A successful handover request alone does not prove funds were released. | `Operations.jsx`. | Step 4: handover mutation `onSuccess`. | High: a false financial status is shown to the rider. | Report handover confirmation only unless the response or a separately verified state confirms escrow release. | Test confirmed and unconfirmed release responses; only the confirmed state may be described as released. |
+| **Client-side Rider guards reduce accidental repeats but do not establish safe transitions or idempotency.** `claimMut.isPending` disables all claim buttons within this UI while a claim is in flight, and `handoverMut.isPending` disables the confirm button while a submission is pending. Neither proves correctness across multiple tabs/devices or after a timeout where the server may have committed. The UI also assumes every item in `active` is eligible for handover. | Proposed Step 4 claim and handover mutation handlers; current implementation in `Operations.jsx`. | Step 4: claim buttons, active-job actions, and handover submission. | High if the frontend is treated as the concurrency/state authority; backend remains authoritative. | Retain UI pending-state protections, but verify server-side atomic claim, ownership/state checks, and idempotent or duplicate-safe handover behavior. Display actions only for contract-approved job states. | Backend concurrency tests for two riders claiming one job, invalid transitions, repeated submissions, and ambiguous network failures. |
+| **Deleting `Operations.jsx` has an outstanding documentation reference.** Its two current runtime imports are in `App.jsx` for Stock and Rider, but the README still identifies it as the combined Stock/Rider/Affiliate dashboard. Update the imports before deleting it and update the documentation. | `App.jsx`, `README.md`. | Steps 1 and 5. | Low/Medium: stale documentation or a broken import if deletion precedes import replacement. | Update README and search all source/documentation references before deletion. | Repository-wide reference search after import changes; build after the deletion. |
+| **The Property isolation decision is not present in this checkout.** The packet retains the property dashboard and public property detail routes; this review found no approved decision documenting whether they should remain isolated or how. | `App.jsx`, `App.jsx`, `App.jsx`. | Step 1: Property imports/routes. | Unresolved decision; cannot sign off on consistency with an absent approval. | Obtain the approved isolation decision and compare these routes/imports to it before changing or approving them. | Verify route/import behavior against that decision and test intended role access. |
+| **Build success alone does not verify this packet’s workflows.** The project defines `npm run build` but no test or lint script in `package.json`. A build can validate bundling, not role routing, backend contracts, inventory invariants, duplicate claims, real signature capture, or escrow release. | `package.json`. | Step 6 and the packet’s “build-verified” claims. | High if build success is treated as business-workflow sign-off. | Report build results separately from frontend route/UI tests and backend contract/workflow tests. Do not treat a successful build as proof of full workflow correctness. | Run the build and relevant frontend/backend tests separately; report each result and scope. |
+
+### Corrected minimal implementation sequence
+
+1. **Keep this review non-mutating.** The worktree is clean on `main`, one commit ahead of `origin/main`; do not run the packet’s branch command as part of review.
+2. **Resolve prerequisites:** obtain backend source or confirmed contracts for stock and delivery, plus the approved Property isolation decision. Confirm whether staff/onboarding are meant to be unavailable in production and whether the backend enforces that.
+3. **Fix the role matrix first:** align supported roles, destinations, route allowlists, and sidebar entries. Give auditor/support a reachable, authorized destination or explicitly leave the destination unresolved rather than pointing to a rejected CEO route. Add route tests for nested guards and direct URLs.
+4. **Correct unsafe claims and metrics:** remove the hardcoded Rider metric and fixed signature image; change the escrow success message to reflect only verified state. Review the public Landing and ticker metrics as well as dashboard metrics.
+5. **Correct Stock and Rider behavior against the verified contracts:** use React Query v5 invalidation filters; show query errors/staleness; validate UI actions while keeping backend authority for stock bounds, job claims, transitions, OTP, signature, and duplicate submissions.
+6. **Handle production access deliberately:** distinguish sidebar hiding, client route blocking, backend authorization, and code/data bundle exclusion. Test direct production URLs and inspect the actual production artifact before claiming exclusion.
+7. **Split dashboards only after those blockers are resolved:** update imports and README, search all references to `Operations.jsx`, then delete it. After approval, make one small change at a time, inspect each diff, and run the build and relevant tests. A successful build should be reported only as a successful build.
