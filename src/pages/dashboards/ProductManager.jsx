@@ -3,7 +3,7 @@ import { useAuthStore } from '../../store/authStore.js'
 import { productApi } from '../../api/index.js'
 import { Button, Card, Badge, Modal, Input, Select, Spinner } from '../../components/ui/index.jsx'
 import {
-  Package, Plus, Pencil, Trash2, DollarSign, AlertTriangle, Tag, Search,
+  Package, Plus, DollarSign, AlertTriangle, Tag, Search,
 } from 'lucide-react'
 import { formatNaira } from '../../utils/index.js'
 import toast from 'react-hot-toast'
@@ -26,10 +26,8 @@ export default function ProductManager() {
   const [analytics, setAnalytics] = useState(null)
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
-  const [editingProduct, setEditingProduct] = useState(null)
   const [form, setForm] = useState(EMPTY_PRODUCT)
   const [formErrors, setFormErrors] = useState({})
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
@@ -73,43 +71,15 @@ export default function ProductManager() {
         stock: Number(form.stock),
       }
 
-      if (editingProduct) {
-        await productApi.update(editingProduct._id, payload)
-        toast.success('Product updated')
-      } else {
-        await productApi.create(payload)
-        toast.success('Product created')
-      }
+      await productApi.create(payload)
+      toast.success('Product created')
 
       setModalOpen(false)
-      setEditingProduct(null)
       setForm(EMPTY_PRODUCT)
       setFormErrors({})
       fetchProducts()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Save failed')
-    }
-  }
-
-  const handleEdit = (product) => {
-    setEditingProduct(product)
-    setForm({
-      ...EMPTY_PRODUCT,
-      ...product,
-      priceKobo: String((product.priceKobo || 0) / 100),
-      stock: product.stock?.toString() || '0',
-    })
-    setModalOpen(true)
-  }
-
-  const handleDelete = async (id) => {
-    try {
-      await productApi.delete(id)
-      toast.success('Product deleted')
-      setDeleteConfirm(null)
-      fetchProducts()
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Delete failed')
     }
   }
 
@@ -183,7 +153,7 @@ export default function ProductManager() {
             <option value="low">Low Stock (≤10)</option>
           </Select>
         </div>
-        <Button onClick={() => { setEditingProduct(null); setForm(EMPTY_PRODUCT); setModalOpen(true) }}>
+        <Button onClick={() => { setForm(EMPTY_PRODUCT); setModalOpen(true) }}>
           <Plus className="w-4 h-4 mr-2" /> Add Product
         </Button>
       </div>
@@ -197,10 +167,6 @@ export default function ProductManager() {
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-brass/10"><Package className="w-10 h-10 text-brass opacity-40" /></div>
               )}
-              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleEdit(p)} className="p-1.5 bg-midnight/70 rounded-btn hover:bg-brass hover:text-midnight transition-colors"><Pencil className="w-4 h-4" /></button>
-                <button onClick={() => setDeleteConfirm(p)} className="p-1.5 bg-midnight/70 rounded-btn hover:bg-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-              </div>
               <Badge color={p.isActive ? 'green' : 'muted'} className="absolute top-2 left-2">{p.isActive ? 'Active' : 'Inactive'}</Badge>
               {(p.stock || 0) <= 10 && <Badge color="amber" className="absolute bottom-2 left-2">Low Stock: {p.stock}</Badge>}
             </div>
@@ -226,7 +192,7 @@ export default function ProductManager() {
           {!products.length && (
             <>
               <p className="text-text-m/70 text-sm mb-6">Your marketplace is empty. Add your first product to start selling.</p>
-              <Button onClick={() => { setEditingProduct(null); setForm(EMPTY_PRODUCT); setModalOpen(true) }}>
+              <Button onClick={() => { setForm(EMPTY_PRODUCT); setModalOpen(true) }}>
                 <Plus className="w-4 h-4 mr-2" /> Add First Product
               </Button>
             </>
@@ -234,7 +200,7 @@ export default function ProductManager() {
         </div>
       )}
 
-      <Modal open={modalOpen} onClose={() => { setModalOpen(false); setEditingProduct(null); setFormErrors({}) }} title={editingProduct ? 'Edit Product' : 'Add New Product'} size="lg">
+      <Modal open={modalOpen} onClose={() => { setModalOpen(false); setFormErrors({}) }} title="Add New Product" size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
@@ -291,18 +257,10 @@ export default function ProductManager() {
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="secondary" onClick={() => { setModalOpen(false); setEditingProduct(null); setFormErrors({}) }}>Cancel</Button>
-            <Button type="submit">{editingProduct ? 'Update Product' : 'Create Product'}</Button>
+            <Button type="button" variant="secondary" onClick={() => { setModalOpen(false); setFormErrors({}) }}>Cancel</Button>
+            <Button type="submit">Create Product</Button>
           </div>
         </form>
-      </Modal>
-
-      <Modal open={Boolean(deleteConfirm)} onClose={() => setDeleteConfirm(null)} title="Confirm Delete" size="sm">
-        <p className="text-text-m mb-4">Delete "{deleteConfirm?.name}"? This cannot be undone.</p>
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="secondary" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-          <Button type="button" variant="danger" onClick={() => handleDelete(deleteConfirm._id)}>Delete</Button>
-        </div>
       </Modal>
     </div>
   )

@@ -32,6 +32,7 @@ const ProductManager = lazy(() => import('./pages/dashboards/ProductManager.jsx'
 const StaffManagement = lazy(() => import('./pages/dashboards/StaffManagement.jsx'))
 const StaffOnboarding = lazy(() => import('./pages/dashboards/StaffOnboarding.jsx'))
 const StoreOnboarding = lazy(() => import('./pages/dashboards/StoreOnboarding.jsx'))
+const StoresView = lazy(() => import('./components/stores/StoresView.jsx'))
 const UnifiedMarketplace = lazy(() => import('./pages/UnifiedMarketplace.jsx'))
 const PropertyDetail = PROPERTY_MODULE_ENABLED ? lazy(() => import('./pages/PropertyDetail.jsx')) : null
 
@@ -39,7 +40,7 @@ const HQ_ROLES = ['ceo', 'super_admin', 'auditor', 'support']
 const CEO_ROLES = ['ceo', 'super_admin']
 const COORDINATOR_ROLES = ['developer_coordinator']
 const STAFF_ROLES = ['super_admin', 'developer_coordinator']
-const STORE_ONBOARDING_ROLES = ['super_admin', 'developer_coordinator', 'affiliate']
+const STORE_ONBOARDING_ROLES = ['developer_coordinator']
 const MERCHANT_ROLES = ['business_owner', 'manager']
 const PROPERTY_ADMIN_ROLES = ['property_admin']
 const DEAL_INITIATOR_ROLES = ['deal_initiator']
@@ -127,15 +128,15 @@ export default function App() {
                 <Route path="hq/kyc" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
                 <Route path="hq/escrow" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
                 <Route path="hq/metrics" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
-                <Route path="hq/stores" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
-                <Route path="hq/pending" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
+                <Route path="hq/stores" element={<RequireAuth roles={CEO_ROLES}><StoresView /></RequireAuth>} />
+                <Route path="hq/pending" element={<RequireAuth roles={CEO_ROLES}><StoresView /></RequireAuth>} />
                 <Route path="hq/users" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
                 <Route path="hq/waivers" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
                 <Route path="coordinator" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
                 <Route path="coordinator/stores" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
                 <Route path="coordinator/staff" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
                 <Route path="staff" element={<RequireAuth roles={STAFF_ROLES}><StaffManagement /></RequireAuth>} />
-                <Route path="staff/onboard" element={<RequireAuth roles={STAFF_ROLES}><StaffOnboarding /></RequireAuth>} />
+                <Route path="staff/onboard" element={<RequireAuth roles={COORDINATOR_ROLES}><StaffOnboarding /></RequireAuth>} />
                 <Route path="stores/onboard" element={<RequireAuth roles={STORE_ONBOARDING_ROLES}><StoreOnboarding /></RequireAuth>} />
                 <Route path="merchant" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />
                 <Route path="merchant/listings" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />

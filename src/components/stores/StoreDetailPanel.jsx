@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import {
   Building2, MapPin, Phone, Mail, User, Hash, FileText,
   Landmark, CreditCard, ArrowLeft, Plus, Store, Users, Package,
-  CheckCircle, XCircle,
 } from 'lucide-react'
 import { storeApi } from '../../api/index.js'
 import { STATE_OPTIONS, getRegionLabel } from '../../config/regions.js'
@@ -18,23 +17,10 @@ const FLOOR_OPTIONS = [
 export default function StoreDetailPanel({ storeId, onBack }) {
   const qc = useQueryClient()
   const [showBranchForm, setShowBranchForm] = useState(false)
-  const [showVerifyModal, setShowVerifyModal] = useState(false)
 
   const { data, isLoading } = useQuery({
     queryKey: ['store', storeId],
     queryFn: () => storeApi.getOne(storeId).then((r) => r.data),
-  })
-
-  const verifyMut = useMutation({
-    mutationFn: (data) => storeApi.verify(storeId, data),
-    onSuccess: () => {
-      toast.success('Store verified and owner account created')
-      qc.invalidateQueries(['store', storeId])
-      qc.invalidateQueries(['stores'])
-      qc.invalidateQueries(['pending-stores'])
-      setShowVerifyModal(false)
-    },
-    onError: (err) => toast.error(err.response?.data?.message || 'Verification failed'),
   })
 
   const branchMut = useMutation({
@@ -64,14 +50,6 @@ export default function StoreDetailPanel({ storeId, onBack }) {
         <button onClick={onBack} className="flex items-center gap-2 text-text-m hover:text-text-p transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" /> Back to Stores
         </button>
-        {store.verificationStatus === 'PENDING' && (
-          <button
-            onClick={() => setShowVerifyModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition-all"
-          >
-            <CheckCircle className="w-4 h-4" /> Verify Store
-          </button>
-        )}
       </div>
 
       <div className="bg-surface-l border border-border rounded-xl p-6">
@@ -173,15 +151,6 @@ export default function StoreDetailPanel({ storeId, onBack }) {
         )}
       </div>
 
-      {showVerifyModal && (
-        <VerifyModal
-          store={store}
-          onClose={() => setShowVerifyModal(false)}
-          onVerify={(pwd) => verifyMut.mutate({ initialPassword: pwd })}
-          loading={verifyMut.isPending}
-        />
-      )}
-
       {showBranchForm && (
         <BranchFormModal
           storeState={store.primaryState}
@@ -203,34 +172,6 @@ function InfoItem({ icon, label, value }) {
         <span className="text-[10px] font-mono uppercase tracking-wider">{label}</span>
       </div>
       <p className="text-text-p font-medium truncate">{value}</p>
-    </div>
-  )
-}
-
-function VerifyModal({ store, onClose, onVerify, loading }) {
-  const [pwd, setPwd] = useState('')
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-surface-l border border-border rounded-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-        <h3 className="font-display font-bold text-text-p mb-2">Verify Store</h3>
-        <p className="text-sm text-text-m mb-4">
-          This will create a business owner account for <span className="text-text-p font-medium">{store.businessEmail}</span>.
-          Set a temporary password or leave blank for auto-generation.
-        </p>
-        <input
-          value={pwd}
-          onChange={(e) => setPwd(e.target.value)}
-          placeholder="Temporary password (optional)"
-          className="w-full bg-midnight border border-border rounded-lg px-4 py-2.5 text-sm text-text-p focus:border-emerald-500 outline-none mb-4"
-        />
-        <div className="flex justify-end gap-3">
-          <button onClick={onClose} className="btn btn-ghost px-4">Cancel</button>
-          <button onClick={() => onVerify(pwd)} disabled={loading} className="btn btn-primary px-6 bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20">
-            {loading ? 'Verifying...' : 'Verify & Create Account'}
-          </button>
-        </div>
-      </motion.div>
     </div>
   )
 }
