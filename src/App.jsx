@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider }        from '@tanstack/react-query'
 import { Toaster }                                 from 'react-hot-toast'
 import { Suspense, lazy, useEffect }               from 'react'
 
-import { AuthProvider, RequireAuth, RequireGuest, RoleGuard, ROLE_ROUTES } from './context/AuthContext.jsx'
+import { AuthProvider, RequireAuth, RequireGuest, ROLE_ROUTES } from './context/AuthContext.jsx'
 import { useAuthStore }                            from './store/authStore.js'
 import { Navbar }                                  from './components/layout/Navbar.jsx'
 import { DashboardLayout }                         from './components/layout/DashboardLayout.jsx'
@@ -19,19 +19,35 @@ const CEODashboard     = lazy(() => import('./pages/dashboards/CEOBrassDashboard
 const BuyerDashboard   = lazy(() => import('./pages/dashboards/Buyer.jsx'))
 const MerchantDashboard= lazy(() => import('./pages/dashboards/Merchant.jsx'))
 const CheckoutPaymentPanel = lazy(() => import('./pages/dashboards/CheckoutPaymentPanel.jsx').then(m => ({ default: m.CheckoutPaymentPanel })))
-const StockDashboard   = lazy(() => import('./pages/dashboards/Operations.jsx').then(m => ({ default: m.StockDashboard })))
-const RiderDashboard   = lazy(() => import('./pages/dashboards/Operations.jsx').then(m => ({ default: m.RiderDashboard })))
+const StockDashboard   = lazy(() => import('./pages/dashboards/operations/StockDashboard.jsx').then(m => ({ default: m.StockDashboard })))
+const RiderDashboard   = lazy(() => import('./pages/dashboards/operations/RiderDashboard.jsx').then(m => ({ default: m.RiderDashboard })))
 const AffiliateDashboard = lazy(() => import('./pages/dashboards/AffiliateTrackingDashboard.jsx'))
 const CoordinatorDashboard = lazy(() => import('./pages/dashboards/CoordinatorTrackingDashboard.jsx'))
-const PropertyAdminDashboard = lazy(() => import('./pages/dashboards/PropertyAdminDashboard.jsx'))
+const PROPERTY_MODULE_ENABLED = import.meta.env.VITE_ENABLE_PROPERTY_MODULE === 'true'
+const PropertyAdminDashboard = PROPERTY_MODULE_ENABLED
+  ? lazy(() => import('./pages/dashboards/PropertyAdminDashboard.jsx'))
+  : null
 const DealInitiatorDashboard = lazy(() => import('./pages/dashboards/DealInitiatorDashboard.jsx'))
 const ProductManager = lazy(() => import('./pages/dashboards/ProductManager.jsx'))
 const StaffManagement = lazy(() => import('./pages/dashboards/StaffManagement.jsx'))
 const StaffOnboarding = lazy(() => import('./pages/dashboards/StaffOnboarding.jsx'))
 const StoreOnboarding = lazy(() => import('./pages/dashboards/StoreOnboarding.jsx'))
-const SovereignMarketWorkspace = lazy(() => import('./pages/dashboards/SovereignMarketWorkspace.jsx'))
 const UnifiedMarketplace = lazy(() => import('./pages/UnifiedMarketplace.jsx'))
-const PropertyDetail = lazy(() => import('./pages/PropertyDetail.jsx'))
+const PropertyDetail = PROPERTY_MODULE_ENABLED ? lazy(() => import('./pages/PropertyDetail.jsx')) : null
+
+const HQ_ROLES = ['ceo', 'super_admin', 'auditor', 'support']
+const CEO_ROLES = ['ceo', 'super_admin']
+const COORDINATOR_ROLES = ['developer_coordinator']
+const STAFF_ROLES = ['super_admin', 'developer_coordinator']
+const STORE_ONBOARDING_ROLES = ['super_admin', 'developer_coordinator', 'affiliate']
+const MERCHANT_ROLES = ['business_owner', 'manager']
+const PROPERTY_ADMIN_ROLES = ['property_admin']
+const DEAL_INITIATOR_ROLES = ['deal_initiator']
+const PRODUCT_MANAGER_ROLES = ['business_owner']
+const STOCK_ROLES = ['stock_manager']
+const RIDER_ROLES = ['delivery']
+const AFFILIATE_ROLES = ['affiliate']
+const BUYER_ROLES = ['buyer']
 
 // ── Query client ──────────────────────────────────────────────────────────────
 const queryClient = new QueryClient({
@@ -55,7 +71,7 @@ function PageLoader() {
 
 function DashboardRedirect() {
   const user = useAuthStore(s => s.user)
-  return <Navigate to={user ? (ROLE_ROUTES[user.role] || '/dashboard/buyer') : '/login'} replace />
+  return <Navigate to={user ? (ROLE_ROUTES[user.role] || '/dashboard/mall') : '/login'} replace />
 }
 
 function PublicLayout({ children }) {
@@ -107,60 +123,47 @@ export default function App() {
               {/* Protected dashboards */}
               <Route path="/dashboard" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
                 <Route index element={<DashboardRedirect />} />
-                <Route path="ceo"          element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
-                <Route path="ceo/kyc"      element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
-                <Route path="ceo/escrow"   element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
-                <Route path="ceo/metrics"  element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
-                <Route path="ceo/stores"   element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
-                <Route path="ceo/pending"  element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
-                <Route path="ceo/users"    element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
-                <Route path="ceo/waivers"  element={<RoleGuard allowed={['ceo', 'super_admin']}><CEODashboard /></RoleGuard>} />
-                <Route path="ceo/incubator-:view" element={<RoleGuard allowed={['ceo', 'super_admin']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="ceo/wallet" element={<RoleGuard allowed={['ceo', 'super_admin']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="ceo/team" element={<RoleGuard allowed={['ceo', 'super_admin']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="ceo/reports" element={<RoleGuard allowed={['ceo', 'super_admin', 'auditor', 'support']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="coordinator"  element={<RoleGuard allowed={['developer_coordinator']}><CoordinatorDashboard /></RoleGuard>} />
-                <Route path="coordinator/stores" element={<RoleGuard allowed={['developer_coordinator']}><CoordinatorDashboard /></RoleGuard>} />
-                <Route path="coordinator/staff"  element={<RoleGuard allowed={['developer_coordinator']}><CoordinatorDashboard /></RoleGuard>} />
-                <Route path="coordinator/incubator-:view" element={<RoleGuard allowed={['developer_coordinator']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="coordinator/wallet" element={<RoleGuard allowed={['developer_coordinator']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="coordinator/team" element={<RoleGuard allowed={['developer_coordinator']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="coordinator/reports" element={<RoleGuard allowed={['developer_coordinator']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="staff" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffManagement /></RequireAuth>} />
-                <Route path="staff/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator']}><StaffOnboarding /></RequireAuth>} />
-                <Route path="stores/onboard" element={<RequireAuth allowedRoles={['super_admin', 'developer_coordinator', 'affiliate']}><StoreOnboarding /></RequireAuth>} />
-                <Route path="merchant"           element={<RequireAuth allowedRoles={['business_owner', 'manager']}><MerchantDashboard /></RequireAuth>} />
-                <Route path="merchant/listings"  element={<RequireAuth allowedRoles={['business_owner', 'manager']}><MerchantDashboard /></RequireAuth>} />
-                <Route path="merchant/settlement"element={<RequireAuth allowedRoles={['business_owner', 'manager']}><MerchantDashboard /></RequireAuth>} />
-                <Route path="merchant/analytics" element={<RequireAuth allowedRoles={['business_owner', 'manager']}><MerchantDashboard /></RequireAuth>} />
-                <Route path="merchant/fulfillment" element={<RequireAuth allowedRoles={['business_owner', 'manager']}><MerchantDashboard /></RequireAuth>} />
-                <Route path="merchant/reports" element={<RequireAuth allowedRoles={['business_owner']}><SovereignMarketWorkspace /></RequireAuth>} />
-                <Route path="property-admin" element={<RequireAuth allowedRoles={['property_admin']}><PropertyAdminDashboard /></RequireAuth>} />
-                <Route path="deal-initiator" element={<RequireAuth allowedRoles={['deal_initiator']}><DealInitiatorDashboard /></RequireAuth>} />
-                <Route path="product-manager" element={<RequireAuth allowedRoles={['business_owner']}><ProductManager /></RequireAuth>} />
-                <Route path="stock"        element={<RequireAuth allowedRoles={['stock_manager']}><StockDashboard /></RequireAuth>} />
-                <Route path="stock/manifest" element={<RequireAuth allowedRoles={['stock_manager']}><StockDashboard /></RequireAuth>} />
-                <Route path="stock/audit"  element={<RequireAuth allowedRoles={['stock_manager']}><StockDashboard /></RequireAuth>} />
-                <Route path="rider"        element={<RequireAuth allowedRoles={['delivery']}><RiderDashboard /></RequireAuth>} />
-                <Route path="rider/active" element={<RequireAuth allowedRoles={['delivery']}><RiderDashboard /></RequireAuth>} />
-                <Route path="affiliate"           element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
-                <Route path="affiliate/campaigns" element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
-                <Route path="affiliate/payouts"   element={<RoleGuard allowed={['affiliate']}><AffiliateDashboard /></RoleGuard>} />
-                <Route path="affiliate/incubator-:view" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="affiliate/wallet" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="affiliate/team" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="affiliate/reports" element={<RoleGuard allowed={['affiliate']}><SovereignMarketWorkspace /></RoleGuard>} />
-                <Route path="buyer"        element={<RequireAuth allowedRoles={['buyer']}><BuyerDashboard /></RequireAuth>} />
+                <Route path="hq" element={<RequireAuth roles={HQ_ROLES}><CEODashboard /></RequireAuth>} />
+                <Route path="hq/kyc" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
+                <Route path="hq/escrow" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
+                <Route path="hq/metrics" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
+                <Route path="hq/stores" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
+                <Route path="hq/pending" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
+                <Route path="hq/users" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
+                <Route path="hq/waivers" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
+                <Route path="coordinator" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
+                <Route path="coordinator/stores" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
+                <Route path="coordinator/staff" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
+                <Route path="staff" element={<RequireAuth roles={STAFF_ROLES}><StaffManagement /></RequireAuth>} />
+                <Route path="staff/onboard" element={<RequireAuth roles={STAFF_ROLES}><StaffOnboarding /></RequireAuth>} />
+                <Route path="stores/onboard" element={<RequireAuth roles={STORE_ONBOARDING_ROLES}><StoreOnboarding /></RequireAuth>} />
+                <Route path="merchant" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />
+                <Route path="merchant/listings" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />
+                <Route path="merchant/settlement" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />
+                <Route path="merchant/analytics" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />
+                <Route path="merchant/fulfillment" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />
+                {PROPERTY_MODULE_ENABLED && <Route path="property-admin" element={<RequireAuth roles={PROPERTY_ADMIN_ROLES}><PropertyAdminDashboard /></RequireAuth>} />}
+                <Route path="deal-initiator" element={<RequireAuth roles={DEAL_INITIATOR_ROLES}><DealInitiatorDashboard /></RequireAuth>} />
+                <Route path="product-manager" element={<RequireAuth roles={PRODUCT_MANAGER_ROLES}><ProductManager /></RequireAuth>} />
+                <Route path="stock" element={<RequireAuth roles={STOCK_ROLES}><StockDashboard /></RequireAuth>} />
+                <Route path="stock/manifest" element={<RequireAuth roles={STOCK_ROLES}><StockDashboard /></RequireAuth>} />
+                <Route path="stock/audit" element={<RequireAuth roles={STOCK_ROLES}><StockDashboard /></RequireAuth>} />
+                <Route path="rider" element={<RequireAuth roles={RIDER_ROLES}><RiderDashboard /></RequireAuth>} />
+                <Route path="rider/active" element={<RequireAuth roles={RIDER_ROLES}><RiderDashboard /></RequireAuth>} />
+                <Route path="affiliate" element={<RequireAuth roles={AFFILIATE_ROLES}><AffiliateDashboard /></RequireAuth>} />
+                <Route path="affiliate/campaigns" element={<RequireAuth roles={AFFILIATE_ROLES}><AffiliateDashboard /></RequireAuth>} />
+                <Route path="affiliate/payouts" element={<RequireAuth roles={AFFILIATE_ROLES}><AffiliateDashboard /></RequireAuth>} />
+                <Route path="mall" element={<RequireAuth roles={BUYER_ROLES}><BuyerDashboard /></RequireAuth>} />
               </Route>
 
               {/* Marketplace routes */}
               <Route path="/marketplace" element={<PublicLayout><UnifiedMarketplace /></PublicLayout>} />
-              <Route path="/properties/:id" element={<PublicLayout><PropertyDetail /></PublicLayout>} />
+              {PROPERTY_MODULE_ENABLED && <Route path="/properties/:id" element={<PublicLayout><PropertyDetail /></PublicLayout>} />}
 
               {/* Shop routes */}
               <Route path="/shop" element={<PublicLayout><BuyerDashboard /></PublicLayout>} />
               <Route path="/cart" element={<RequireAuth><PublicLayout><BuyerDashboard /></PublicLayout></RequireAuth>} />
-              <Route path="/checkout/payment/:orderId" element={<RequireAuth allowedRoles={['buyer']}><CheckoutPaymentRoute /></RequireAuth>} />
+              <Route path="/checkout/payment/:orderId" element={<RequireAuth roles={BUYER_ROLES}><CheckoutPaymentRoute /></RequireAuth>} />
 
               {/* 404 */}
               <Route path="*" element={

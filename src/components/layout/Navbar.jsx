@@ -42,7 +42,7 @@ export function Navbar() {
     }
   }
 
-  const dashboardRoute = user ? (ROLE_ROUTES[user.role] || '/dashboard/buyer') : '/login'
+  const dashboardRoute = user ? (ROLE_ROUTES[user.role] || '/dashboard/mall') : '/login'
 
   return (
     <nav aria-label="Main navigation" className="sticky top-0 z-40 border-b border-border/60 glass bg-midnight/90">

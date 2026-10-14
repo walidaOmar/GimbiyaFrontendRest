@@ -34,7 +34,7 @@ export default function Login() {
     try {
       const user = await login(form)
       toast.success(`Welcome back, ${user.name}!`)
-      const dest = from || ROLE_ROUTES[user.role] || '/dashboard/buyer'
+      const dest = from || ROLE_ROUTES[user.role] || '/dashboard/mall'
       navigate(dest, { replace: true })
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed'

@@ -4,21 +4,21 @@ import { useAuthStore } from '../store/authStore.js'
 
 const AuthContext = createContext(null)
 
-// Role → default dashboard route
+// Role → default dashboard route (single source of truth for every redirect)
 export const ROLE_ROUTES = {
-  ceo:                    '/dashboard/ceo',
-  super_admin:            '/dashboard/ceo',
+  ceo:                    '/dashboard/hq',
+  super_admin:            '/dashboard/hq',
   developer_coordinator:  '/dashboard/coordinator',
   business_owner:         '/dashboard/merchant',
   property_admin:         '/dashboard/property-admin',
-  deal_initiator:        '/dashboard/deal-initiator',
+  deal_initiator:         '/dashboard/deal-initiator',
   stock_manager:          '/dashboard/stock',
   delivery:               '/dashboard/rider',
   affiliate:              '/dashboard/affiliate',
-  buyer:                  '/dashboard/buyer',
+  buyer:                  '/dashboard/mall',
   manager:                '/dashboard/merchant',
-  auditor:                '/dashboard/ceo/reports',
-  support:                '/dashboard/ceo/reports',
+  auditor:                '/dashboard/hq',
+  support:                '/dashboard/hq',
 }
 
 export function AuthProvider({ children }) {
@@ -27,7 +27,6 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     checkAuth()
 
-    // Listen for forced logouts from API interceptor
     const handler = () => useAuthStore.getState().logout()
     window.addEventListener('auth:logout', handler)
     return () => window.removeEventListener('auth:logout', handler)
@@ -49,13 +48,12 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={{}}>{children}</AuthContext.Provider>
 }
 
-// ── Route Guards ──────────────────────────────────────────────────────────────
-
-/** Redirects unauthenticated users to /login */
-export function RequireAuth({ children, allowedRoles = null }) {
-  const user      = useAuthStore((s) => s.user)
-  const navigate  = useNavigate()
-  const location  = useLocation()
+// The backend's role middleware remains the security boundary; this guard
+// controls client-side navigation and sends users to their own dashboard.
+export function RequireAuth({ children, roles = null }) {
+  const user = useAuthStore((s) => s.user)
+  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     if (!user) {
@@ -63,49 +61,27 @@ export function RequireAuth({ children, allowedRoles = null }) {
       return
     }
 
-    if (allowedRoles && !allowedRoles.includes(user.role)) {
-      const destination = ROLE_ROUTES[user.role] || '/dashboard/buyer'
-      navigate(destination, { replace: true })
+    if (roles && !roles.includes(user.role)) {
+      navigate(ROLE_ROUTES[user.role] || '/dashboard/mall', { replace: true })
     }
-  }, [user, navigate, location, allowedRoles])
+  }, [user, navigate, location, roles])
 
   if (!user) return null
-  if (allowedRoles && !allowedRoles.includes(user.role)) return null
+  if (roles && !roles.includes(user.role)) return null
   return children
 }
 
-/** Redirects authenticated users away from auth pages */
 export function RequireGuest({ children }) {
-  const user     = useAuthStore((s) => s.user)
+  const user = useAuthStore((s) => s.user)
   const navigate = useNavigate()
 
   useEffect(() => {
     if (user) {
-      const dest = ROLE_ROUTES[user.role] || '/dashboard/buyer'
-      navigate(dest, { replace: true })
+      navigate(ROLE_ROUTES[user.role] || '/dashboard/mall', { replace: true })
     }
   }, [user, navigate])
 
   if (user) return null
-  return children
-}
-
-/** Requires specific role(s) */
-export function RequireRole({ roles, children, fallback = null }) {
-  const user = useAuthStore((s) => s.user)
-  if (!user || !roles.includes(user.role)) return fallback
-  return children
-}
-
-export function RoleGuard({ allowed, children }) {
-  const user = useAuthStore((s) => s.user)
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    if (user && !allowed.includes(user.role)) navigate('/unauthorized', { replace: true })
-  }, [user, allowed, navigate])
-
-  if (!user || !allowed.includes(user.role)) return null
   return children
 }
 

@@ -3,36 +3,28 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   LayoutDashboard, Package, ShoppingCart, Truck, Users,
-  BarChart3, Settings, TrendingUp, Warehouse, MapPin,
+  BarChart3, TrendingUp, Warehouse, MapPin,
   Link2, FileCheck, ChevronRight,
-  Target, UserPlus, Building2, ChevronDown, Wallet, Search, FileBarChart,
-  BriefcaseBusiness, ClipboardList, Radio, CheckCircle2,
+  Target, UserPlus, Building2, ChevronDown,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore.js'
 import { GlowDot }     from '../ui/index.jsx'
 
+const PROPERTY_MODULE_ENABLED = import.meta.env.VITE_ENABLE_PROPERTY_MODULE === 'true'
+
 // Role → nav items
 const NAV_CONFIG = {
   super_admin: [
-    { label: 'Command Centre',   path: '/dashboard/ceo',            icon: LayoutDashboard },
-    { label: 'KYC Adjudication', path: '/dashboard/ceo/kyc',        icon: FileCheck },
-    { label: 'Stores',           path: '/dashboard/ceo/stores',     icon: Warehouse },
-    { label: 'Escrow Summary',   path: '/dashboard/ceo/escrow',     icon: TrendingUp },
-    { label: 'System Metrics',   path: '/dashboard/ceo/metrics',    icon: BarChart3 },
-    { label: 'Users',            path: '/dashboard/ceo/users',      icon: Users },
+    { label: 'Group HQ',         path: '/dashboard/hq',              icon: LayoutDashboard },
+    { label: 'KYC Adjudication', path: '/dashboard/hq/kyc',          icon: FileCheck },
+    { label: 'Stores',           path: '/dashboard/hq/stores',       icon: Warehouse },
+    { label: 'Escrow Summary',   path: '/dashboard/hq/escrow',       icon: TrendingUp },
+    { label: 'System Metrics',   path: '/dashboard/hq/metrics',      icon: BarChart3 },
+    { label: 'Users',            path: '/dashboard/hq/users',        icon: Users },
     { label: 'Staff Management', path: '/dashboard/staff',          icon: UserPlus },
     { label: 'Store Onboarding', path: '/dashboard/stores/onboard',  icon: Building2 },
-    { label: 'Sovereign_Market_Incubator_System', icon: BriefcaseBusiness, children: [
-      { label: 'Sovereign_Market_Incubator_System request', path: '/dashboard/ceo/incubator-request', icon: ClipboardList },
-      { label: 'Sovereign_Market_Incubator_System remote request', path: '/dashboard/ceo/incubator-remote-request', icon: Radio },
-      { label: 'Sovereign_Market_Incubator_System prequalified business owners', path: '/dashboard/ceo/incubator-prequalified-businesses', icon: Users },
-      { label: 'Sovereign_Market_Incubator_System prequalified pool', path: '/dashboard/ceo/incubator-prequalified-pool', icon: CheckCircle2 },
-      { label: 'Sovereign_Market_Incubator_System lookup', path: '/dashboard/ceo/incubator-lookup', icon: Search },
-      { label: 'Income and commissions', path: '/dashboard/ceo/incubator-income-commissions', icon: Wallet },
-    ]},
-    { label: 'Wallet history', path: '/dashboard/ceo/wallet', icon: Wallet },
-    { label: 'Team management', path: '/dashboard/ceo/team', icon: Users },
-    { label: 'Reports and analytics', path: '/dashboard/ceo/reports', icon: FileBarChart },
+    { label: 'Pending Review',   path: '/dashboard/hq/pending',     icon: FileCheck },
+    { label: 'Waivers',          path: '/dashboard/hq/waivers',     icon: Users },
   ],
   developer_coordinator: [
     { label: 'Regional Hub',   path: '/dashboard/coordinator',        icon: LayoutDashboard },
@@ -40,17 +32,6 @@ const NAV_CONFIG = {
     { label: 'Staff',          path: '/dashboard/coordinator/staff',  icon: Users },
     { label: 'Staff Onboarding', path: '/dashboard/staff/onboard',     icon: UserPlus },
     { label: 'Store Onboarding', path: '/dashboard/stores/onboard',     icon: Building2 },
-    { label: 'Sovereign_Market_Incubator_System', icon: BriefcaseBusiness, children: [
-      { label: 'Sovereign_Market_Incubator_System request', path: '/dashboard/coordinator/incubator-request', icon: ClipboardList },
-      { label: 'Sovereign_Market_Incubator_System remote request', path: '/dashboard/coordinator/incubator-remote-request', icon: Radio },
-      { label: 'Sovereign_Market_Incubator_System prequalified business owners', path: '/dashboard/coordinator/incubator-prequalified-businesses', icon: Users },
-      { label: 'Sovereign_Market_Incubator_System prequalified pool', path: '/dashboard/coordinator/incubator-prequalified-pool', icon: CheckCircle2 },
-      { label: 'Sovereign_Market_Incubator_System lookup', path: '/dashboard/coordinator/incubator-lookup', icon: Search },
-      { label: 'Income and commissions', path: '/dashboard/coordinator/incubator-income-commissions', icon: Wallet },
-    ]},
-    { label: 'Wallet history', path: '/dashboard/coordinator/wallet', icon: Wallet },
-    { label: 'Team management', path: '/dashboard/coordinator/team', icon: Users },
-    { label: 'Reports and analytics', path: '/dashboard/coordinator/reports', icon: FileBarChart },
   ],
   business_owner: [
     { label: 'Store Overview', path: '/dashboard/merchant',              icon: LayoutDashboard },
@@ -58,7 +39,6 @@ const NAV_CONFIG = {
     { label: 'Settlement',     path: '/dashboard/merchant/settlement',   icon: TrendingUp },
     { label: 'Analytics',      path: '/dashboard/merchant/analytics',    icon: BarChart3 },
     { label: 'Product Manager', path: '/dashboard/product-manager',     icon: Package },
-    { label: 'Business audit', path: '/dashboard/merchant/reports', icon: FileBarChart },
   ],
   property_admin: [
     { label: 'Portfolio', path: '/dashboard/property-admin', icon: LayoutDashboard },
@@ -80,29 +60,16 @@ const NAV_CONFIG = {
     { label: 'Campaigns',      path: '/dashboard/affiliate/campaigns',    icon: Link2 },
     { label: 'Payouts',        path: '/dashboard/affiliate/payouts',      icon: TrendingUp },
     { label: 'Store Onboarding', path: '/dashboard/stores/onboard',        icon: Building2 },
-    { label: 'Sovereign_Market_Incubator_System', icon: BriefcaseBusiness, children: [
-      { label: 'Sovereign request', path: '/dashboard/affiliate/incubator-request', icon: ClipboardList },
-      { label: 'Sovereign remote request', path: '/dashboard/affiliate/incubator-remote-request', icon: Radio },
-      { label: 'Sovereign prequalified business owners', path: '/dashboard/affiliate/incubator-prequalified-businesses', icon: Users },
-      { label: 'Sovereign prequalified pool', path: '/dashboard/affiliate/incubator-prequalified-pool', icon: CheckCircle2 },
-      { label: 'Sovereign lookup', path: '/dashboard/affiliate/incubator-lookup', icon: Search },
-      { label: 'Income and commissions', path: '/dashboard/affiliate/incubator-income-commissions', icon: Wallet },
-    ]},
-    { label: 'Wallet history', path: '/dashboard/affiliate/wallet', icon: Wallet },
-    { label: 'Team management', path: '/dashboard/affiliate/team', icon: Users },
-    { label: 'Reports and analytics', path: '/dashboard/affiliate/reports', icon: FileBarChart },
   ],
   buyer: [
-    { label: 'My Orders',      path: '/dashboard/buyer',          icon: ShoppingCart },
+    { label: 'My Orders',      path: '/dashboard/mall',            icon: ShoppingCart },
     { label: 'Browse Shop',    path: '/shop',                      icon: Package },
   ],
 }
 
 NAV_CONFIG.ceo = NAV_CONFIG.super_admin
 NAV_CONFIG.manager = NAV_CONFIG.business_owner
-NAV_CONFIG.auditor = [
-  { label: 'General audit report', path: '/dashboard/ceo/reports', icon: FileBarChart },
-]
+NAV_CONFIG.auditor = [{ label: 'Group HQ', path: '/dashboard/hq', icon: LayoutDashboard }]
 NAV_CONFIG.support = NAV_CONFIG.auditor
 
 const ROLE_LABELS = {
@@ -141,7 +108,9 @@ export function Sidebar({ collapsed = false }) {
   const [openMenus, setOpenMenus] = useState({})
   if (!user) return null
 
-  const navItems = NAV_CONFIG[user.role] || NAV_CONFIG.buyer
+  const navItems = user.role === 'property_admin' && !PROPERTY_MODULE_ENABLED
+    ? []
+    : NAV_CONFIG[user.role] || NAV_CONFIG.buyer
   const color    = ROLE_COLORS[user.role] || '#C8A84B'
   const label    = ROLE_LABELS[user.role]  || user.role
 
@@ -177,7 +146,7 @@ export function Sidebar({ collapsed = false }) {
           const hasActiveChild = children?.some(child => location.pathname === child.path)
           const isExpanded = Boolean(openMenus[l] || hasActiveChild)
           const isActive = location.pathname === path ||
-            (path && path !== '/dashboard/buyer' && location.pathname.startsWith(path + '/')) ||
+            (path && path !== '/dashboard/mall' && location.pathname.startsWith(path + '/')) ||
             hasActiveChild
 
           return (
