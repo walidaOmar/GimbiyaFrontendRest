@@ -1,5 +1,6 @@
-import { useState }        from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ShoppingCart, Package, MapPin, CheckCircle,
@@ -7,6 +8,8 @@ import {
 } from 'lucide-react'
 import { productApi, orderApi } from '../../api/index.js'
 import { useMallStore }         from '../../store/mallStore.js'
+import { useCartV2 } from '../../store/cartV2Store.js'
+import { useAuthStore } from '../../store/authStore.js'
 import {
   Card, Button, Badge, StatusBadge,
   Modal, Spinner, EmptyState, Skeleton, StatCard,
@@ -51,12 +54,18 @@ function OrderTracker({ status }) {
 }
 
 export default function BuyerDashboard() {
+  const navigate = useNavigate()
+  const user = useAuthStore((state) => state.user)
   const qc = useQueryClient()
   const { selectedState, setSelectedState, selectedFloor, setSelectedFloor, cartItems, addToCart, removeFromCart, updateCartQty, addServiceToCartItem, removeServiceFromCartItem, clearCart, cartTotal } = useMallStore()
   const [view,  setView]              = useState('shop')  // shop | cart | orders
   const [checkoutModal, setCheckout]  = useState(false)
   const [otpModal, setOtpModal]       = useState(null)
   const [address, setAddress]         = useState('')
+
+  useEffect(() => {
+    if (user?._id) useCartV2.getState().bindUser(user._id)
+  }, [user?._id])
 
   const { data: catalog, isLoading } = useQuery({
     queryKey: ['catalog', selectedState, selectedFloor],
@@ -273,7 +282,7 @@ export default function BuyerDashboard() {
                       Platform fee (1.5%): ₦{(totalNaira * 0.015).toFixed(2)}
                     </p>
                   </div>
-                  <Button variant="primary" onClick={() => setCheckout(true)}
+                  <Button variant="primary" onClick={() => navigate('/dashboard/mall/cart')}
                     iconRight={<ArrowRight className="w-4 h-4" />}>
                     Checkout
                   </Button>

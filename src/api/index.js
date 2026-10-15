@@ -203,7 +203,9 @@ export const relationshipApi = {
 }
 
 export const cartV2Api = {
+  getCart:        () => api.get('/cart-v2'),
   addItem:        (data) => api.post('/cart-v2/items', data),
+  removeItem:     (cartItemId) => api.delete(`/cart-v2/items/${cartItemId}`),
   addService:     (cartItemId, offeringId) => api.post(`/cart-v2/items/${cartItemId}/services`, { offeringId }),
   removeService:  (cartItemId, serviceIndex) => api.delete(`/cart-v2/items/${cartItemId}/services/${serviceIndex}`),
   checkout:       (data) => api.post('/cart-v2/checkout', data),
@@ -239,6 +241,13 @@ export const groupOrderApi = {
   byCode: (code) => api.get(`/group-orders/code/${code}`),
   open:   (params) => api.get('/group-orders/open', { params }),
   mine:   () => api.get('/group-orders/my'),
+}
+
+// ── REGIONS (Region → State → Market → Commercial Node) ──────────────────────
+export const regionApi = {
+  tree:       () => api.get('/regions/tree'),
+  overview:   (params) => api.get('/regions/overview', { params }),
+  updateNode: (key, data) => api.patch(`/regions/nodes/${encodeURIComponent(key)}`, data),
 }
 
 export default api

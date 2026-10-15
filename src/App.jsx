@@ -32,12 +32,36 @@ const ProductManager = lazy(() => import('./pages/dashboards/ProductManager.jsx'
 const StaffManagement = lazy(() => import('./pages/dashboards/StaffManagement.jsx'))
 const StaffOnboarding = lazy(() => import('./pages/dashboards/StaffOnboarding.jsx'))
 const StoreOnboarding = lazy(() => import('./pages/dashboards/StoreOnboarding.jsx'))
-const StoresView = lazy(() => import('./components/stores/StoresView.jsx'))
+const MallCart = lazy(() => import('./pages/portals/mall/MallCart.jsx'))
+const PublicIdKyc = lazy(() => import('./pages/portals/mall/PublicIdKyc.jsx'))
+const RelationshipsPage = lazy(() => import('./pages/portals/affiliate/Relationships.jsx').then((module) => ({ default: module.RelationshipsPage })))
+const MarketVisitsPage = lazy(() => import('./pages/portals/affiliate/Relationships.jsx').then((module) => ({ default: module.MarketVisitsPage })))
+const RetentionPage = lazy(() => import('./pages/portals/affiliate/Relationships.jsx').then((module) => ({ default: module.RetentionPage })))
+const RiderV2 = lazy(() => import('./pages/portals/rider/RiderV2.jsx'))
+const DeskOverviewPage = lazy(() => import('./pages/portals/desk/DeskPortal.jsx').then((module) => ({ default: module.DeskOverviewPage })))
+const DeskLookupPage = lazy(() => import('./pages/portals/desk/DeskPortal.jsx').then((module) => ({ default: module.DeskLookupPage })))
+const portal = (name) => lazy(() => import('./pages/portals/coordinator/RegionalPortal.jsx').then((module) => ({ default: module[name] })))
+const RegionalOverview = portal('RegionalOverview')
+const MarketOperations = portal('MarketOperations')
+const Storefronts = portal('Storefronts')
+const AffiliateNetwork = portal('AffiliateNetwork')
+const Allocations = portal('Allocations')
+const RegionalRelationships = portal('RegionalRelationships')
+const RegionalPerformance = portal('RegionalPerformance')
+const RegionalReports = portal('RegionalReports')
+const wrap = (name) => lazy(() => import('./pages/portals/Wrappers.jsx').then((module) => ({ default: module[name] })))
+const AffiliateWaiverPage = wrap('AffiliateWaiverPage')
+const CoordinatorWaiverPage = wrap('CoordinatorWaiverPage')
+const HqWaiverQuotaPage = wrap('HqWaiverQuotaPage')
+const MerchantFulfillmentPage = wrap('MerchantFulfillmentPage')
+const HqStoresPage = wrap('HqStoresPage')
+const HqUsersPage = wrap('HqUsersPage')
 const UnifiedMarketplace = lazy(() => import('./pages/UnifiedMarketplace.jsx'))
 const PropertyDetail = PROPERTY_MODULE_ENABLED ? lazy(() => import('./pages/PropertyDetail.jsx')) : null
 
-const HQ_ROLES = ['ceo', 'super_admin', 'auditor', 'support']
+const HQ_ROLES = ['ceo', 'super_admin']
 const CEO_ROLES = ['ceo', 'super_admin']
+const DESK_ROLES = ['support', 'auditor', 'super_admin', 'ceo']
 const COORDINATOR_ROLES = ['developer_coordinator']
 const STAFF_ROLES = ['super_admin', 'developer_coordinator']
 const STORE_ONBOARDING_ROLES = ['developer_coordinator']
@@ -128,12 +152,12 @@ export default function App() {
                 <Route path="hq/kyc" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
                 <Route path="hq/escrow" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
                 <Route path="hq/metrics" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
-                <Route path="hq/stores" element={<RequireAuth roles={CEO_ROLES}><StoresView /></RequireAuth>} />
-                <Route path="hq/pending" element={<RequireAuth roles={CEO_ROLES}><StoresView /></RequireAuth>} />
-                <Route path="hq/users" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
-                <Route path="hq/waivers" element={<RequireAuth roles={CEO_ROLES}><CEODashboard /></RequireAuth>} />
+                <Route path="hq/stores" element={<RequireAuth roles={CEO_ROLES}><HqStoresPage /></RequireAuth>} />
+                <Route path="hq/pending" element={<RequireAuth roles={CEO_ROLES}><HqStoresPage /></RequireAuth>} />
+                <Route path="hq/users" element={<RequireAuth roles={CEO_ROLES}><HqUsersPage /></RequireAuth>} />
+                <Route path="hq/waivers" element={<RequireAuth roles={CEO_ROLES}><HqWaiverQuotaPage /></RequireAuth>} />
                 <Route path="coordinator" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
-                <Route path="coordinator/stores" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
+                <Route path="coordinator/stores" element={<RequireAuth roles={COORDINATOR_ROLES}><Storefronts /></RequireAuth>} />
                 <Route path="coordinator/staff" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
                 <Route path="staff" element={<RequireAuth roles={STAFF_ROLES}><StaffManagement /></RequireAuth>} />
                 <Route path="staff/onboard" element={<RequireAuth roles={COORDINATOR_ROLES}><StaffOnboarding /></RequireAuth>} />
@@ -142,18 +166,35 @@ export default function App() {
                 <Route path="merchant/listings" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />
                 <Route path="merchant/settlement" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />
                 <Route path="merchant/analytics" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />
-                <Route path="merchant/fulfillment" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantDashboard /></RequireAuth>} />
+                <Route path="merchant/fulfillment" element={<RequireAuth roles={MERCHANT_ROLES}><MerchantFulfillmentPage /></RequireAuth>} />
                 {PROPERTY_MODULE_ENABLED && <Route path="property-admin" element={<RequireAuth roles={PROPERTY_ADMIN_ROLES}><PropertyAdminDashboard /></RequireAuth>} />}
                 <Route path="deal-initiator" element={<RequireAuth roles={DEAL_INITIATOR_ROLES}><DealInitiatorDashboard /></RequireAuth>} />
                 <Route path="product-manager" element={<RequireAuth roles={PRODUCT_MANAGER_ROLES}><ProductManager /></RequireAuth>} />
                 <Route path="stock" element={<RequireAuth roles={STOCK_ROLES}><StockDashboard /></RequireAuth>} />
                 <Route path="stock/manifest" element={<RequireAuth roles={STOCK_ROLES}><StockDashboard /></RequireAuth>} />
                 <Route path="stock/audit" element={<RequireAuth roles={STOCK_ROLES}><StockDashboard /></RequireAuth>} />
-                <Route path="rider" element={<RequireAuth roles={RIDER_ROLES}><RiderDashboard /></RequireAuth>} />
-                <Route path="rider/active" element={<RequireAuth roles={RIDER_ROLES}><RiderDashboard /></RequireAuth>} />
+                <Route path="rider" element={<RequireAuth roles={RIDER_ROLES}><RiderV2 /></RequireAuth>} />
+                <Route path="rider/active" element={<RequireAuth roles={RIDER_ROLES}><RiderV2 initialTab="mine" /></RequireAuth>} />
+                <Route path="rider/legacy" element={<RequireAuth roles={RIDER_ROLES}><RiderDashboard /></RequireAuth>} />
                 <Route path="affiliate" element={<RequireAuth roles={AFFILIATE_ROLES}><AffiliateDashboard /></RequireAuth>} />
                 <Route path="affiliate/campaigns" element={<RequireAuth roles={AFFILIATE_ROLES}><AffiliateDashboard /></RequireAuth>} />
                 <Route path="affiliate/payouts" element={<RequireAuth roles={AFFILIATE_ROLES}><AffiliateDashboard /></RequireAuth>} />
+                <Route path="mall/cart" element={<RequireAuth roles={BUYER_ROLES}><MallCart /></RequireAuth>} />
+                <Route path="mall/public-id" element={<RequireAuth roles={BUYER_ROLES}><PublicIdKyc /></RequireAuth>} />
+                <Route path="affiliate/relationships" element={<RequireAuth roles={AFFILIATE_ROLES}><RelationshipsPage /></RequireAuth>} />
+                <Route path="affiliate/market-visits" element={<RequireAuth roles={AFFILIATE_ROLES}><MarketVisitsPage /></RequireAuth>} />
+                <Route path="affiliate/retention" element={<RequireAuth roles={AFFILIATE_ROLES}><RetentionPage /></RequireAuth>} />
+                <Route path="affiliate/waiver-requests" element={<RequireAuth roles={AFFILIATE_ROLES}><AffiliateWaiverPage /></RequireAuth>} />
+                <Route path="desk" element={<RequireAuth roles={DESK_ROLES}><DeskOverviewPage /></RequireAuth>} />
+                <Route path="desk/public-id-lookup" element={<RequireAuth roles={DESK_ROLES}><DeskLookupPage /></RequireAuth>} />
+                <Route path="coordinator/overview" element={<RequireAuth roles={COORDINATOR_ROLES}><RegionalOverview /></RequireAuth>} />
+                <Route path="coordinator/market-operations" element={<RequireAuth roles={COORDINATOR_ROLES}><MarketOperations /></RequireAuth>} />
+                <Route path="coordinator/affiliate-network" element={<RequireAuth roles={COORDINATOR_ROLES}><AffiliateNetwork /></RequireAuth>} />
+                <Route path="coordinator/waiver-requests" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorWaiverPage /></RequireAuth>} />
+                <Route path="coordinator/allocations" element={<RequireAuth roles={COORDINATOR_ROLES}><Allocations /></RequireAuth>} />
+                <Route path="coordinator/relationships" element={<RequireAuth roles={COORDINATOR_ROLES}><RegionalRelationships /></RequireAuth>} />
+                <Route path="coordinator/performance" element={<RequireAuth roles={COORDINATOR_ROLES}><RegionalPerformance /></RequireAuth>} />
+                <Route path="coordinator/reports" element={<RequireAuth roles={COORDINATOR_ROLES}><RegionalReports /></RequireAuth>} />
                 <Route path="mall" element={<RequireAuth roles={BUYER_ROLES}><BuyerDashboard /></RequireAuth>} />
               </Route>
 

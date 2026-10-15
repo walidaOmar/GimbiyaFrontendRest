@@ -1,10 +1,13 @@
 import { useState } from 'react'
-import { Outlet }    from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { Navbar }    from './Navbar.jsx'
 import { Sidebar }   from './Sidebar.jsx'
+import ErrorBoundary from '../ErrorBoundary.jsx'
+import RealtimeBridge from './RealtimeBridge.jsx'
 import { Menu }      from 'lucide-react'
 
 export function DashboardLayout() {
+  const location = useLocation()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobile]   = useState(false)
 
@@ -52,7 +55,8 @@ export function DashboardLayout() {
             <Menu className="w-5 h-5" />
           </button>
 
-          <Outlet />
+          <RealtimeBridge />
+          <ErrorBoundary resetKey={location.pathname}><Outlet /></ErrorBoundary>
         </main>
       </div>
     </div>

@@ -4,73 +4,87 @@ import { motion } from 'framer-motion'
 import {
   LayoutDashboard, Package, ShoppingCart, Truck, Users,
   BarChart3, TrendingUp, Warehouse, MapPin,
-  Link2, FileCheck, ChevronRight,
+  Link2, FileCheck, ChevronRight, ShieldCheck, Ticket, Repeat, Search,
+  Wallet, Store, ClipboardList, ShoppingBag,
   Target, UserPlus, Building2, ChevronDown,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore.js'
 import { GlowDot }     from '../ui/index.jsx'
 
+const ROOT_PATHS = ['/dashboard/mall', '/dashboard/hq', '/dashboard/coordinator', '/dashboard/affiliate', '/dashboard/rider', '/dashboard/merchant', '/dashboard/desk', '/dashboard/stock']
 const PROPERTY_MODULE_ENABLED = import.meta.env.VITE_ENABLE_PROPERTY_MODULE === 'true'
 
-// Role → nav items
 const NAV_CONFIG = {
   super_admin: [
-    { label: 'Group HQ',         path: '/dashboard/hq',              icon: LayoutDashboard },
-    { label: 'KYC Adjudication', path: '/dashboard/hq/kyc',          icon: FileCheck },
-    { label: 'Stores',           path: '/dashboard/hq/stores',       icon: Warehouse },
-    { label: 'Escrow Summary',   path: '/dashboard/hq/escrow',       icon: TrendingUp },
-    { label: 'System Metrics',   path: '/dashboard/hq/metrics',      icon: BarChart3 },
-    { label: 'Users',            path: '/dashboard/hq/users',        icon: Users },
-    { label: 'Staff Management', path: '/dashboard/staff',          icon: UserPlus },
-    { label: 'Store Onboarding', path: '/dashboard/stores/onboard',  icon: Building2 },
-    { label: 'Pending Review',   path: '/dashboard/hq/pending',     icon: FileCheck },
-    { label: 'Waivers',          path: '/dashboard/hq/waivers',     icon: Users },
+    { label: 'Executive Overview', path: '/dashboard/hq', icon: LayoutDashboard },
+    { label: 'Waiver Quotas', path: '/dashboard/hq/waivers', icon: Ticket },
+    { label: 'Users', path: '/dashboard/hq/users', icon: Users },
+    { label: 'Stores', path: '/dashboard/hq/stores', icon: Warehouse },
+    { label: 'Pending Stores', path: '/dashboard/hq/pending', icon: ClipboardList },
+    { label: 'KYC', path: '/dashboard/hq/kyc', icon: FileCheck },
+    { label: 'Escrow', path: '/dashboard/hq/escrow', icon: TrendingUp },
+    { label: 'Metrics', path: '/dashboard/hq/metrics', icon: BarChart3 },
+    { label: 'Gimbiya Desk', path: '/dashboard/desk', icon: Search },
   ],
   developer_coordinator: [
-    { label: 'Regional Hub',   path: '/dashboard/coordinator',        icon: LayoutDashboard },
-    { label: 'Storefronts',    path: '/dashboard/coordinator/stores', icon: Package },
-    { label: 'Staff',          path: '/dashboard/coordinator/staff',  icon: Users },
-    { label: 'Staff Onboarding', path: '/dashboard/staff/onboard',     icon: UserPlus },
-    { label: 'Store Onboarding', path: '/dashboard/stores/onboard',     icon: Building2 },
+    { label: 'Regional Overview', path: '/dashboard/coordinator/overview', icon: LayoutDashboard },
+    { label: 'Tracking', path: '/dashboard/coordinator', icon: BarChart3 },
+    { label: 'Market Operations', path: '/dashboard/coordinator/market-operations', icon: MapPin },
+    { label: 'Storefronts', path: '/dashboard/coordinator/stores', icon: Store },
+    { label: 'Affiliate Network', path: '/dashboard/coordinator/affiliate-network', icon: Users },
+    { label: 'Waiver Requests', path: '/dashboard/coordinator/waiver-requests', icon: Ticket },
+    { label: 'Allocation', path: '/dashboard/coordinator/allocations', icon: Wallet },
+    { label: 'Relationships', path: '/dashboard/coordinator/relationships', icon: Repeat },
+    { label: 'Performance', path: '/dashboard/coordinator/performance', icon: TrendingUp },
+    { label: 'Reports', path: '/dashboard/coordinator/reports', icon: ClipboardList },
+    { label: 'Request a Store', path: '/dashboard/stores/onboard', icon: Building2 },
+    { label: 'Staff', path: '/dashboard/coordinator/staff', icon: UserPlus },
   ],
   business_owner: [
-    { label: 'Store Overview', path: '/dashboard/merchant',              icon: LayoutDashboard },
-    { label: 'My Listings',    path: '/dashboard/merchant/listings',     icon: Package },
-    { label: 'Settlement',     path: '/dashboard/merchant/settlement',   icon: TrendingUp },
-    { label: 'Analytics',      path: '/dashboard/merchant/analytics',    icon: BarChart3 },
-    { label: 'Product Manager', path: '/dashboard/product-manager',     icon: Package },
+    { label: 'Store Overview', path: '/dashboard/merchant', icon: LayoutDashboard },
+    { label: 'My Listings', path: '/dashboard/merchant/listings', icon: Package },
+    { label: 'Fulfillment', path: '/dashboard/merchant/fulfillment', icon: Truck },
+    { label: 'Settlement', path: '/dashboard/merchant/settlement', icon: TrendingUp },
+    { label: 'Analytics', path: '/dashboard/merchant/analytics', icon: BarChart3 },
+    { label: 'Product Manager', path: '/dashboard/product-manager', icon: Package },
   ],
-  property_admin: [
-    { label: 'Portfolio', path: '/dashboard/property-admin', icon: LayoutDashboard },
-  ],
-  deal_initiator: [
-    { label: 'My Deals', path: '/dashboard/deal-initiator', icon: Target },
-  ],
+  property_admin: [{ label: 'Portfolio', path: '/dashboard/property-admin', icon: LayoutDashboard }],
+  deal_initiator: [{ label: 'My Deals', path: '/dashboard/deal-initiator', icon: Target }],
   stock_manager: [
-    { label: 'Warehouse',      path: '/dashboard/stock',             icon: Warehouse },
-    { label: 'Manifest',       path: '/dashboard/stock/manifest',    icon: Package },
-    { label: 'Audit Log',      path: '/dashboard/stock/audit',       icon: FileCheck },
+    { label: 'Warehouse', path: '/dashboard/stock', icon: Warehouse },
+    { label: 'Manifest', path: '/dashboard/stock/manifest', icon: Package },
+    { label: 'Audit Log', path: '/dashboard/stock/audit', icon: FileCheck },
   ],
   delivery: [
-    { label: 'Job Stream',     path: '/dashboard/rider',         icon: Truck },
-    { label: 'Active Jobs',    path: '/dashboard/rider/active',  icon: MapPin },
+    { label: 'Available Jobs', path: '/dashboard/rider', icon: Truck },
+    { label: 'My Deliveries', path: '/dashboard/rider/active', icon: MapPin },
+    { label: 'Legacy Orders', path: '/dashboard/rider/legacy', icon: Package },
   ],
   affiliate: [
-    { label: 'Overview',       path: '/dashboard/affiliate',              icon: LayoutDashboard },
-    { label: 'Campaigns',      path: '/dashboard/affiliate/campaigns',    icon: Link2 },
-    { label: 'Payouts',        path: '/dashboard/affiliate/payouts',      icon: TrendingUp },
-    { label: 'Store Onboarding', path: '/dashboard/stores/onboard',        icon: Building2 },
+    { label: 'Overview', path: '/dashboard/affiliate', icon: LayoutDashboard },
+    { label: 'Relationships', path: '/dashboard/affiliate/relationships', icon: Repeat },
+    { label: 'Market Visits', path: '/dashboard/affiliate/market-visits', icon: MapPin },
+    { label: 'Waiver Requests', path: '/dashboard/affiliate/waiver-requests', icon: Ticket },
+    { label: 'Retention', path: '/dashboard/affiliate/retention', icon: ShieldCheck },
+    { label: 'Campaigns', path: '/dashboard/affiliate/campaigns', icon: Link2 },
+    { label: 'Payouts', path: '/dashboard/affiliate/payouts', icon: TrendingUp },
   ],
   buyer: [
-    { label: 'My Orders',      path: '/dashboard/mall',            icon: ShoppingCart },
-    { label: 'Browse Shop',    path: '/shop',                      icon: Package },
+    { label: 'My Orders', path: '/dashboard/mall', icon: ShoppingCart },
+    { label: 'Cart', path: '/dashboard/mall/cart', icon: ShoppingBag },
+    { label: 'Public ID', path: '/dashboard/mall/public-id', icon: ShieldCheck },
+    { label: 'Marketplace', path: '/marketplace', icon: Package },
   ],
 }
 
-NAV_CONFIG.ceo = NAV_CONFIG.super_admin
+NAV_CONFIG.ceo = NAV_CONFIG.super_admin.map((item) => ({ ...item }))
 NAV_CONFIG.manager = NAV_CONFIG.business_owner
-NAV_CONFIG.auditor = [{ label: 'Group HQ', path: '/dashboard/hq', icon: LayoutDashboard }]
-NAV_CONFIG.support = NAV_CONFIG.auditor
+const DESK_NAV = [
+  { label: 'Desk Overview', path: '/dashboard/desk', icon: LayoutDashboard },
+  { label: 'Public ID Lookup', path: '/dashboard/desk/public-id-lookup', icon: Search },
+]
+NAV_CONFIG.auditor = DESK_NAV
+NAV_CONFIG.support = DESK_NAV
 
 const ROLE_LABELS = {
   super_admin:            'Global CEO',
@@ -146,7 +160,7 @@ export function Sidebar({ collapsed = false }) {
           const hasActiveChild = children?.some(child => location.pathname === child.path)
           const isExpanded = Boolean(openMenus[l] || hasActiveChild)
           const isActive = location.pathname === path ||
-            (path && path !== '/dashboard/mall' && location.pathname.startsWith(path + '/')) ||
+            (path && !ROOT_PATHS.includes(path) && location.pathname.startsWith(path + '/')) ||
             hasActiveChild
 
           return (

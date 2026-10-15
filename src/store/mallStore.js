@@ -1,5 +1,8 @@
 import { create } from 'zustand'
 import { STATE_OPTIONS } from '../config/regions.js'
+import { useCartV2 } from './cartV2Store.js'
+
+const v2 = () => useCartV2.getState()
 
 export const useMallStore = create((set, get) => ({
   // Region and floor selection
@@ -17,6 +20,7 @@ export const useMallStore = create((set, get) => ({
   ),
 
   addToCart: (product, quantity = 1) => {
+    v2().add(product, quantity)
     set((state) => {
       const existing = state.cartItems.find((i) => i.productId === product._id)
       if (existing) {
@@ -43,13 +47,16 @@ export const useMallStore = create((set, get) => ({
     })
   },
 
-  removeFromCart: (productId) => {
+  removeFromCart: async (productId) => {
+    const removed = await v2().remove(productId)
+    if (!removed) return
     set((state) => ({
       cartItems: state.cartItems.filter((i) => i.productId !== productId),
     }))
   },
 
   updateCartQty: (productId, quantity) => {
+    v2().setQty(productId, quantity)
     if (quantity < 1) return get().removeFromCart(productId)
     set((state) => ({
       cartItems: state.cartItems.map((i) =>
@@ -59,6 +66,7 @@ export const useMallStore = create((set, get) => ({
   },
 
   addServiceToCartItem: (productId, offering) => {
+    v2().addService(productId, { offeringId: offering._id, serviceType: offering.serviceType, priceKobo: offering.priceKobo })
     set((state) => ({
       cartItems: state.cartItems.map((item) =>
         item.productId === productId
@@ -72,7 +80,9 @@ export const useMallStore = create((set, get) => ({
     }))
   },
 
-  removeServiceFromCartItem: (productId, offeringId) => {
+  removeServiceFromCartItem: async (productId, offeringId) => {
+    const removed = await v2().removeService(productId, offeringId)
+    if (!removed) return
     set((state) => ({
       cartItems: state.cartItems.map((item) =>
         item.productId === productId
@@ -82,7 +92,7 @@ export const useMallStore = create((set, get) => ({
     }))
   },
 
-  clearCart: () => set({ cartItems: [] }),
+  clearCart: () => { v2().clear(); set({ cartItems: [] }) },
 
   // SSE connection
   sseConnection: null,
