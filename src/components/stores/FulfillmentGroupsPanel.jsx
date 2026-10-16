@@ -5,7 +5,7 @@ import { Card, Badge } from '../ui/index.jsx'
 import toast from 'react-hot-toast'
 
 const STATUS_COLOR = {
-  PENDING: 'amber', CONFIRMED: 'blue', PROCESSING: 'purple',
+  PENDING: 'amber', PAID: 'green', CONFIRMED: 'blue', PROCESSING: 'purple',
   DISPATCHED: 'purple', DELIVERED: 'green', CANCELLED: 'red', DISPUTED: 'red',
 }
 
@@ -14,8 +14,8 @@ export function FulfillmentGroupsPanel() {
   const [groups, setGroups] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const load = () => {
-    setLoading(true)
+  const load = (silent = false) => {
+    if (!silent) setLoading(true)
     api.get('/cart-v2/fulfillment-groups/mine')
       .then((res) => setGroups(Array.isArray(res.data.data) ? res.data.data : []))
       .catch((err) => {
@@ -25,7 +25,11 @@ export function FulfillmentGroupsPanel() {
       .finally(() => setLoading(false))
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const timer = setInterval(() => load(true), 20000)
+    return () => clearInterval(timer)
+  }, [])
 
   const confirm = async (groupId) => {
     try {
@@ -55,7 +59,8 @@ export function FulfillmentGroupsPanel() {
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Badge color={STATUS_COLOR[group.status] || 'muted'}>{group.status}</Badge>
-            {group.status === 'PENDING' ? (
+            {group.status === 'PENDING' && <span className="text-[11px] text-text-m">Awaiting payment</span>}
+            {group.status === 'PAID' ? (
               <button
                 type="button"
                 onClick={() => confirm(group._id)}

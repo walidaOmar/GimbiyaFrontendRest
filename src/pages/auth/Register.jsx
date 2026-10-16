@@ -7,13 +7,6 @@ import { STATE_OPTIONS }   from '../../config/regions.js'
 import { Button, Input, Select } from '../../components/ui/index.jsx'
 import toast               from 'react-hot-toast'
 
-const ROLE_OPTIONS = [
-  { value: 'buyer',          label: '🛒  Buyer — Shop products across Nigeria' },
-  { value: 'business_owner', label: '🏪  Business Owner — Sell on the platform' },
-  { value: 'delivery',       label: '🚚  Delivery Rider — Earn from deliveries' },
-  { value: 'affiliate',      label: '🔗  Affiliate Partner — Earn commissions' },
-]
-
 export default function Register() {
   const navigate       = useNavigate()
   const [step, setStep] = useState(1) // 1=details, 2=verify
@@ -25,7 +18,7 @@ export default function Register() {
 
   const [form, setForm] = useState({
     name: '', email: '', password: '', phone: '',
-    role: 'buyer', assignedState: STATE_OPTIONS[1].value,
+    assignedState: STATE_OPTIONS[0].value,
   })
 
   const set = (key) => (e) => {
@@ -48,8 +41,13 @@ export default function Register() {
 
     setLoad(true)
     try {
-      // Backend will force role="buyer" regardless of what we send
-      await authApi.signup(form)
+      await authApi.signup({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        phone: form.phone,
+        assignedState: form.assignedState,
+      })
       toast.success('Account created! Check your email for a verification code.')
       setStep(2)
     } catch (err) {
@@ -103,7 +101,7 @@ export default function Register() {
           </h1>
           <p className="font-body text-text-m text-sm">
             {step === 1
-              ? 'Create your free account in seconds'
+              ? 'Create your free shopper account in seconds'
               : `We sent a 6-digit code to ${form.email}`}
           </p>
         </div>
@@ -153,10 +151,7 @@ export default function Register() {
                 {errors.password && <p className="text-xs text-danger">{errors.password}</p>}
               </div>
 
-              <Select label="I am a..." value={form.role}
-                onChange={set('role')} options={ROLE_OPTIONS} />
-
-              <Select label="My Region" value={form.assignedState}
+              <Select label="My Market" value={form.assignedState}
                 onChange={set('assignedState')} options={STATE_OPTIONS} />
 
               <Button type="submit" variant="primary" loading={loading} className="w-full"
@@ -193,6 +188,9 @@ export default function Register() {
           )}
 
           <div className="mt-5 pt-4 border-t border-border text-center">
+            <p className="font-body text-xs text-text-d mb-3">
+              Merchants, riders, affiliate officers and Gimbiya staff: accounts are created for you by Gimbiya. Use Sign in.
+            </p>
             <p className="font-body text-sm text-text-m">
               Already have an account?{' '}
               <Link to="/login" className="text-brass hover:text-brass-l font-semibold transition-colors">

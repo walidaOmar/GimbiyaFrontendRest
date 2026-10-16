@@ -128,7 +128,7 @@ export default function MallCart() {
             <span className="text-text-m text-sm">Total</span>
             <span className="font-display text-xl font-bold text-brass">{formatNaira(cart.total())}</span>
           </div>
-          <p className="text-[11px] text-text-d">Stock is confirmed by each merchant — availability is subject to confirmation.</p>
+          <p className="text-[11px] text-text-d">Stock is reserved when you place the order. Unpaid orders are released after 30 minutes.</p>
           <button className="btn btn-primary w-full" disabled={busy} onClick={checkout}>
             {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Place order'}
           </button>
