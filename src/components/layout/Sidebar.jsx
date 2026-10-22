@@ -6,7 +6,7 @@ import {
   BarChart3, TrendingUp, Warehouse, MapPin,
   Link2, FileCheck, ChevronRight, ShieldCheck, Ticket, Repeat, Search,
   Wallet, Store, ClipboardList, ShoppingBag,
-  Target, UserPlus, Building2, ChevronDown,
+  Target, UserPlus, Building2, ChevronDown, Percent, Mail,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore.js'
 import { GlowDot }     from '../ui/index.jsx'
@@ -17,7 +17,10 @@ const PROPERTY_MODULE_ENABLED = import.meta.env.VITE_ENABLE_PROPERTY_MODULE === 
 const NAV_CONFIG = {
   super_admin: [
     { label: 'Executive Overview', path: '/dashboard/hq', icon: LayoutDashboard },
+    { label: 'Revenue Architecture', path: '/dashboard/hq/revenue', icon: Percent },
     { label: 'Waiver Quotas', path: '/dashboard/hq/waivers', icon: Ticket },
+    { label: 'Affiliate Performance', path: '/dashboard/hq/affiliate-performance', icon: TrendingUp },
+    { label: 'Invitations', path: '/dashboard/hq/invites', icon: Mail },
     { label: 'Users', path: '/dashboard/hq/users', icon: Users },
     { label: 'Stores', path: '/dashboard/hq/stores', icon: Warehouse },
     { label: 'Pending Stores', path: '/dashboard/hq/pending', icon: ClipboardList },
@@ -36,6 +39,8 @@ const NAV_CONFIG = {
     { label: 'Allocation', path: '/dashboard/coordinator/allocations', icon: Wallet },
     { label: 'Relationships', path: '/dashboard/coordinator/relationships', icon: Repeat },
     { label: 'Performance', path: '/dashboard/coordinator/performance', icon: TrendingUp },
+    { label: 'Affiliate Performance', path: '/dashboard/coordinator/affiliate-performance', icon: Target },
+    { label: 'Invitations', path: '/dashboard/coordinator/invites', icon: Mail },
     { label: 'Reports', path: '/dashboard/coordinator/reports', icon: ClipboardList },
     { label: 'Request a Store', path: '/dashboard/stores/onboard', icon: Building2 },
     { label: 'Staff', path: '/dashboard/coordinator/staff', icon: UserPlus },

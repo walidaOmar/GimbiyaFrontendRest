@@ -65,7 +65,7 @@ export default function Register() {
     }
     setVLoad(true)
     try {
-      await authApi.verifyEmail(verifyCode)
+      await authApi.verifyEmail(verifyCode, form.email)
       toast.success('Email verified! Welcome to Gimbiya Mall.')
       navigate('/login', { replace: true })
     } catch (err) {

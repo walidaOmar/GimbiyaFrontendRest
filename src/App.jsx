@@ -21,6 +21,10 @@ const MerchantDashboard= lazy(() => import('./pages/dashboards/Merchant.jsx'))
 const CheckoutPaymentPanel = lazy(() => import('./pages/dashboards/CheckoutPaymentPanel.jsx').then(m => ({ default: m.CheckoutPaymentPanel })))
 const StockDashboard   = lazy(() => import('./pages/dashboards/operations/StockDashboard.jsx').then(m => ({ default: m.StockDashboard })))
 const RiderDashboard   = lazy(() => import('./pages/dashboards/operations/RiderDashboard.jsx').then(m => ({ default: m.RiderDashboard })))
+const AcceptInvite     = lazy(() => import('./pages/auth/AcceptInvite.jsx'))
+const HQRevenue        = lazy(() => import('./pages/portals/hq/HQRevenue.jsx'))
+const InvitesPage      = lazy(() => import('./pages/portals/hq/Invites.jsx'))
+const AffiliatePerformance = lazy(() => import('./pages/portals/coordinator/AffiliatePerformance.jsx'))
 const AffiliateDashboard = lazy(() => import('./pages/dashboards/AffiliateTrackingDashboard.jsx'))
 const CoordinatorDashboard = lazy(() => import('./pages/dashboards/CoordinatorTrackingDashboard.jsx'))
 const PROPERTY_MODULE_ENABLED = import.meta.env.VITE_ENABLE_PROPERTY_MODULE === 'true'
@@ -141,6 +145,7 @@ export default function App() {
               <Route path="/" element={<PublicLayout><Landing /></PublicLayout>} />
               <Route path="/login" element={<RequireGuest><PublicLayout><Login /></PublicLayout></RequireGuest>} />
               <Route path="/register" element={<RequireGuest><PublicLayout><Register /></PublicLayout></RequireGuest>} />
+              <Route path="/invite/:token" element={<PublicLayout><AcceptInvite /></PublicLayout>} />
               <Route path="/forgot-password" element={<PublicLayout><ForgotPassword /></PublicLayout>} />
               <Route path="/reset-password/:token" element={<PublicLayout><ResetPassword /></PublicLayout>} />
               <Route path="/unauthorized" element={<PublicLayout><div className="min-h-[70vh] flex items-center justify-center"><div className="card text-center"><p className="section-label mb-2">Access denied</p><h1 className="font-display text-2xl font-bold">Unauthorized</h1><p className="text-text-m mt-2">Your role cannot access this dashboard.</p></div></div></PublicLayout>} />
@@ -156,6 +161,9 @@ export default function App() {
                 <Route path="hq/pending" element={<RequireAuth roles={CEO_ROLES}><HqStoresPage /></RequireAuth>} />
                 <Route path="hq/users" element={<RequireAuth roles={CEO_ROLES}><HqUsersPage /></RequireAuth>} />
                 <Route path="hq/waivers" element={<RequireAuth roles={CEO_ROLES}><HqWaiverQuotaPage /></RequireAuth>} />
+                <Route path="hq/revenue" element={<RequireAuth roles={CEO_ROLES}><HQRevenue /></RequireAuth>} />
+                <Route path="hq/invites" element={<RequireAuth roles={CEO_ROLES}><InvitesPage /></RequireAuth>} />
+                <Route path="hq/affiliate-performance" element={<RequireAuth roles={CEO_ROLES}><AffiliatePerformance /></RequireAuth>} />
                 <Route path="coordinator" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
                 <Route path="coordinator/stores" element={<RequireAuth roles={COORDINATOR_ROLES}><Storefronts /></RequireAuth>} />
                 <Route path="coordinator/staff" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
@@ -194,6 +202,8 @@ export default function App() {
                 <Route path="coordinator/allocations" element={<RequireAuth roles={COORDINATOR_ROLES}><Allocations /></RequireAuth>} />
                 <Route path="coordinator/relationships" element={<RequireAuth roles={COORDINATOR_ROLES}><RegionalRelationships /></RequireAuth>} />
                 <Route path="coordinator/performance" element={<RequireAuth roles={COORDINATOR_ROLES}><RegionalPerformance /></RequireAuth>} />
+                <Route path="coordinator/invites" element={<RequireAuth roles={COORDINATOR_ROLES}><InvitesPage /></RequireAuth>} />
+                <Route path="coordinator/affiliate-performance" element={<RequireAuth roles={COORDINATOR_ROLES}><AffiliatePerformance /></RequireAuth>} />
                 <Route path="coordinator/reports" element={<RequireAuth roles={COORDINATOR_ROLES}><RegionalReports /></RequireAuth>} />
                 <Route path="mall" element={<RequireAuth roles={BUYER_ROLES}><BuyerDashboard /></RequireAuth>} />
               </Route>
