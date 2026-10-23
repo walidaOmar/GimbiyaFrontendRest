@@ -6,6 +6,11 @@ import { getRegionLabel } from '../../../config/regions.js'
 import { PageHeader, QueryState } from '../../../components/ui/Polish.jsx'
 import { Card, Button, Badge } from '../../../components/ui/index.jsx'
 
+const PRECEDENCE_OPTIONS = [
+  { value: 'wholesale,level2,node', label: 'Wholesale rate first, then Level 2, then the node rate (recommended)' },
+  { value: 'level2,wholesale,node', label: 'Level 2 rate first, then wholesale, then the node rate' },
+  { value: 'node,wholesale,level2', label: 'Always the node rate (ignore wholesale and Level 2 rates)' },
+]
 const SPLIT_PARTS = [['affiliate', 'Affiliate'], ['platform', 'Platform'], ['merchant', 'Merchant'], ['rider', 'Rider']]
 const sum = (obj) => SPLIT_PARTS.reduce((total, [key]) => total + (Number(obj?.[key]) || 0), 0)
 
@@ -27,6 +32,8 @@ function toForm(config) {
     level2: config.level2CommissionPct,
     wholesale: config.wholesaleCommissionPct,
     fee: config.platformFeePct,
+    deliveryNaira: (config.deliveryFeeKobo ?? 150000) / 100,
+    precedence: (config.ratePrecedence || ['wholesale', 'level2', 'node']).join(','),
     referred: { ...config.splitReferred },
     organic: { ...config.splitOrganic },
     proNaira: config.subscription.proKobo / 100,
@@ -65,6 +72,8 @@ export default function HQRevenue() {
     level2CommissionPct: Number(form.level2),
     wholesaleCommissionPct: Number(form.wholesale),
     platformFeePct: Number(form.fee),
+    deliveryFeeKobo: Math.round(Number(form.deliveryNaira) * 100),
+    ratePrecedence: form.precedence.split(','),
     splitReferred: Object.fromEntries(SPLIT_PARTS.map(([key]) => [key, Number(form.referred[key])])),
     splitOrganic: Object.fromEntries(SPLIT_PARTS.map(([key]) => [key, Number(form.organic[key])])),
     subscription: { basicKobo: 0, proKobo: Math.round(Number(form.proNaira) * 100), legendaryKobo: Math.round(Number(form.legendaryNaira) * 100) },
@@ -81,8 +90,9 @@ export default function HQRevenue() {
       />
 
       <Card className="mb-5 border-brass/30 text-sm text-text-m">
-        Commission rates (node, Level 2, wholesale) apply to <b>new orders immediately</b>. The 1.5% platform fee, the commission pool
-        splits and the subscription prices are saved here as the agreed policy, but are <b>not yet applied to payouts</b>.
+        Everything here applies to <b>new listings and new orders as soon as you publish</b>: commission rates (they set the customer price when a
+        merchant lists or edits a product), the platform fee, the delivery fee, the commission pool splits and subscription prices. Orders already placed keep the
+        rates they were priced with.
       </Card>
 
       <QueryState query={current} rows={4}>
@@ -100,6 +110,15 @@ export default function HQRevenue() {
                 <NumberField label="Level 2 floors (all nodes)" suffix="%" value={form.level2} onChange={(value) => set({ level2: value })} />
                 <NumberField label="Wholesale" suffix="%" value={form.wholesale} onChange={(value) => set({ wholesale: value })} />
                 <NumberField label="Platform transaction fee" suffix="%" value={form.fee} onChange={(value) => set({ fee: value })} />
+              </div>
+              <div className="grid gap-4 md:grid-cols-3 mt-4">
+                <NumberField label="Delivery fee per product part (paid to the rider)" suffix="₦" step="50" value={form.deliveryNaira} onChange={(v) => set({ deliveryNaira: v })} />
+                <label className="block md:col-span-2">
+                  <span className="input-label">When more than one commission rate could apply, which one wins?</span>
+                  <select className="input" value={form.precedence} onChange={(e) => set({ precedence: e.target.value })}>
+                    {PRECEDENCE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </label>
               </div>
             </Card>
 

@@ -15,29 +15,43 @@ export const useCartV2 = create(persist(
       if (ownerId && ownerId !== userId) set({ ownerId: userId, items: [] })
       else if (!ownerId) set({ ownerId: userId })
     },
-    add: (product, quantity = 1) => set((state) => {
+    // One cart = one market. Returns { ok, message } so the caller can show the reason.
+    add: (product, quantity = 1) => {
+      const state = get()
+      const node = state.items[0]?.assignedState
+      if (node && product.assignedState && node !== product.assignedState) {
+        return { ok: false, message: `Your cart already has items from ${node}. Check out or clear it before shopping in ${product.assignedState}.` }
+      }
+      const minQty = product.minimumOrderQuantity || 1
       const found = state.items.find((item) => item.productId === product._id)
+      const nextQty = Math.max(minQty, (found?.quantity || 0) + quantity)
+      if (product.stock != null && nextQty > product.stock) return { ok: false, message: `Only ${product.stock} available.` }
       if (found) {
-        return {
-          items: state.items.map((item) => item.productId === product._id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item),
-        }
+        set({ items: state.items.map((item) => item.productId === product._id ? { ...item, quantity: nextQty } : item) })
+      } else {
+        set({
+          items: [...state.items, {
+            productId: product._id,
+            name: product.name,
+            priceKobo: product.priceKobo,
+            imageUrl: product.imageUrls?.[0] || product.imageUrl,
+            assignedState: product.assignedState,
+            minimumOrderQuantity: minQty,
+            stock: product.stock,
+            quantity: nextQty,
+            services: [],
+          }],
+        })
       }
-      return {
-        items: [...state.items, {
-          productId: product._id,
-          name: product.name,
-          priceKobo: product.priceKobo,
-          imageUrl: product.imageUrls?.[0] || product.imageUrl,
-          quantity,
-          services: [],
-        }],
-      }
-    }),
+      return { ok: true }
+    },
     setQty: (productId, quantity) => {
+      const item = get().items.find((entry) => entry.productId === productId)
+      const minQty = item?.minimumOrderQuantity || 1
       if (quantity < 1) return get().remove(productId)
-      set((state) => ({ items: state.items.map((item) => item.productId === productId ? { ...item, quantity } : item) }))
+      const next = Math.max(minQty, quantity)
+      if (item?.stock != null && next > item.stock) { toast.error(`Only ${item.stock} available.`); return }
+      set((state) => ({ items: state.items.map((entry) => entry.productId === productId ? { ...entry, quantity: next } : entry) }))
     },
     remove: async (productId) => {
       const item = get().items.find((entry) => entry.productId === productId)
@@ -49,15 +63,18 @@ export const useCartV2 = create(persist(
           return false
         }
       }
-      set((state) => ({ items: state.items.filter((item) => item.productId !== productId) }))
+      set((state) => ({ items: state.items.filter((entry) => entry.productId !== productId) }))
       return true
     },
     setCartItemId: (productId, cartItemId) => set((state) => ({
       items: state.items.map((item) => item.productId === productId ? { ...item, cartItemId } : item),
     })),
-    addService: (productId, service) => set((state) => ({
-      items: state.items.map((item) => item.productId === productId ? { ...item, services: [...item.services, service] } : item),
-    })),
+    addService: (productId, service) => {
+      const item = get().items.find((entry) => entry.productId === productId)
+      if (item?.services.some((entry) => entry.offeringId === service.offeringId)) return { ok: false, message: 'That service is already on this item.' }
+      set((state) => ({ items: state.items.map((entry) => entry.productId === productId ? { ...entry, services: [...entry.services, service] } : entry) }))
+      return { ok: true }
+    },
     removeService: async (productId, offeringId) => {
       const item = get().items.find((entry) => entry.productId === productId)
       const serviceIndex = item?.services.findIndex((service) => service.offeringId === offeringId) ?? -1

@@ -6,7 +6,7 @@ import {
   BarChart3, TrendingUp, Warehouse, MapPin,
   Link2, FileCheck, ChevronRight, ShieldCheck, Ticket, Repeat, Search,
   Wallet, Store, ClipboardList, ShoppingBag,
-  Target, UserPlus, Building2, ChevronDown, Percent, Mail,
+  Target, UserPlus, Building2, ChevronDown, Percent, Mail, CreditCard, Wrench, Banknote, BadgeCheck,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore.js'
 import { GlowDot }     from '../ui/index.jsx'
@@ -21,6 +21,8 @@ const NAV_CONFIG = {
     { label: 'Waiver Quotas', path: '/dashboard/hq/waivers', icon: Ticket },
     { label: 'Affiliate Performance', path: '/dashboard/hq/affiliate-performance', icon: TrendingUp },
     { label: 'Invitations', path: '/dashboard/hq/invites', icon: Mail },
+    { label: 'Merchants to Approve', path: '/dashboard/hq/merchants', icon: BadgeCheck },
+    { label: 'Withdrawals', path: '/dashboard/hq/withdrawals', icon: Banknote },
     { label: 'Users', path: '/dashboard/hq/users', icon: Users },
     { label: 'Stores', path: '/dashboard/hq/stores', icon: Warehouse },
     { label: 'Pending Stores', path: '/dashboard/hq/pending', icon: ClipboardList },
@@ -41,6 +43,7 @@ const NAV_CONFIG = {
     { label: 'Performance', path: '/dashboard/coordinator/performance', icon: TrendingUp },
     { label: 'Affiliate Performance', path: '/dashboard/coordinator/affiliate-performance', icon: Target },
     { label: 'Invitations', path: '/dashboard/coordinator/invites', icon: Mail },
+    { label: 'Merchants Awaiting HQ', path: '/dashboard/coordinator/merchants', icon: BadgeCheck },
     { label: 'Reports', path: '/dashboard/coordinator/reports', icon: ClipboardList },
     { label: 'Request a Store', path: '/dashboard/stores/onboard', icon: Building2 },
     { label: 'Staff', path: '/dashboard/coordinator/staff', icon: UserPlus },
@@ -52,6 +55,12 @@ const NAV_CONFIG = {
     { label: 'Settlement', path: '/dashboard/merchant/settlement', icon: TrendingUp },
     { label: 'Analytics', path: '/dashboard/merchant/analytics', icon: BarChart3 },
     { label: 'Product Manager', path: '/dashboard/product-manager', icon: Package },
+    { label: 'My Services', path: '/dashboard/merchant/services', icon: Wrench },
+    { label: 'Wallet', path: '/dashboard/wallet', icon: Wallet },
+    { label: 'Plan and Limits', path: '/dashboard/merchant/subscription', icon: CreditCard },
+    { label: 'Invite Staff', path: '/dashboard/merchant/invites', icon: Mail },
+    { label: 'Buy from Marketplace', path: '/marketplace', icon: ShoppingBag },
+    { label: 'My Purchases', path: '/orders', icon: ShoppingCart },
   ],
   property_admin: [{ label: 'Portfolio', path: '/dashboard/property-admin', icon: LayoutDashboard }],
   deal_initiator: [{ label: 'My Deals', path: '/dashboard/deal-initiator', icon: Target }],
@@ -64,6 +73,7 @@ const NAV_CONFIG = {
     { label: 'Available Jobs', path: '/dashboard/rider', icon: Truck },
     { label: 'My Deliveries', path: '/dashboard/rider/active', icon: MapPin },
     { label: 'Legacy Orders', path: '/dashboard/rider/legacy', icon: Package },
+    { label: 'Wallet', path: '/dashboard/wallet', icon: Wallet },
   ],
   affiliate: [
     { label: 'Overview', path: '/dashboard/affiliate', icon: LayoutDashboard },
@@ -73,17 +83,20 @@ const NAV_CONFIG = {
     { label: 'Retention', path: '/dashboard/affiliate/retention', icon: ShieldCheck },
     { label: 'Campaigns', path: '/dashboard/affiliate/campaigns', icon: Link2 },
     { label: 'Payouts', path: '/dashboard/affiliate/payouts', icon: TrendingUp },
+    { label: 'Wallet', path: '/dashboard/wallet', icon: Wallet },
+    { label: 'Invite Retailers', path: '/dashboard/affiliate/invites', icon: Mail },
+    { label: 'Marketplace', path: '/marketplace', icon: ShoppingBag },
   ],
   buyer: [
-    { label: 'My Orders', path: '/dashboard/mall', icon: ShoppingCart },
-    { label: 'Cart', path: '/dashboard/mall/cart', icon: ShoppingBag },
+    { label: 'My Orders', path: '/orders', icon: ShoppingCart },
+    { label: 'Cart', path: '/cart', icon: ShoppingBag },
     { label: 'Public ID', path: '/dashboard/mall/public-id', icon: ShieldCheck },
     { label: 'Marketplace', path: '/marketplace', icon: Package },
   ],
 }
 
 NAV_CONFIG.ceo = NAV_CONFIG.super_admin.map((item) => ({ ...item }))
-NAV_CONFIG.manager = NAV_CONFIG.business_owner
+NAV_CONFIG.manager = NAV_CONFIG.business_owner.filter((item) => !['/dashboard/merchant/subscription', '/dashboard/merchant/invites', '/dashboard/wallet', '/dashboard/merchant/services'].includes(item.path))
 const DESK_NAV = [
   { label: 'Desk Overview', path: '/dashboard/desk', icon: LayoutDashboard },
   { label: 'Public ID Lookup', path: '/dashboard/desk/public-id-lookup', icon: Search },

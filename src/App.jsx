@@ -37,6 +37,13 @@ const StaffManagement = lazy(() => import('./pages/dashboards/StaffManagement.js
 const StaffOnboarding = lazy(() => import('./pages/dashboards/StaffOnboarding.jsx'))
 const StoreOnboarding = lazy(() => import('./pages/dashboards/StoreOnboarding.jsx'))
 const MallCart = lazy(() => import('./pages/portals/mall/MallCart.jsx'))
+const MyOrdersPage = lazy(() => import('./pages/portals/mall/Orders.jsx').then((m) => ({ default: m.MyOrdersPage })))
+const OrderStatusPage = lazy(() => import('./pages/portals/mall/Orders.jsx').then((m) => ({ default: m.OrderStatusPage })))
+const WalletPage = lazy(() => import('./pages/portals/shared/Wallet.jsx'))
+const SubscriptionPage = lazy(() => import('./pages/portals/merchant/Subscription.jsx'))
+const ServicesManager = lazy(() => import('./pages/portals/merchant/ServicesManager.jsx'))
+const WithdrawalsPage = lazy(() => import('./pages/portals/hq/Withdrawals.jsx'))
+const PendingMerchants = lazy(() => import('./pages/portals/hq/PendingMerchants.jsx'))
 const PublicIdKyc = lazy(() => import('./pages/portals/mall/PublicIdKyc.jsx'))
 const RelationshipsPage = lazy(() => import('./pages/portals/affiliate/Relationships.jsx').then((module) => ({ default: module.RelationshipsPage })))
 const MarketVisitsPage = lazy(() => import('./pages/portals/affiliate/Relationships.jsx').then((module) => ({ default: module.MarketVisitsPage })))
@@ -77,6 +84,8 @@ const STOCK_ROLES = ['stock_manager']
 const RIDER_ROLES = ['delivery']
 const AFFILIATE_ROLES = ['affiliate']
 const BUYER_ROLES = ['buyer']
+const OWNER_ROLES = ['business_owner']
+const EARNER_ROLES = ['business_owner', 'delivery', 'affiliate']
 
 // ── Query client ──────────────────────────────────────────────────────────────
 const queryClient = new QueryClient({
@@ -126,7 +135,7 @@ function DeepLinkHandler() {
     }
 
     if (productId) {
-      navigate(`/product/${productId}?ref=${ref || ''}`)
+      navigate('/marketplace')
     }
   }, [location, navigate])
 
@@ -162,6 +171,14 @@ export default function App() {
                 <Route path="hq/users" element={<RequireAuth roles={CEO_ROLES}><HqUsersPage /></RequireAuth>} />
                 <Route path="hq/waivers" element={<RequireAuth roles={CEO_ROLES}><HqWaiverQuotaPage /></RequireAuth>} />
                 <Route path="hq/revenue" element={<RequireAuth roles={CEO_ROLES}><HQRevenue /></RequireAuth>} />
+                <Route path="hq/withdrawals" element={<RequireAuth roles={CEO_ROLES}><WithdrawalsPage /></RequireAuth>} />
+                <Route path="hq/merchants" element={<RequireAuth roles={CEO_ROLES}><PendingMerchants /></RequireAuth>} />
+                <Route path="coordinator/merchants" element={<RequireAuth roles={COORDINATOR_ROLES}><PendingMerchants /></RequireAuth>} />
+                <Route path="merchant/invites" element={<RequireAuth roles={OWNER_ROLES}><InvitesPage /></RequireAuth>} />
+                <Route path="merchant/subscription" element={<RequireAuth roles={OWNER_ROLES}><SubscriptionPage /></RequireAuth>} />
+                <Route path="merchant/services" element={<RequireAuth roles={OWNER_ROLES}><ServicesManager /></RequireAuth>} />
+                <Route path="affiliate/invites" element={<RequireAuth roles={AFFILIATE_ROLES}><InvitesPage /></RequireAuth>} />
+                <Route path="wallet" element={<RequireAuth roles={EARNER_ROLES}><WalletPage /></RequireAuth>} />
                 <Route path="hq/invites" element={<RequireAuth roles={CEO_ROLES}><InvitesPage /></RequireAuth>} />
                 <Route path="hq/affiliate-performance" element={<RequireAuth roles={CEO_ROLES}><AffiliatePerformance /></RequireAuth>} />
                 <Route path="coordinator" element={<RequireAuth roles={COORDINATOR_ROLES}><CoordinatorDashboard /></RequireAuth>} />
@@ -214,7 +231,9 @@ export default function App() {
 
               {/* Shop routes */}
               <Route path="/shop" element={<PublicLayout><BuyerDashboard /></PublicLayout>} />
-              <Route path="/cart" element={<RequireAuth><PublicLayout><BuyerDashboard /></PublicLayout></RequireAuth>} />
+              <Route path="/cart" element={<RequireAuth><PublicLayout><div className="max-w-5xl mx-auto px-4 md:px-6 py-8"><MallCart /></div></PublicLayout></RequireAuth>} />
+              <Route path="/orders" element={<RequireAuth><PublicLayout><MyOrdersPage /></PublicLayout></RequireAuth>} />
+              <Route path="/orders/:orderRef/status" element={<RequireAuth><PublicLayout><OrderStatusPage /></PublicLayout></RequireAuth>} />
               <Route path="/checkout/payment/:orderId" element={<RequireAuth roles={BUYER_ROLES}><CheckoutPaymentRoute /></RequireAuth>} />
 
               {/* 404 */}

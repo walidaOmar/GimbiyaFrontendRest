@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useAuthStore }  from '../../store/authStore.js'
 import { useMallStore }  from '../../store/mallStore.js'
+import { useCartV2 }     from '../../store/cartV2Store.js'
 import { STATE_OPTIONS } from '../../config/regions.js'
 import { ROLE_ROUTES }   from '../../context/AuthContext.jsx'
 import { PublicIdBadge } from '../users/PublicIdBadge.jsx'
@@ -18,7 +19,8 @@ export function Navbar() {
   const navigate            = useNavigate()
   const location            = useLocation()
   const { user, logout }    = useAuthStore()
-  const { cartItems, selectedState, setSelectedState } = useMallStore()
+  const { selectedState, setSelectedState } = useMallStore()
+  const cartCount = useCartV2((s) => s.items.reduce((sum, item) => sum + item.quantity, 0))
   const [menuOpen, setMenu] = useState(false)
   const [userMenu, setUser] = useState(false)
 
@@ -27,7 +29,6 @@ export function Navbar() {
     setUser(false)
   }, [location.pathname])
 
-  const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0)
   const isDashboard = location.pathname.startsWith('/dashboard')
 
   const handleLogout = async () => {
@@ -94,8 +95,8 @@ export function Navbar() {
         {/* ── Right Actions ── */}
         <div className="flex items-center gap-1 sm:gap-2 ml-auto flex-shrink-0">
 
-          {/* Cart — buyer only */}
-          {user?.role === 'buyer' && (
+          {/* Cart: every signed-in shopper (retailers and wholesalers buy stock too), not desk staff */}
+          {user && !['support', 'auditor'].includes(user.role) && (
             <Link
               to="/cart"
               className="relative btn-icon"

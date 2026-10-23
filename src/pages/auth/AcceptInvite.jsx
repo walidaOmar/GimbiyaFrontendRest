@@ -8,7 +8,7 @@ import { Button, Input, Spinner } from '../../components/ui/index.jsx'
 export default function AcceptInvite() {
   const { token } = useParams()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', phone: '', password: '', confirm: '', residentState: '' })
+  const [form, setForm] = useState({ name: '', phone: '', password: '', confirm: '', residentState: '', nin: '', cacNumber: '', tinNumber: '', businessAddress: '', homeAddress: '' })
   const [saving, setSaving] = useState(false)
 
   const preview = useQuery({
@@ -31,6 +31,7 @@ export default function AcceptInvite() {
         phone: form.phone,
         password: form.password,
         residentState: invite.needsResidence ? form.residentState : undefined,
+        ...(invite.needsBusinessDetails ? { nin: form.nin, cacNumber: form.cacNumber, tinNumber: form.tinNumber, businessAddress: form.businessAddress, homeAddress: form.homeAddress, businessPhone: form.phone } : {}),
       })
       toast.success('Account created. Please sign in.')
       navigate('/login', { replace: true })
@@ -72,6 +73,17 @@ export default function AcceptInvite() {
                 <span className="input-label">Coordinators must live in {invite.stateName}. Which state do you live in?</span>
                 <input className="input" value={form.residentState} onChange={set('residentState')} placeholder={invite.stateName} required />
               </label>
+            )}
+
+            {invite.needsBusinessDetails && (
+              <div className="space-y-4 rounded-btn border border-border p-3">
+                <p className="text-sm text-text-m">{invite.businessTypeLabel}: <b className="text-text-p">{invite.businessName}</b>. HQ checks these details before your store can sell.</p>
+                <Input label="NIN" required value={form.nin} onChange={set('nin')} />
+                <Input label="CAC registration number" required value={form.cacNumber} onChange={set('cacNumber')} />
+                <Input label="Tax ID (TIN)" required value={form.tinNumber} onChange={set('tinNumber')} />
+                <Input label="Business address" required value={form.businessAddress} onChange={set('businessAddress')} />
+                <Input label="Home address" required value={form.homeAddress} onChange={set('homeAddress')} />
+              </div>
             )}
 
             <Input label="Password (8+ characters)" type="password" required autoComplete="new-password" value={form.password} onChange={set('password')} />
